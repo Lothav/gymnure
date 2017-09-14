@@ -6,6 +6,8 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CORE_MAIN_FILE src/main.cpp)
 
 include_directories(include include/)
+include_directories(include engine/)
+include_directories(include external/)
 
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -37,6 +39,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 file(GLOB_RECURSE HEADER_FILES include/*)
+file(GLOB_RECURSE CORE_HEADER_FILES engine/*)
+file(GLOB_RECURSE EXTERNAL_HEADER_FILES engine/* external/*)
 
 set(EXECUTABLE_OUTPUT_PATH bin)
 
@@ -86,5 +90,5 @@ endforeach()
 
 list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
 
-add_executable(core ${CORE_MAIN_FILE} ${HEADER_FILES})
+add_executable(core ${CORE_MAIN_FILE} ${CORE_HEADER_FILES} ${EXTERNAL_HEADER_FILES})
 target_link_libraries(core ${XCB_LIBRARIES} ${Vulkan_LIBRARY})
