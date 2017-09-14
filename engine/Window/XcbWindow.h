@@ -28,9 +28,9 @@ namespace Engine
 			xcb_window_t 							window;
 			xcb_connection_t*						connection;
 
-			std::array<float, 3>						camera_eye;
-			std::array<float, 3>						camera_center;
-			std::array<float, 3>						camera_up;
+			std::array<float, 3>						camera_eye = {};
+			std::array<float, 3>						camera_center = {};
+			std::array<float, 3>						camera_up = {};
 
 			void setConnection()
 			{
@@ -121,48 +121,16 @@ namespace Engine
 				this->createWindow();
 				this->createSurface();
 				this->initGraphicPipeline();
-
-				/* Fist Data */
-				createCommandBuffer();
-				pushTexture("../../assets/medivh.jpg");
-				std::vector<VertexData> vertexData =
-					{
-						{ { -4.0f,  3.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ { -4.0f, -3.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ {  4.0f,  3.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-
-						{ {  4.0f,  3.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ { -4.0f, -3.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ {  4.0f, -3.0f, 0.0f }, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
-					};
-				pushVertex(vertexData);
-				recordCommandBuffer();
-
-				/* Second Data */
-				createCommandBuffer();
-				pushTexture("../../assets/wahre.png");
-				std::vector<VertexData> vertexData2 =
-					{
-						{ { -2.0f,  0.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-
-						{ {  1.0f,  1.0f, 0.0f }, { 1.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } },
-						{ {  1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f } }
-					};
-				pushVertex(vertexData2);
-				recordCommandBuffer();
-
-				camera_center   = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultCenter();
-				camera_eye      = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultEye();
-				camera_up       = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultUp();
 			}
 
 			WindowEvent poolEvent()
 			{
 				xcb_generic_event_t* e = nullptr;
 				//xcb_intern_atom_reply_t *atom_wm_delete_window = nullptr;
+
+				camera_center   = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultCenter();
+				camera_eye      = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultEye();
+				camera_up       = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultUp();
 
 				while ((e = xcb_poll_for_event(connection))) {
 					if ((e->response_type & ~0x80) == XCB_CLIENT_MESSAGE) {
@@ -179,7 +147,7 @@ namespace Engine
 						//return WindowEvent::ClickEnd;
 					} else if((e->response_type & ~0x80) == XCB_KEY_PRESS) {
 
-						xcb_key_press_event_t * kp = (xcb_key_press_event_t *)e;
+						xcb_key_press_event_t * kp = reinterpret_cast<xcb_key_press_event_t *>(e);
 
 						if( kp->detail == 'O'){
 							camera_center[0]-= 0.1f;

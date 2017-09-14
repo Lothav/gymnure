@@ -288,10 +288,11 @@ namespace Engine
 				sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
             }
 
-			void createCommandBuffer()
-			{
-				command_buffer.push_back( new CommandBuffers(device, queueFamilyIndex, command_pool) );
-			}
+        public:
+            void createCommandBuffer()
+            {
+                command_buffer.push_back( new CommandBuffers(device, queueFamilyIndex, command_pool) );
+            }
 
             void pushTexture(const char* path)
             {
@@ -311,36 +312,36 @@ namespace Engine
 
                 graphic_pipeline.push_back( new GraphicPipeline::GraphicPipeline(device) );
                 graphic_pipeline[ cm_count ]->
-						create( descriptor_set[ cm_count ]->getPipelineLayout(), render_pass->getRenderPass() );
+                        create( descriptor_set[ cm_count ]->getPipelineLayout(), render_pass->getRenderPass() );
             }
 
-			void pushVertex(std::vector<VertexData> vertexData)
-			{
-				struct BufferData vertexBufferData = {};
+            void pushVertex(std::vector<VertexData> vertexData)
+            {
+                struct BufferData vertexBufferData = {};
 
-				vertexBufferData.device            = device;
-				vertexBufferData.usage             = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-				vertexBufferData.physicalDevice    = gpu_vector[0];
-				vertexBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-				vertexBufferData.size              = vertexData.size() * sizeof(VertexData);
+                vertexBufferData.device            = device;
+                vertexBufferData.usage             = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+                vertexBufferData.physicalDevice    = gpu_vector[0];
+                vertexBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+                vertexBufferData.size              = vertexData.size() * sizeof(VertexData);
 
-				vertex_buffer.push_back( new Vertex::VertexBuffer(vertexBufferData, vertexData) );
-			}
+                vertex_buffer.push_back( new Vertex::VertexBuffer(vertexBufferData, vertexData) );
+            }
 
             void recordCommandBuffer()
             {
                 command_buffer[ cm_count ]
-                    ->bindCommandBuffer (
-                        render_pass,
-                        descriptor_set[ cm_count ],
-                        graphic_pipeline[ cm_count ]->getPipeline(),
-                        static_cast<uint32_t>(width),
-                        static_cast<uint32_t>(height),
-                        sync_primitives,
-                        vertex_buffer[ cm_count ]
-                    );
+                        ->bindCommandBuffer (
+                                render_pass,
+                                descriptor_set[ cm_count ],
+                                graphic_pipeline[ cm_count ]->getPipeline(),
+                                static_cast<uint32_t>(width),
+                                static_cast<uint32_t>(height),
+                                sync_primitives,
+                                vertex_buffer[ cm_count ]
+                        );
 
-				cm_count++;
+                cm_count++;
             }
 
         };
