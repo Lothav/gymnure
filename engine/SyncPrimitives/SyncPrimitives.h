@@ -9,7 +9,7 @@
 #include <assert.h>
 #include "vulkan/vulkan.h"
 
-namespace Gymnure
+namespace Engine
 {
 	namespace SyncPrimitives
 	{

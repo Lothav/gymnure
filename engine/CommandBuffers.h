@@ -5,7 +5,6 @@
 #ifndef OBSIDIAN2D_COMMANDBUFFERS_H
 #define OBSIDIAN2D_COMMANDBUFFERS_H
 
-#include <Obsidian2D/Renderer/vulkan/vulkan.h>
 #include <vector>
 #include <assert.h>
 #include "RenderPass/RenderPass.h"
@@ -13,7 +12,7 @@
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "Vertex/VertexBuffer.h"
 
-namespace Gymnure
+namespace Engine
 {
 	class CommandBuffers
 	{

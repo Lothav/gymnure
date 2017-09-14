@@ -15,7 +15,7 @@ struct BufferData {
     VkFlags             properties;
 };
 
-namespace Gymnure
+namespace Engine
 {
 	namespace Memory
 	{

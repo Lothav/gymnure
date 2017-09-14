@@ -21,7 +21,7 @@ struct SwapChainParams {
 	VkPhysicalDeviceMemoryProperties 		memory_props;
 };
 
-namespace Gymnure
+namespace Engine
 {
 	namespace RenderPass
 	{

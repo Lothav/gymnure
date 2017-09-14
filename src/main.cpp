@@ -1,4 +1,4 @@
-#include <Window/XcbWindow.h>
+#include "../gymnure.h"
 
 int main(int argc, char** argv) {
 
@@ -6,23 +6,15 @@ int main(int argc, char** argv) {
 		unsigned int windowWidth = 800;
 		unsigned int windowHeight = 600;
 
-		Gymnure::Window::XcbWindow* xcbWindow = new Gymnure::Window::XcbWindow(windowWidth, windowHeight);
-		xcbWindow->bootstrap();
+        Gymnure* gymnure = new Gymnure(windowWidth, windowHeight);
 
-		bool running = true;
-		while(running) {
-			while(WindowEvent e = xcbWindow->poolEvent()) {
-				if(e == WindowEvent::Close) {
-					running = false;
-				} else {
-				}
-			}
-			xcbWindow->draw();
-		}
+		while(1) {
+            if(!gymnure->draw()){
+                break;
+            }
+        }
 
-		delete xcbWindow;
-		xcbWindow = nullptr;
-
+		delete gymnure;
 		return (EXIT_SUCCESS);
 	}
 }

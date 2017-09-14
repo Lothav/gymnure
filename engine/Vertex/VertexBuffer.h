@@ -10,7 +10,7 @@
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 
-namespace Gymnure
+namespace Engine
 {
     namespace Vertex
     {

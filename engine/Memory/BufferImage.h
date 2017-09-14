@@ -22,7 +22,7 @@ struct MemoryProps {
     VkDevice device;
 };
 
-namespace Gymnure
+namespace Engine
 {
     namespace Memory
     {

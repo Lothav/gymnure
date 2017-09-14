@@ -7,7 +7,7 @@
 
 #include "Util/Util.h"
 
-namespace Gymnure
+namespace Engine
 {
 	namespace GraphicPipeline
 	{
@@ -53,13 +53,13 @@ namespace Gymnure
 
 				shaderStages[0].sType 		= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				shaderStages[0].stage 		= VK_SHADER_STAGE_VERTEX_BIT;
-				shaderStages[0].module 		= loadSPIRVShader(getAssetPath() + "shaders/triangle/vert.spv", _instance_device);
+				shaderStages[0].module 		= loadSPIRVShader("../../shaders/vert.spv", _instance_device);
 				shaderStages[0].pName 		= "main";
 				assert(shaderStages[0].module != VK_NULL_HANDLE);
 
 				shaderStages[1].sType 		= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				shaderStages[1].stage 		= VK_SHADER_STAGE_FRAGMENT_BIT;
-				shaderStages[1].module 		= loadSPIRVShader(getAssetPath() + "shaders/triangle/frag.spv", _instance_device);
+				shaderStages[1].module 		= loadSPIRVShader("../../shaders/frag.spv", _instance_device);
 				shaderStages[1].pName 		= "main";
 				assert(shaderStages[1].module != VK_NULL_HANDLE);
 

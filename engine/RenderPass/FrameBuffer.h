@@ -7,7 +7,7 @@
 
 #include "RenderPass/Swapchain.h"
 
-namespace Gymnure
+namespace Engine
 {
 	namespace RenderPass
 	{

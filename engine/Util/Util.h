@@ -28,7 +28,7 @@ struct VertexData {
     float normal[3];
 };
 
-namespace Gymnure
+namespace Engine
 {
 	namespace Util
 	{
@@ -107,16 +107,6 @@ namespace Gymnure
 					std::cerr << "Error: Could not open shader file \"" << filename << "\"" << std::endl;
 					return VK_NULL_HANDLE;
 				}
-			}
-
-			const std::string getAssetPath()
-			{
-				return "./../../include/Obsidian2D/Renderer/";
-			}
-
-			void wait_seconds(int seconds)
-			{
-				//sleep(seconds);
 			}
 		};
 	}

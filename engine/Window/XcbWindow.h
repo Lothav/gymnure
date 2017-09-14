@@ -8,10 +8,9 @@
 #include <xcb/xcb.h>
 
 #include "Window/Window.h"
-#include "Obsidian2D/Core/WindowEvent.h"
 #include <unistd.h>
 
-namespace Gymnure
+namespace Engine
 {
 	namespace Window
 	{
@@ -125,7 +124,7 @@ namespace Gymnure
 
 				/* Fist Data */
 				createCommandBuffer();
-				pushTexture("../../include/Obsidian2D/Renderer/shaders/medivh.jpg");
+				pushTexture("../../assets/medivh.jpg");
 				std::vector<VertexData> vertexData =
 					{
 						{ { -4.0f,  3.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },
@@ -141,7 +140,7 @@ namespace Gymnure
 
 				/* Second Data */
 				createCommandBuffer();
-				pushTexture("../../include/Obsidian2D/Renderer/shaders/wahre.png");
+				pushTexture("../../assets/wahre.png");
 				std::vector<VertexData> vertexData2 =
 					{
 						{ { -2.0f,  0.0f, 0.0f }, { 0.0f, 1.0f },{ 0.0f, 0.0f, 1.0f } },

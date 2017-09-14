@@ -32,7 +32,7 @@ enum WindowEvent
 };
 
 
-namespace Gymnure
+namespace Engine
 {
     namespace Window
     {

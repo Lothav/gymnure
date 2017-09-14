@@ -12,7 +12,7 @@ typedef struct _view_camera {
 	glm::vec3 up;
 } ViewCamera;
 
-namespace Gymnure
+namespace Engine
 {
 	namespace Descriptors
 	{

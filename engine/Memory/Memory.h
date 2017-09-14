@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <cstring>
 
-namespace Gymnure
+namespace Engine
 {
 	namespace Memory
 	{

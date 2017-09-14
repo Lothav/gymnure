@@ -19,7 +19,7 @@ struct DescriptorSetParams {
     const char*                         path;
 };
 
-namespace Gymnure
+namespace Engine
 {
     namespace Descriptors
     {

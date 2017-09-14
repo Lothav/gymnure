@@ -13,7 +13,7 @@ struct rpAttachments {
 	bool clear;
 };
 
-namespace Gymnure
+namespace Engine
 {
 	namespace RenderPass
 	{
