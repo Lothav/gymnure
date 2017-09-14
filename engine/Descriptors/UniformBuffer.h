@@ -87,9 +87,10 @@ namespace Engine
 			}
 
 			void rotateCamera(glm::vec3 rot){
-				this->_model = glm::rotate(this->_model, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-				this->_model = glm::rotate(this->_model, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-				this->_model = glm::rotate(this->_model, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				this->_view = glm::rotate(this->_view, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+				this->_view = glm::rotate(this->_view, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+				this->_view = glm::rotate(this->_view, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 				this->updateMVP();
 			}

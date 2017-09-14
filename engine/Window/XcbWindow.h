@@ -9,6 +9,7 @@
 
 #include "Window/Window.h"
 #include <unistd.h>
+#include <Util/Events.h>
 
 namespace Engine
 {
@@ -63,7 +64,8 @@ namespace Engine
 				value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
 				value_list[0] = screen->black_pixel;
 				value_list[1] = XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS |
-								XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW;
+								XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+								XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION;
 
 				xcb_create_window(connection, XCB_COPY_FROM_PARENT, window, screen->root,
 								  0, 0, (uint16_t)this->width, (uint16_t)this->height, 0,
@@ -122,93 +124,22 @@ namespace Engine
 				this->createSurface();
 				this->initGraphicPipeline();
 			}
+			Engine::Util::Events* events = nullptr;
 
 			WindowEvent poolEvent()
 			{
-				xcb_generic_event_t* e = nullptr;
-				//xcb_intern_atom_reply_t *atom_wm_delete_window = nullptr;
-
-				camera_center   = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultCenter();
-				camera_eye      = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultEye();
-				camera_up       = descriptor_set[descriptor_set.size()-1]->getUniformBuffer()->getCameraDefaultUp();
-
-				while ((e = xcb_poll_for_event(connection))) {
-					if ((e->response_type & ~0x80) == XCB_CLIENT_MESSAGE) {
-						//if((*(xcb_client_message_event_t*)e).data.data32[0] == (*atom_wm_delete_window).atom) {
-							return WindowEvent::Close;
-						//}
-					} else if((e->response_type & ~0x80) == XCB_ENTER_NOTIFY) {
-						return WindowEvent::Focus;
-					} else if((e->response_type & ~0x80) == XCB_LEAVE_NOTIFY) {
-						return WindowEvent::Blur;
-					} else if((e->response_type & ~0x80) == XCB_BUTTON_PRESS) {
-						return WindowEvent::Click;
-					} else if((e->response_type & ~0x80) == XCB_BUTTON_RELEASE) {
-						//return WindowEvent::ClickEnd;
-					} else if((e->response_type & ~0x80) == XCB_KEY_PRESS) {
-
-						xcb_key_press_event_t * kp = reinterpret_cast<xcb_key_press_event_t *>(e);
-
-						if( kp->detail == 'O'){
-							camera_center[0]-= 0.1f;
-						}else if(kp->detail == 'P'){
-							camera_center[1] += 0.1f;
-						}else if(kp->detail == 'Q'){
-							camera_center[0] += 0.1f;
-						}else if(kp->detail == 'j'){
-							camera_center[1]-= 0.1f;
-						}else if(kp->detail == 'Z'){
-							camera_center[2]-= 0.1f;
-						}else if(kp->detail == '['){
-							camera_center[2] += 0.1f;
-						}
-
-						if( kp->detail == 'W'){
-                            camera_eye[0]-= 0.1f;
-						}else if(kp->detail == 'X'){
-                            camera_eye[1]-= 0.1f;
-						}else if(kp->detail == 'Y'){
-                            camera_eye[0] += 0.1f;
-						}else if(kp->detail == 'T'){
-                            camera_eye[1] += 0.1f;
-						}else if(kp->detail == 'S'){
-                            camera_eye[2]-= 0.1f;
-						}else if(kp->detail == 'U'){
-                            camera_eye[2] += 0.1f;
-						}
-
-						if( kp->detail == 'r'){
-							camera_up[0] += 0.1f;
-						}else if(kp->detail == 'q'){
-							camera_up[0]-= 0.1f;
-						}else if(kp->detail == 'o'){
-							camera_up[1] += 0.1f;
-						}else if(kp->detail == 't'){
-							camera_up[1]-= 0.1f;
-						}else if(kp->detail == 'u'){
-							camera_up[2]-= 0.1f;
-						}else if(kp->detail == 'p'){
-							camera_up[2] += 0.1f;
-						}
-
-						std::cout << kp->detail << std::endl;
-						for(int i =0; i < descriptor_set.size(); i++)
-						{
-                            descriptor_set[1]->getUniformBuffer()->rotateCamera(glm::vec3(1,0,0));
-							descriptor_set[1]->getUniformBuffer()->setCameraViewCenter(glm::vec3(camera_center[0], camera_center[1], camera_center[2]));
-							descriptor_set[1]->getUniformBuffer()->setCameraViewEye(glm::vec3(camera_eye[0], camera_eye[1], camera_eye[2]));
-							descriptor_set[1]->getUniformBuffer()->setCameraViewUp(glm::vec3(camera_up[0], camera_up[1], camera_up[2]));
-						}
-
-						return WindowEvent::ButtonDown;
-					} else if((e->response_type & ~0x80) == XCB_KEY_RELEASE) {
-						return WindowEvent::ButtonUp;
-					} else {
-						return WindowEvent::Unknow;
-					}
+				if(events == nullptr){
+					events =  new Engine::Util::Events();
 				}
 
-				return WindowEvent::None;
+				xcb_generic_event_t* e = nullptr;
+				WindowEvent event = WindowEvent::None;
+				while ((e = xcb_poll_for_event(connection))) {
+					event = events->handleEvent(e, descriptor_set[descriptor_set.size()-1]->getUniformBuffer());
+					free(e);
+				}
+
+				return event;
 			}
 		};
 	}

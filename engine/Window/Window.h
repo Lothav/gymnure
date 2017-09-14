@@ -18,19 +18,6 @@
 
 #define APP_NAME "Obsidian2D"
 
-enum WindowEvent
-{
-    None       = 0,
-    Click      = 1,
-    Focus      = 2,
-    Blur       = 3,
-    Resize     = 4,
-    Close      = 5,
-    ButtonDown = 6,
-    ButtonUp   = 7,
-    Unknow     = 8,
-};
-
 
 namespace Engine
 {
