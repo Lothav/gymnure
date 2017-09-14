@@ -1,5 +1,5 @@
-# Obsidian2D
-2D game engine and framework
+# Gymnure
+3D game engine and framework
 
 
 * C++14
