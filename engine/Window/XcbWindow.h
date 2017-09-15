@@ -29,10 +29,6 @@ namespace Engine
 			xcb_window_t 							window;
 			xcb_connection_t*						connection;
 
-			std::array<float, 3>						camera_eye = {};
-			std::array<float, 3>						camera_center = {};
-			std::array<float, 3>						camera_up = {};
-
 			void setConnection()
 			{
 				const xcb_setup_t *setup;

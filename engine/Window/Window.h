@@ -30,7 +30,7 @@ namespace Engine
             VkInstance 		instance;
             VkSurfaceKHR 	surface;
 
-            ~Window() {
+            virtual ~Window() {
                 uint32_t i;
 
                 delete render_pass;
