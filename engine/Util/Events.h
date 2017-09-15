@@ -34,7 +34,7 @@ namespace Engine
             Events()
             {}
 
-            WindowEvent handleEvent(const xcb_generic_event_t *event, Engine::Descriptors::UniformBuffer* uniformBuffer) {
+            WindowEvent handleEvent(const xcb_generic_event_t *event, std::vector<Engine::Descriptors::DescriptorSet*> descSets) {
 
                 printf("%d\n", event->response_type);
 
@@ -47,20 +47,23 @@ namespace Engine
                     case XCB_MOTION_NOTIFY:
                     {
                         xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *) event;
-                        if (mouseButtons.left) {
-                            uniformBuffer->rotateCamera(
-                                    glm::vec3( (mousePos.y - (float) motion->event_y),
-                                               -(mousePos.x - (float) motion->event_x), 0.0f)
-                            );
+                        for(uint16_t i = 0; i < descSets.size(); i++){
+                            if (mouseButtons.left) {
+                                descSets[i]->getUniformBuffer()->rotateCamera(
+                                        glm::vec3( (mousePos.y - (float) motion->event_y),
+                                                   -(mousePos.x - (float) motion->event_x), 0.0f)
+                                );
+                            }
+
+                            if (mouseButtons.middle) {
+                                descSets[i]->getUniformBuffer()->translateCamera(glm::vec3(0.0f, 0.0f, 0.005f));
+                            }
+
+                            if (mouseButtons.right) {
+                                descSets[i]->getUniformBuffer()->translateCamera(glm::vec3(0.0f, 0.0f, -0.005f));
+                            }
                         }
 
-                        if (mouseButtons.middle) {
-                            uniformBuffer->translateCamera(glm::vec3(0.0f, 0.0f, 0.005f));
-                        }
-
-                        if (mouseButtons.right) {
-                            uniformBuffer->translateCamera(glm::vec3(0.0f, 0.0f, -0.005f));
-                        }
 
                         mousePos = glm::vec2((float) motion->event_x, (float) motion->event_y);
 

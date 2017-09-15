@@ -135,7 +135,7 @@ namespace Engine
 				xcb_generic_event_t* e = nullptr;
 				WindowEvent event = WindowEvent::None;
 				while ((e = xcb_poll_for_event(connection))) {
-					event = events->handleEvent(e, descriptor_set[descriptor_set.size()-1]->getUniformBuffer());
+                    event = events->handleEvent(e, descriptor_set);
 					free(e);
 				}
 
