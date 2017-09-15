@@ -17,11 +17,11 @@
             _window->bootstrap();
         }
 
-        void insertData(const char* path, std::vector<VertexData> vertexData)
+        void insertData(const char* path, std::string path_obj="", std::vector<VertexData> vertexData = {})
         {
             _window->createCommandBuffer();
             _window->pushTexture(path);
-            _window->pushVertex(vertexData);
+            _window->pushVertex(path_obj, vertexData);
             _window->recordCommandBuffer();
         }
 

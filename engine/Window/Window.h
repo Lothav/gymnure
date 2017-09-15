@@ -302,8 +302,20 @@ namespace Engine
                         create( descriptor_set[ cm_count ]->getPipelineLayout(), render_pass->getRenderPass() );
             }
 
-            void pushVertex(std::vector<VertexData> vertexData)
+            void pushVertex(std::string path_obj="", std::vector<VertexData> complementVertexData = {})
             {
+
+                std::vector<VertexData> vertexData = {};
+                if(path_obj != "")
+                {
+                    vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj);
+                }
+
+                for (auto v_data : complementVertexData)
+                {
+                    vertexData.push_back(v_data);
+                }
+
                 struct BufferData vertexBufferData = {};
 
                 vertexBufferData.device            = device;
