@@ -36,6 +36,7 @@ namespace Engine
 
             WindowEvent handleEvent(const xcb_generic_event_t *event, Engine::Descriptors::UniformBuffer* uniformBuffer) {
 
+                printf("%d\n", event->response_type);
 
                 switch (event->response_type & 0x7f)
                 {
@@ -49,22 +50,18 @@ namespace Engine
                         if (mouseButtons.left) {
                             uniformBuffer->rotateCamera(
                                     glm::vec3( (mousePos.y - (float) motion->event_y),
-                                               -(mousePos.x - (float) motion->event_x),
-                                              0.0f));
+                                               -(mousePos.x - (float) motion->event_x), 0.0f)
+                            );
                         }
-                        /*if (mouseButtons.right) {
-                            zoom += (mousePos.y - (float) motion->event_y) * .005f;
-                            camera.translate(
-                                    glm::vec3(-0.0f, 0.0f, (mousePos.y - (float) motion->event_y) * .005f * zoomSpeed));
-                        }
+
                         if (mouseButtons.middle) {
-                            cameraPos.x -= (mousePos.x - (float) motion->event_x) * 0.01f;
-                            cameraPos.y -= (mousePos.y - (float) motion->event_y) * 0.01f;
-                            camera.translate(glm::vec3(-(mousePos.x - (float) (float) motion->event_x) * 0.01f,
-                                                       -(mousePos.y - (float) motion->event_y) * 0.01f, 0.0f));
-                            mousePos.x = (float) motion->event_x;
-                            mousePos.y = (float) motion->event_y;
-                        }*/
+                            uniformBuffer->translateCamera(glm::vec3(0.0f, 0.0f, 0.005f));
+                        }
+
+                        if (mouseButtons.right) {
+                            uniformBuffer->translateCamera(glm::vec3(0.0f, 0.0f, -0.005f));
+                        }
+
                         mousePos = glm::vec2((float) motion->event_x, (float) motion->event_y);
 
                         return WindowEvent::None;
@@ -77,6 +74,7 @@ namespace Engine
                             mouseButtons.middle = true;
                         if (press->detail == XCB_BUTTON_INDEX_3)
                             mouseButtons.right = true;
+
                         return WindowEvent::None;
                     }
 
