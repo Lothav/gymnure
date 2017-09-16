@@ -56,14 +56,13 @@ namespace Engine
                             }
 
                             if (mouseButtons.middle) {
-                                descSets[i]->getUniformBuffer()->translateCamera(glm::vec3(0.0f, 0.0f, 0.005f));
+                                descSets[i]->getUniformBuffer()->zoomCamera(glm::vec3(1.02f, 1.02f, 1.02f));
                             }
 
                             if (mouseButtons.right) {
-                                descSets[i]->getUniformBuffer()->translateCamera(glm::vec3(0.0f, 0.0f, -0.005f));
+                                descSets[i]->getUniformBuffer()->zoomCamera(glm::vec3(0.98f, 0.98f, 0.98f));
                             }
                         }
-
 
                         mousePos = glm::vec2((float) motion->event_x, (float) motion->event_y);
 

@@ -86,10 +86,9 @@ namespace Engine
 				this->updateMVP();
 			}
 
-            void translateCamera(glm::vec3 translate_vec)
+            void zoomCamera(glm::vec3 translate_vec)
             {
-                this->_view = glm::translate(this->_view, translate_vec);
-
+                this->_view = glm::scale(this->_view, translate_vec);
                 this->updateMVP();
             }
 

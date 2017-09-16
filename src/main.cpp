@@ -3,7 +3,7 @@
 int main(int argc, char** argv) {
 
 	{
-		unsigned int windowWidth = 800;
+		unsigned int windowWidth  = 800;
 		unsigned int windowHeight = 600;
 
 		Gymnure* gymnure = new Gymnure(windowWidth, windowHeight);

@@ -281,7 +281,7 @@ namespace Engine
                 command_buffer.push_back( new CommandBuffers(device, queueFamilyIndex, command_pool) );
             }
 
-            void pushTexture(const char* path)
+            void createDescriptorSet(const char* path_texture)
             {
 
                 descriptor_set.push_back( new Descriptors::DescriptorSet(device) );
@@ -293,7 +293,7 @@ namespace Engine
                 ds_params.command_pool			= command_pool;
                 ds_params.gpu					= gpu_vector[0];
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
-                ds_params.path                  = path;
+                ds_params.path                  = path_texture;
 
                 descriptor_set[ cm_count ]->create(ds_params);
 
@@ -302,13 +302,13 @@ namespace Engine
                         create( descriptor_set[ cm_count ]->getPipelineLayout(), render_pass->getRenderPass() );
             }
 
-            void pushVertex(std::string path_obj="", std::vector<VertexData> complementVertexData = {})
+            void pushVertex(std::string path_obj="", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
             {
 
                 std::vector<VertexData> vertexData = {};
                 if(path_obj != "")
                 {
-                    vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj);
+                    vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj, obj_mtl);
                 }
 
                 for (auto v_data : complementVertexData)

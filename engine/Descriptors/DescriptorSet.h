@@ -81,9 +81,11 @@ namespace Engine
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);
 
-
-                VkImage texture_image = Textures::createTextureImage(ds_params.gpu, _instance_device, ds_params.path,
-                                                                     ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
+                VkImage texture_image = NULL;
+                if(ds_params.path != nullptr) {
+                    texture_image = Textures::createTextureImage(ds_params.gpu, _instance_device, ds_params.path,
+                                                                         ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
+                }
                 struct MemoryProps mem_props = {};
                 mem_props.device = _instance_device;
 
@@ -93,8 +95,10 @@ namespace Engine
 
                 /*  create Textel Buffer  */
 
-                _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
-                createSampler();
+                if(texture_image != NULL) {
+                    _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
+                    createSampler();
+                }
 
                 updateDescriptorSet();
             }
@@ -218,32 +222,38 @@ namespace Engine
 
             void updateDescriptorSet()
             {
-                VkDescriptorImageInfo texture_info;
-                texture_info.imageLayout 								= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                texture_info.imageView 									= _textel_buffer->view;
-                texture_info.sampler 									= _texture_sampler;
 
-                VkWriteDescriptorSet writes[2];
-                writes[0] = {};
-                writes[0].sType 										= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                writes[0].pNext 										= nullptr;
-                writes[0].dstSet 										= _desc_set;
-                writes[0].descriptorCount 								= 1;
-                writes[0].descriptorType 								= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                writes[0].pBufferInfo 									= &_uniform_buffer->buffer_info;
-                writes[0].dstArrayElement 								= 0;
-                writes[0].dstBinding 									= 0;
+                std::vector<VkWriteDescriptorSet> writes = {};
 
-                writes[1] = {};
-                writes[1].sType 										= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                writes[1].dstSet 										= _desc_set;
-                writes[1].dstBinding 									= 1;
-                writes[1].descriptorCount 								= 1;
-                writes[1].descriptorType 								= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                writes[1].pImageInfo 									= &texture_info;
-                writes[1].dstArrayElement 								= 0;
+                VkWriteDescriptorSet write = {};
+                write.sType 										= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.pNext 										= nullptr;
+                write.dstSet 										= _desc_set;
+                write.descriptorCount 								= 1;
+                write.descriptorType 								= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write.pBufferInfo 									= &_uniform_buffer->buffer_info;
+                write.dstArrayElement 								= 0;
+                write.dstBinding 									= 0;
+                writes.push_back(write);
 
-                vkUpdateDescriptorSets(_instance_device, 2, writes, 0, NULL);
+                if(_textel_buffer != nullptr) {
+                    VkDescriptorImageInfo texture_info;
+                    texture_info.imageLayout 								= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    texture_info.imageView 									= _textel_buffer->view;
+                    texture_info.sampler 									= _texture_sampler;
+
+                    write = {};
+                    write.sType 										= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet 										= _desc_set;
+                    write.dstBinding 									= 1;
+                    write.descriptorCount 								= 1;
+                    write.descriptorType 								= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    write.pImageInfo 									= &texture_info;
+                    write.dstArrayElement 								= 0;
+                    writes.push_back(write);
+                }
+
+                vkUpdateDescriptorSets(_instance_device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }
         };
     }
