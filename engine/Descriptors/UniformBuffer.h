@@ -36,9 +36,9 @@ namespace Engine
 
 			glm::mat4 _mvp; // Model View Projection
 
-			const std::array<float, 3> _default_eye		= {0, 0, 1};
+			const std::array<float, 3> _default_eye		= {0, 0, 0.1};
 			const std::array<float, 3> _default_center	= {0, 0, 0};
-			const std::array<float, 3> _default_up 		= {0, 1, 0};
+			const std::array<float, 3> _default_up 		= {0, -1, 0};
 
 			void updateMVP()
 			{
@@ -53,7 +53,7 @@ namespace Engine
 				if (width > height) {
 					fov *= static_cast<float>(height) / static_cast<float>(width);
 				}
-				this->_projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
+				this->_projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.01f, 1000.0f);
 
 				this->_view_camera.eye 	  =  glm::vec3(_default_eye[0], _default_eye[1], _default_eye[2]);
 				this->_view_camera.center =  glm::vec3(_default_center[0], _default_center[1], _default_center[2]);
