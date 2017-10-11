@@ -7,13 +7,11 @@ int main(int argc, char** argv) {
 		unsigned int windowHeight = 600;
 
 		Gymnure* gymnure = new Gymnure(windowWidth, windowHeight);
-
 		gymnure->insertData("../../assets/sky.jpg", "../../assets/cube.obj");
-		gymnure->insertData("../../assets/room.png", "../../assets/room.obj");
-		gymnure->insertData("../../assets/room2.png", "../../assets/room2.obj");
+		gymnure->insertData("../../assets/chalet.jpg", "../../assets/chalet.obj");
 
 		while(1) {
-			if(!gymnure->draw()) {
+			if (!gymnure->draw()) {
 				break;
 			}
 		}

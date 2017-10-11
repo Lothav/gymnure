@@ -12,6 +12,12 @@ typedef struct _view_camera {
 	glm::vec3 up;
 } ViewCamera;
 
+struct MVP {
+	glm::mat4 projection;
+	glm::mat4 view;
+	glm::mat4 model;
+};
+
 namespace Engine
 {
 	namespace Descriptors
@@ -20,11 +26,8 @@ namespace Engine
 		{
 		public:
 
-			UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
-			{}
-
-			~UniformBuffer()
-			{}
+			UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData) {}
+			~UniformBuffer() {}
 
 		private:
 
@@ -34,16 +37,9 @@ namespace Engine
 			glm::mat4 _view;
 			glm::mat4 _model;
 
-			glm::mat4 _mvp; // Model View Projection
-
 			const std::array<float, 3> _default_eye		= {0, 0, 0.1};
 			const std::array<float, 3> _default_center	= {0, 0, 0};
 			const std::array<float, 3> _default_up 		= {0, -1, 0};
-
-			void updateMVP()
-			{
-				this->_mvp = this->_projection * this->_view * this->_model;
-			}
 
 		public:
 
@@ -101,30 +97,15 @@ namespace Engine
 				this->updateMVP();
 			}
 
-			glm::mat4 getMVP()
-			{
-				return this->_mvp;
-			}
-
-			std::array<float, 3> getCameraDefaultEye()
-			{
-				return _default_eye;
-			};
-
-			std::array<float, 3> getCameraDefaultCenter()
-			{
-				return _default_center;
-			};
-
-			std::array<float, 3> getCameraDefaultUp()
-			{
-				return _default_up;
-			};
-
-			void updateMVP(VkDevice device)
+			void updateMVP()
 			{
 				VkResult res;
-				Memory::Memory::copyMemory(device, this->mem, &this->_mvp, sizeof(this->_mvp));
+				struct MVP mvp = {};
+				mvp.view 		= this->_view;
+				mvp.model 		= this->_model;
+				mvp.projection 	= this->_projection;
+
+				Memory::Memory::copyMemory(_instance_device, this->mem, &mvp, sizeof(MVP));
 			}
 
 		};

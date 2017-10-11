@@ -63,10 +63,7 @@ namespace Engine
 				shaderStages[1].pName 		= "main";
 				assert(shaderStages[1].module != VK_NULL_HANDLE);
 
-
 				VkVertexInputBindingDescription 		vi_binding;
-
-
 				vi_binding.binding 										= 0;
 				vi_binding.inputRate 									= VK_VERTEX_INPUT_RATE_VERTEX;
 				vi_binding.stride 										= sizeof(VertexData);
@@ -109,15 +106,15 @@ namespace Engine
 				vi.pVertexAttributeDescriptions 						= vi_attribs.data();
 
 				VkPipelineInputAssemblyStateCreateInfo ia;
-				ia.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-				ia.pNext = NULL;
-				ia.flags = 0;
-				ia.primitiveRestartEnable = VK_FALSE;
-				ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+				ia.sType 												= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+				ia.pNext 												= NULL;
+				ia.flags 												= 0;
+				ia.primitiveRestartEnable 								= VK_FALSE;
+				ia.topology 											= VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
 				VkPipelineRasterizationStateCreateInfo rs;
 				rs.sType 												= VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-				rs.pNext 												= NULL;
+				rs.pNext 												= nullptr;
 				rs.flags 												= 0;
 				rs.polygonMode 											= VK_POLYGON_MODE_FILL;
 				rs.cullMode 											= VK_CULL_MODE_NONE;
@@ -143,7 +140,7 @@ namespace Engine
                 VkPipelineColorBlendStateCreateInfo cb;
                 cb.sType 												= VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
                 cb.flags 												= 0;
-                cb.pNext 												= NULL;
+                cb.pNext 												= nullptr;
                 cb.attachmentCount 										= static_cast<uint32_t>(att_state.size());
 				cb.pAttachments 										= att_state.data();
 				cb.logicOpEnable 										= VK_FALSE;
@@ -156,13 +153,13 @@ namespace Engine
 				std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
 				VkPipelineViewportStateCreateInfo vp = {};
-				vp.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-				vp.pNext = NULL;
-				vp.flags = 0;
+				vp.sType 												= VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+				vp.pNext 												= nullptr;
+				vp.flags 												= 0;
 				vp.viewportCount 										= 1;
                 vp.scissorCount 										= 1;
-				vp.pScissors 											= NULL;
-				vp.pViewports 											= NULL;
+				vp.pScissors 											= nullptr;
+				vp.pViewports 											= nullptr;
 
 				VkPipelineDynamicStateCreateInfo dynamicState = {};
 				dynamicState.sType 										= VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -172,7 +169,7 @@ namespace Engine
 
 				VkPipelineDepthStencilStateCreateInfo ds;
 				ds.sType 												= VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-				ds.pNext 												= NULL;
+				ds.pNext 												= nullptr;
 				ds.flags 												= 0;
 				ds.depthTestEnable 										= (VkBool32) true;
 				ds.depthWriteEnable 									= (VkBool32) true;

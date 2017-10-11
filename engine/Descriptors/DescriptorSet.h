@@ -154,12 +154,12 @@ namespace Engine
             void setPipelineLayout()
             {
                 VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
-                pPipelineLayoutCreateInfo.sType                         = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-                pPipelineLayoutCreateInfo.pNext                         = nullptr;
-                pPipelineLayoutCreateInfo.pushConstantRangeCount        = 0;
-                pPipelineLayoutCreateInfo.pPushConstantRanges           = nullptr;
-                pPipelineLayoutCreateInfo.setLayoutCount                = 1;
-                pPipelineLayoutCreateInfo.pSetLayouts                   = _desc_layout.data();
+                pPipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+                pPipelineLayoutCreateInfo.pNext                  = nullptr;
+                pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+                pPipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
+                pPipelineLayoutCreateInfo.setLayoutCount         = 1;
+                pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
 
                 VkResult res = vkCreatePipelineLayout(_instance_device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout);
                 assert(res == VK_SUCCESS);
@@ -168,18 +168,18 @@ namespace Engine
             void setDescriptorPool()
             {
                 VkDescriptorPoolSize type_count[2];
-                type_count[0].type 										= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                type_count[0].descriptorCount 							= 1;
+                type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                type_count[0].descriptorCount 					 = 1;
 
-                type_count[1].type 									    = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                type_count[1].descriptorCount 						    = 1;
+                type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                type_count[1].descriptorCount 					 = 1;
 
                 VkDescriptorPoolCreateInfo descriptor_pool = {};
-                descriptor_pool.sType 									= VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                descriptor_pool.pNext 									= NULL;
-                descriptor_pool.maxSets 								= 1;
-                descriptor_pool.poolSizeCount 							= 2;
-                descriptor_pool.pPoolSizes 								= type_count;
+                descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                descriptor_pool.pNext 							 = NULL;
+                descriptor_pool.maxSets 						 = 1;
+                descriptor_pool.poolSizeCount 					 = 2;
+                descriptor_pool.pPoolSizes 						 = type_count;
 
                 VkResult res = vkCreateDescriptorPool(_instance_device, &descriptor_pool, NULL, &_desc_pool);
                 assert(res == VK_SUCCESS);
@@ -188,11 +188,11 @@ namespace Engine
             void setDescriptorSet()
             {
                 VkDescriptorSetAllocateInfo _alloc_info[1];
-                _alloc_info[0].sType 									= VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-                _alloc_info[0].pNext 									= NULL;
-                _alloc_info[0].descriptorPool 							= _desc_pool;
-                _alloc_info[0].descriptorSetCount 						= 1;
-                _alloc_info[0].pSetLayouts 								= _desc_layout.data();
+                _alloc_info[0].sType 							  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                _alloc_info[0].pNext 							  = NULL;
+                _alloc_info[0].descriptorPool 					  = _desc_pool;
+                _alloc_info[0].descriptorSetCount 				  = 1;
+                _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
 
                 VkResult res = vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set);
                 assert(res == VK_SUCCESS);
@@ -201,55 +201,54 @@ namespace Engine
             void createSampler()
             {
                 VkSamplerCreateInfo sampler = {};
-                sampler.sType 											= VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-                sampler.maxAnisotropy 									= 1.0f;
-                sampler.magFilter 										= VK_FILTER_LINEAR;
-                sampler.minFilter 										= VK_FILTER_LINEAR;
-                sampler.mipmapMode 										= VK_SAMPLER_MIPMAP_MODE_LINEAR;
-                sampler.addressModeU 									= VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                sampler.addressModeV 									= VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                sampler.addressModeW 									= VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                sampler.mipLodBias 										= 0.0f;
-                sampler.compareOp 										= VK_COMPARE_OP_NEVER;
-                sampler.minLod 											= 0.0f;
-                sampler.maxLod 											= 0.0f;
-                sampler.maxAnisotropy 									= 1.0;
-                sampler.anisotropyEnable 								= VK_FALSE;
-                sampler.borderColor 									= VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+                sampler.sType 									  = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+                sampler.maxAnisotropy 							  = 1.0f;
+                sampler.magFilter 								  = VK_FILTER_LINEAR;
+                sampler.minFilter 								  = VK_FILTER_LINEAR;
+                sampler.mipmapMode 								  = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                sampler.addressModeU 							  = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                sampler.addressModeV 							  = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                sampler.addressModeW 							  = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                sampler.mipLodBias 								  = 0.0f;
+                sampler.compareOp 								  = VK_COMPARE_OP_NEVER;
+                sampler.minLod 									  = 0.0f;
+                sampler.maxLod 									  = 0.0f;
+                sampler.maxAnisotropy 							  = 1.0;
+                sampler.anisotropyEnable 						  = VK_FALSE;
+                sampler.borderColor 							  = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
                 assert(vkCreateSampler(_instance_device, &sampler, nullptr, &_texture_sampler) == VK_SUCCESS);
             }
 
             void updateDescriptorSet()
             {
-
                 std::vector<VkWriteDescriptorSet> writes = {};
 
                 VkWriteDescriptorSet write = {};
-                write.sType 										= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write.pNext 										= nullptr;
-                write.dstSet 										= _desc_set;
-                write.descriptorCount 								= 1;
-                write.descriptorType 								= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                write.pBufferInfo 									= &_uniform_buffer->buffer_info;
-                write.dstArrayElement 								= 0;
-                write.dstBinding 									= 0;
+                write.sType 									  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.pNext 									  = nullptr;
+                write.dstSet 									  = _desc_set;
+                write.descriptorCount 							  = 1;
+                write.descriptorType 							  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write.pBufferInfo 								  = &_uniform_buffer->buffer_info;
+                write.dstArrayElement 							  = 0;
+                write.dstBinding 								  = 0;
                 writes.push_back(write);
 
                 if(_textel_buffer != nullptr) {
                     VkDescriptorImageInfo texture_info;
-                    texture_info.imageLayout 								= VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                    texture_info.imageView 									= _textel_buffer->view;
-                    texture_info.sampler 									= _texture_sampler;
+                    texture_info.imageLayout 					  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    texture_info.imageView 						  = _textel_buffer->view;
+                    texture_info.sampler 						  = _texture_sampler;
 
                     write = {};
-                    write.sType 										= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                    write.dstSet 										= _desc_set;
-                    write.dstBinding 									= 1;
-                    write.descriptorCount 								= 1;
-                    write.descriptorType 								= VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    write.pImageInfo 									= &texture_info;
-                    write.dstArrayElement 								= 0;
+                    write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.dstSet 								  = _desc_set;
+                    write.dstBinding 							  = 1;
+                    write.descriptorCount 						  = 1;
+                    write.descriptorType 						  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    write.pImageInfo 							  = &texture_info;
+                    write.dstArrayElement 						  = 0;
                     writes.push_back(write);
                 }
 

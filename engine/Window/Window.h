@@ -82,7 +82,7 @@ namespace Engine
                 std::vector<VkCommandBuffer> cmd_buff = {};
                 for (int i = 0; i < command_buffer.size(); ++i)
                 {
-					descriptor_set[ i ]->getUniformBuffer()->updateMVP(device);
+					descriptor_set[ i ]->getUniformBuffer()->updateMVP();
 					cmd_buff.push_back(command_buffer[i]->getCommandBuffer());
                 }
 
