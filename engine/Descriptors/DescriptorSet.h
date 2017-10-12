@@ -76,7 +76,7 @@ namespace Engine
                 uniformBufferData.usage             = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
                 uniformBufferData.physicalDevice    = ds_params.gpu;
                 uniformBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-                uniformBufferData.size              = sizeof(glm::mat4);
+                uniformBufferData.size              = sizeof(glm::mat4)*3;
 
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);

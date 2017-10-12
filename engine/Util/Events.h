@@ -36,8 +36,6 @@ namespace Engine
 
             WindowEvent handleEvent(const xcb_generic_event_t *event, std::vector<Engine::Descriptors::DescriptorSet*> descSets) {
 
-                printf("%d\n", event->response_type);
-
                 switch (event->response_type & 0x7f)
                 {
                     case XCB_CLIENT_MESSAGE: {

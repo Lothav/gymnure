@@ -12,12 +12,6 @@ typedef struct _view_camera {
 	glm::vec3 up;
 } ViewCamera;
 
-struct MVP {
-	glm::mat4 projection;
-	glm::mat4 view;
-	glm::mat4 model;
-};
-
 namespace Engine
 {
 	namespace Descriptors
@@ -33,9 +27,11 @@ namespace Engine
 
 			ViewCamera _view_camera;
 
-			glm::mat4 _projection;
-			glm::mat4 _view;
-			glm::mat4 _model;
+			struct  {
+				glm::mat4 projection;
+				glm::mat4 view;
+				glm::mat4 model;
+			} mvp;
 
 			const std::array<float, 3> _default_eye		= {0, 0, 0.1};
 			const std::array<float, 3> _default_center	= {0, 0, 0};
@@ -49,14 +45,14 @@ namespace Engine
 				if (width > height) {
 					fov *= static_cast<float>(height) / static_cast<float>(width);
 				}
-				this->_projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.01f, 1000.0f);
+				this->mvp.projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.01f, 1000.0f);
 
 				this->_view_camera.eye 	  =  glm::vec3(_default_eye[0], _default_eye[1], _default_eye[2]);
 				this->_view_camera.center =  glm::vec3(_default_center[0], _default_center[1], _default_center[2]);
 				this->_view_camera.up     =  glm::vec3(_default_up[0], _default_up[1], _default_up[2]);
-				this->_view               =  glm::lookAt(this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up);
+				this->mvp.view               =  glm::lookAt(this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up);
 
-				this->_model = this->_view * glm::translate(glm::mat4(), {0, 0, 1});
+				this->mvp.model = this->mvp.view * glm::translate(glm::mat4(), {0, 0, 1});
 
 				this->updateMVP();
 			}
@@ -64,35 +60,35 @@ namespace Engine
 			void setCameraViewEye(glm::vec3 eye)
 			{
 				this->_view_camera.eye = eye;
-				this->_view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
+				this->mvp.view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
 				this->updateMVP();
 			}
 
 			void setCameraViewCenter(glm::vec3 center)
 			{
 				this->_view_camera.center = center;
-				this->_view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
+				this->mvp.view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
 				this->updateMVP();
 			}
 
 			void setCameraViewUp(glm::vec3 up)
 			{
 				this->_view_camera.up = up;
-				this->_view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
+				this->mvp.view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
 				this->updateMVP();
 			}
 
             void zoomCamera(glm::vec3 translate_vec)
             {
-                this->_view = glm::scale(this->_view, translate_vec);
+                this->mvp.view = glm::scale(this->mvp.view, translate_vec);
                 this->updateMVP();
             }
 
 			void rotateCamera(glm::vec3 rot)
             {
-				this->_view = glm::rotate(this->_view, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-				this->_view = glm::rotate(this->_view, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-				this->_view = glm::rotate(this->_view, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+				this->mvp.view = glm::rotate(this->mvp.view, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+				this->mvp.view = glm::rotate(this->mvp.view, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+				this->mvp.view = glm::rotate(this->mvp.view, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 				this->updateMVP();
 			}
@@ -100,12 +96,9 @@ namespace Engine
 			void updateMVP()
 			{
 				VkResult res;
-				struct MVP mvp = {};
-				mvp.view 		= this->_view;
-				mvp.model 		= this->_model;
-				mvp.projection 	= this->_projection;
+				std::cout << sizeof(mvp) << std::endl ;
 
-				Memory::Memory::copyMemory(_instance_device, this->mem, &mvp, sizeof(MVP));
+				Memory::Memory::copyMemory(_instance_device, this->mem, &this->mvp, sizeof(this->mvp));
 			}
 
 		};
