@@ -28,12 +28,12 @@ namespace Engine
 			ViewCamera _view_camera;
 
 			struct  {
-				glm::mat4 projection;
-				glm::mat4 view;
 				glm::mat4 model;
+				glm::mat4 view;
+				glm::mat4 projection;
 			} mvp;
 
-			const std::array<float, 3> _default_eye		= {0, 0, 0.1};
+			const std::array<float, 3> _default_eye		= {0, 0, 0.5};
 			const std::array<float, 3> _default_center	= {0, 0, 0};
 			const std::array<float, 3> _default_up 		= {0, -1, 0};
 
@@ -45,14 +45,14 @@ namespace Engine
 				if (width > height) {
 					fov *= static_cast<float>(height) / static_cast<float>(width);
 				}
-				this->mvp.projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.01f, 1000.0f);
+				this->mvp.projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.001f, 256.0f);
 
 				this->_view_camera.eye 	  =  glm::vec3(_default_eye[0], _default_eye[1], _default_eye[2]);
 				this->_view_camera.center =  glm::vec3(_default_center[0], _default_center[1], _default_center[2]);
 				this->_view_camera.up     =  glm::vec3(_default_up[0], _default_up[1], _default_up[2]);
 				this->mvp.view            =  glm::lookAt(this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up);
 
-				this->mvp.model = this->mvp.view * glm::translate(glm::mat4(), {0, 0, 1});
+				this->mvp.model = glm::mat4(1.0);
 
 				this->updateMVP();
 			}
@@ -86,9 +86,9 @@ namespace Engine
 
 			void rotateCamera(glm::vec3 rot)
             {
-				this->mvp.view = glm::rotate(this->mvp.view, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-				this->mvp.view = glm::rotate(this->mvp.view, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-				this->mvp.view = glm::rotate(this->mvp.view, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
 				this->updateMVP();
 			}
@@ -96,8 +96,6 @@ namespace Engine
 			void updateMVP()
 			{
 				VkResult res;
-				std::cout << sizeof(mvp) << std::endl ;
-
 				Memory::Memory::copyMemory(_instance_device, this->mem, &this->mvp, sizeof(this->mvp));
 			}
 
