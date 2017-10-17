@@ -23,7 +23,7 @@ void main()
     gl_Position     = ubo.view * ubo.model * vec4(inPos.xyz, 1.0) ;
     vec4 pos        = ubo.model * vec4(inPos, 1.0);
    	outNormal       = mat3( inverse( transpose(ubo.model) ) ) * inNormal;
-   	vec3 lightPos   = vec3(0.0, 0.0, 0.0);
+   	vec3 lightPos   = vec3(0.0, 0.0, 30.0);
    	vec3 lPos       = mat3(ubo.model) * lightPos.xyz;
     outLightVec     = lPos - pos.xyz;
     outViewVec      = vec4(ubo.view).xyz - pos.xyz;

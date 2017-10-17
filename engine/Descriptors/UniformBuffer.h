@@ -33,7 +33,7 @@ namespace Engine
 				glm::mat4 model;
 			} mvp;
 
-			const std::array<float, 3> _default_eye		= {0, 0, 30};
+			const std::array<float, 3> _default_eye		= {0, 0, 0.1};
 			const std::array<float, 3> _default_center	= {0, 0, 0};
 			const std::array<float, 3> _default_up 		= {0, -1, 0};
 
@@ -50,7 +50,7 @@ namespace Engine
 				this->_view_camera.eye 	  =  glm::vec3(_default_eye[0], _default_eye[1], _default_eye[2]);
 				this->_view_camera.center =  glm::vec3(_default_center[0], _default_center[1], _default_center[2]);
 				this->_view_camera.up     =  glm::vec3(_default_up[0], _default_up[1], _default_up[2]);
-				this->mvp.view               =  glm::lookAt(this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up);
+				this->mvp.view            =  glm::lookAt(this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up);
 
 				this->mvp.model = this->mvp.view * glm::translate(glm::mat4(), {0, 0, 1});
 
