@@ -86,8 +86,8 @@ namespace Engine
 					cmd_buff.push_back(command_buffer[i]->getCommandBuffer());
                 }
 
-                VkSubmitInfo submit_info;
-                submit_info.pNext                     = NULL;
+                VkSubmitInfo submit_info = {};
+                submit_info.pNext                     = nullptr;
                 submit_info.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
                 submit_info.waitSemaphoreCount        = 1;
                 submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
@@ -106,16 +106,16 @@ namespace Engine
                 assert(res == VK_SUCCESS);
                 vkResetFences(device, 1, sync_primitives->getFence(current_buffer));
 
-                VkPresentInfoKHR present;
+                VkPresentInfoKHR present = {};
 
                 present.sType 				           = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-                present.pNext 				           = NULL;
+                present.pNext 				           = nullptr;
                 present.swapchainCount 		           = 1;
                 present.pSwapchains 		           = &swap_c;
                 present.pImageIndices 		           = &current_buffer;
-                present.pWaitSemaphores 	           = NULL;
+                present.pWaitSemaphores 	           = nullptr;
                 present.waitSemaphoreCount 	           = 0;
-                present.pResults                       = NULL;
+                present.pResults                       = nullptr;
 
                 if (sync_primitives->renderSemaphore != VK_NULL_HANDLE)
                 {
@@ -262,7 +262,7 @@ namespace Engine
                 std::vector< struct rpAttachments > rp_attachments = {};
                 struct rpAttachments attch = {};
                 attch.format = render_pass->getSwapChain()->getSwapChainFormat();
-                attch.clear  = false;
+                attch.clear  = true;
                 rp_attachments.push_back(attch);
                 attch.format = render_pass->getDepthBufferFormat();
                 attch.clear  = true;

@@ -65,7 +65,7 @@ namespace Engine
 			clear_values[1].depthStencil.depth = 1.0f;
 			clear_values[1].depthStencil.stencil = 0;
 
-			VkRenderPassBeginInfo rp_begin;
+			VkRenderPassBeginInfo rp_begin = {};
 			rp_begin.sType 								= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			rp_begin.pNext 								= nullptr;
 			rp_begin.renderPass 						= render_pass->getRenderPass();

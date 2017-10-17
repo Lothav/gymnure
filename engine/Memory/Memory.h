@@ -5,8 +5,8 @@
 #ifndef OBSIDIAN2D_MEMORY_H
 #define OBSIDIAN2D_MEMORY_H
 
-#include "vulkan/vulkan.h"
-#include <assert.h>
+#include <vulkan/vulkan.h>
+#include <cassert>
 #include <cstring>
 
 namespace Engine

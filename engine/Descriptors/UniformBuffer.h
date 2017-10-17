@@ -33,7 +33,7 @@ namespace Engine
 				glm::mat4 model;
 			} mvp;
 
-			const std::array<float, 3> _default_eye		= {0, 0, 0.1};
+			const std::array<float, 3> _default_eye		= {0, 0, 30};
 			const std::array<float, 3> _default_center	= {0, 0, 0};
 			const std::array<float, 3> _default_up 		= {0, -1, 0};
 
