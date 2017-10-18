@@ -47,18 +47,18 @@ namespace Engine
                         xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *) event;
                         for(uint16_t i = 0; i < descSets.size(); i++){
                             if (mouseButtons.left) {
-                                descSets[i]->getUniformBuffer()->rotateCamera(
-                                        glm::vec3( (mousePos.y - (float) motion->event_y),
-                                                   -(mousePos.x - (float) motion->event_x), 0.0f)
+                                descSets[i]->getUniformBuffer()->rotateWorld(
+                                        glm::vec3( (mousePos.y - (float) motion->event_y) * 0.1f,
+                                                   -(mousePos.x - (float) motion->event_x) * 0.1f, 0.0f)
                                 );
                             }
 
                             if (mouseButtons.middle) {
-                                descSets[i]->getUniformBuffer()->zoomCamera(glm::vec3(1.02f, 1.02f, 1.02f));
+                                descSets[i]->getUniformBuffer()->zoomCamera(0.1);
                             }
 
                             if (mouseButtons.right) {
-                                descSets[i]->getUniformBuffer()->zoomCamera(glm::vec3(0.98f, 0.98f, 0.98f));
+                                descSets[i]->getUniformBuffer()->zoomCamera(-0.1);
                             }
                         }
 

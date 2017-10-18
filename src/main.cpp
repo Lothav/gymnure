@@ -6,7 +6,7 @@ int main(int argc, char** argv) {
 		unsigned int windowWidth  = 800;
 		unsigned int windowHeight = 600;
 
-		Gymnure* gymnure = new Gymnure(windowWidth, windowHeight);
+		auto* gymnure = new Gymnure(windowWidth, windowHeight);
 		gymnure->insertData("../../assets/starfall.png", "../../assets/cube.obj");
 		//gymnure->insertData("../../assets/chalet.jpg", "../../assets/chalet.obj");
 

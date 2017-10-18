@@ -6,12 +6,6 @@
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 
-typedef struct _view_camera {
-	glm::vec3 eye;
-	glm::vec3 center;
-	glm::vec3 up;
-} ViewCamera;
-
 namespace Engine
 {
 	namespace Descriptors
@@ -20,75 +14,62 @@ namespace Engine
 		{
 		public:
 
-			UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData) {}
+			UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
+			{
+				zoom 		= -2.5f;
+				rotation 	= { 0.0f, 15.0f, 0.0f };
+				cameraPos 	= {0.0f, 0.0f, 0.0f};
+			}
 			~UniformBuffer() {}
 
 		private:
 
-			ViewCamera _view_camera;
-
 			struct  {
 				glm::mat4 model;
-				glm::mat4 view;
+				glm::vec4 view;
 				glm::mat4 projection;
 			} mvp;
 
-			const std::array<float, 3> _default_eye		= {0, 0, 0.5};
-			const std::array<float, 3> _default_center	= {0, 0, 0};
-			const std::array<float, 3> _default_up 		= {0, -1, 0};
+			glm::vec3 cameraPos = glm::vec3();
+			glm::vec3 rotation = glm::vec3();
+			float zoom = 0;
 
 		public:
 
 			void initModelView(u_int32_t width, u_int32_t height)
 			{
-				float fov = glm::radians(45.0f);
-				if (width > height) {
-					fov *= static_cast<float>(height) / static_cast<float>(width);
-				}
-				this->mvp.projection = glm::perspective(fov, static_cast<float>(width) / static_cast<float>(height), 0.001f, 256.0f);
-
-				this->_view_camera.eye 	  =  glm::vec3(_default_eye[0], _default_eye[1], _default_eye[2]);
-				this->_view_camera.center =  glm::vec3(_default_center[0], _default_center[1], _default_center[2]);
-				this->_view_camera.up     =  glm::vec3(_default_up[0], _default_up[1], _default_up[2]);
-				this->mvp.view            =  glm::lookAt(this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up);
-
-				this->mvp.model = glm::mat4(1.0);
-
-				this->updateMVP();
+				this->mvp.projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 256.0f);;
+				this->updateUniform();
 			}
 
-			void setCameraViewEye(glm::vec3 eye)
-			{
-				this->_view_camera.eye = eye;
-				this->mvp.view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
-				this->updateMVP();
-			}
-
-			void setCameraViewCenter(glm::vec3 center)
-			{
-				this->_view_camera.center = center;
-				this->mvp.view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
-				this->updateMVP();
-			}
-
-			void setCameraViewUp(glm::vec3 up)
-			{
-				this->_view_camera.up = up;
-				this->mvp.view = glm::lookAt( this->_view_camera.eye, this->_view_camera.center, this->_view_camera.up );
-				this->updateMVP();
-			}
-
-            void zoomCamera(glm::vec3 translate_vec)
+            void zoomCamera(double _zoom)
             {
-                this->mvp.view = glm::scale(this->mvp.view, translate_vec);
-                this->updateMVP();
+				this->zoom += _zoom;
+				if(this->zoom > -2){
+					this->zoom = -2;
+				}
+				std::cout << "zoom: " << this->zoom << std::endl;
+                this->updateUniform();
             }
 
-			void rotateCamera(glm::vec3 rot)
+			void rotateWorld(const glm::vec3& _rotation)
+			{
+				this->rotation.x += _rotation.x;
+				this->rotation.y += _rotation.y;
+				std::cout << "rt_x: " << rotation.x << " " << glm::radians(rotation.x) << " / " << "rt_y: " << rotation.y << " " << glm::radians(rotation.y)  << std::endl;
+				this->updateUniform();
+			}
+
+			void updateUniform()
             {
-				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
-				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
-				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+				glm::mat4 viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
+
+				this->mvp.model = viewMatrix * glm::translate(glm::mat4(1.0), cameraPos);
+				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+				this->mvp.view = glm::vec4(0.0f, 0.0f, -zoom, 0.0f);
 
 				this->updateMVP();
 			}
