@@ -16,9 +16,9 @@ namespace Engine
 
 			UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
 			{
-				zoom 		= -2.5f;
-				rotation 	= { 0.0f, 15.0f, 0.0f };
-				cameraPos 	= {0.0f, 0.0f, 0.0f};
+				zoom 		= -7.0f;
+				rotation 	= { 0.0f,  0.0f, 0.0f };
+				cameraPos 	= { 0.0f,  0.0f, 0.0f };
 			}
 			~UniformBuffer() {}
 
@@ -45,9 +45,8 @@ namespace Engine
             void zoomCamera(double _zoom)
             {
 				this->zoom += _zoom;
-				if(this->zoom > -2){
-					this->zoom = -2;
-				}
+				if (this->zoom > -2) this->zoom = -2;
+
 				std::cout << "zoom: " << this->zoom << std::endl;
                 this->updateUniform();
             }
@@ -56,7 +55,6 @@ namespace Engine
 			{
 				this->rotation.x += _rotation.x;
 				this->rotation.y += _rotation.y;
-				std::cout << "rt_x: " << rotation.x << " " << glm::radians(rotation.x) << " / " << "rt_y: " << rotation.y << " " << glm::radians(rotation.y)  << std::endl;
 				this->updateUniform();
 			}
 
