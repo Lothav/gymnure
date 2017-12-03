@@ -5,3 +5,8 @@
 * C++14
 * Cross-platform
 * Opinated
+
+
+Requirements
+* GLM
+* Vulkan SDK
