@@ -46,7 +46,7 @@ extern "C" {
 #define VK_HEADER_VERSION 57
 
 
-#define VK_NULL_HANDLE 0
+#define VK_nullptr_HANDLE 0
         
 
 

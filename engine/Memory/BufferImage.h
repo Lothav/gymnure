@@ -92,7 +92,7 @@ namespace Engine
 
                 VkMemoryAllocateInfo mem_alloc = {};
                 mem_alloc.sType				= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-                mem_alloc.pNext				= NULL;
+                mem_alloc.pNext				= nullptr;
                 mem_alloc.allocationSize 	= 0;
                 mem_alloc.memoryTypeIndex 	= 0;
 
@@ -106,7 +106,7 @@ namespace Engine
                 );
                 assert(pass);
 
-                res = vkAllocateMemory(_mem_props.device, &mem_alloc, NULL, &mem);
+                res = vkAllocateMemory(_mem_props.device, &mem_alloc, nullptr, &mem);
                 assert(res == VK_SUCCESS);
                 res = vkBindImageMemory(_mem_props.device, image, mem, 0);
                 assert(res == VK_SUCCESS);

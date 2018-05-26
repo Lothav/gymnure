@@ -55,15 +55,15 @@ namespace Engine
 				shaderStages[0].stage 		= VK_SHADER_STAGE_VERTEX_BIT;
 				shaderStages[0].module 		= loadSPIRVShader("../../shaders/vert.spv", _instance_device);
 				shaderStages[0].pName 		= "main";
-				assert(shaderStages[0].module != VK_NULL_HANDLE);
+				assert(shaderStages[0].module != VK_nullptr_HANDLE);
 
 				shaderStages[1].sType 		= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				shaderStages[1].stage 		= VK_SHADER_STAGE_FRAGMENT_BIT;
 				shaderStages[1].module 		= loadSPIRVShader("../../shaders/frag.spv", _instance_device);
 				shaderStages[1].pName 		= "main";
-				assert(shaderStages[1].module != VK_NULL_HANDLE);
+				assert(shaderStages[1].module != VK_nullptr_HANDLE);
 
-				VkVertexInputBindingDescription 		vi_binding;
+				VkVertexInputBindingDescription vi_binding = {};
 				vi_binding.binding 										= 0;
 				vi_binding.inputRate 									= VK_VERTEX_INPUT_RATE_VERTEX;
 				vi_binding.stride 										= sizeof(VertexData);
@@ -86,33 +86,33 @@ namespace Engine
 				vi_attribs[2].format 									= VK_FORMAT_R32G32B32_SFLOAT;
 				vi_attribs[2].offset 									= offsetof(VertexData, normal);
 
-				VkPipelineCacheCreateInfo pipelineCache;
+				VkPipelineCacheCreateInfo pipelineCache = {};
 				pipelineCache.sType 									= VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-				pipelineCache.pNext 									= NULL;
+				pipelineCache.pNext 									= nullptr;
 				pipelineCache.initialDataSize 							= 0;
-				pipelineCache.pInitialData 								= NULL;
+				pipelineCache.pInitialData 								= nullptr;
 				pipelineCache.flags 									= 0;
-				VkResult res = vkCreatePipelineCache(_instance_device, &pipelineCache, NULL, &_pipeline_cache);
+				VkResult res = vkCreatePipelineCache(_instance_device, &pipelineCache, nullptr, &_pipeline_cache);
 				assert(res == VK_SUCCESS);
 
-				VkPipelineVertexInputStateCreateInfo vi;
+				VkPipelineVertexInputStateCreateInfo vi = {};
 				memset(&vi, 0, sizeof(vi));
 				vi.sType 												= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-				vi.pNext 												= NULL;
+				vi.pNext 												= nullptr;
 				vi.flags 												= 0;
 				vi.vertexBindingDescriptionCount 						= 1;
 				vi.pVertexBindingDescriptions 							= &vi_binding;
 				vi.vertexAttributeDescriptionCount 						= 3;
 				vi.pVertexAttributeDescriptions 						= vi_attribs.data();
 
-				VkPipelineInputAssemblyStateCreateInfo ia;
+				VkPipelineInputAssemblyStateCreateInfo ia = {};
 				ia.sType 												= VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-				ia.pNext 												= NULL;
+				ia.pNext 												= nullptr;
 				ia.flags 												= 0;
 				ia.primitiveRestartEnable 								= VK_FALSE;
 				ia.topology 											= VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
-				VkPipelineRasterizationStateCreateInfo rs;
+				VkPipelineRasterizationStateCreateInfo rs = {};
 				rs.sType 												= VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 				rs.pNext 												= nullptr;
 				rs.flags 												= 0;
@@ -137,7 +137,7 @@ namespace Engine
                 att_state[0].srcAlphaBlendFactor                        = VK_BLEND_FACTOR_ZERO;
                 att_state[0].dstAlphaBlendFactor                        = VK_BLEND_FACTOR_ZERO;
 
-                VkPipelineColorBlendStateCreateInfo cb;
+                VkPipelineColorBlendStateCreateInfo cb = {};
                 cb.sType 												= VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
                 cb.flags 												= 0;
                 cb.pNext 												= nullptr;
@@ -167,7 +167,7 @@ namespace Engine
 				dynamicState.pDynamicStates 							= dynamicStateEnables.data();
 				dynamicState.dynamicStateCount 							= static_cast<uint32_t>(dynamicStateEnables.size());
 
-				VkPipelineDepthStencilStateCreateInfo ds;
+				VkPipelineDepthStencilStateCreateInfo ds = {};
 				ds.sType 												= VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 				ds.pNext 												= nullptr;
 				ds.flags 												= 0;
@@ -188,29 +188,29 @@ namespace Engine
 				ds.stencilTestEnable 									= VK_FALSE;
 				ds.front 												= ds.back;
 
-				VkPipelineMultisampleStateCreateInfo ms;
+				VkPipelineMultisampleStateCreateInfo ms = {};
 				ms.sType 												= VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-				ms.pNext 												= NULL;
+				ms.pNext 												= nullptr;
 				ms.flags 												= 0;
-				ms.pSampleMask 											= NULL;
+				ms.pSampleMask 											= nullptr;
 				ms.rasterizationSamples 								= VK_SAMPLE_COUNT_1_BIT;
 				ms.sampleShadingEnable 									= VK_FALSE;
 				ms.alphaToCoverageEnable 								= VK_FALSE;
 				ms.alphaToOneEnable 									= VK_FALSE;
 				ms.minSampleShading 									= 0.0;
 
-				VkGraphicsPipelineCreateInfo pipeline;
+				VkGraphicsPipelineCreateInfo pipeline = {};
 				pipeline.sType 											= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 				pipeline.pNext 											= nullptr;
 				pipeline.layout 										= pipeline_layout;
-				pipeline.basePipelineHandle 							= VK_NULL_HANDLE;
+				pipeline.basePipelineHandle 							= VK_nullptr_HANDLE;
 				pipeline.basePipelineIndex 								= 0;
 				pipeline.flags 											= 0;
 				pipeline.pVertexInputState 								= &vi;
 				pipeline.pInputAssemblyState 							= &ia;
 				pipeline.pRasterizationState 							= &rs;
 				pipeline.pColorBlendState 								= &cb;
-				pipeline.pTessellationState 							= NULL;
+				pipeline.pTessellationState 							= nullptr;
 				pipeline.pMultisampleState 								= &ms;
 				pipeline.pDynamicState 									= &dynamicState;
 				pipeline.pViewportState 								= &vp;
@@ -220,7 +220,7 @@ namespace Engine
 				pipeline.renderPass 									= render_pass;
 				pipeline.subpass 										= 0;
 
-				res = vkCreateGraphicsPipelines(_instance_device, _pipeline_cache, 1, &pipeline, NULL, &_vk_pipeline);
+				res = vkCreateGraphicsPipelines(_instance_device, _pipeline_cache, 1, &pipeline, nullptr, &_vk_pipeline);
 				assert(res == VK_SUCCESS);
 			}
 		};

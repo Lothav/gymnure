@@ -41,7 +41,7 @@ namespace Engine
 			virtual ~FrameBuffer()
 			{
 				for (u_int32_t i = 0; i < _swap_chain->getImageCount(); i++) {
-					vkDestroyFramebuffer(_sc_params.device, _frame_buffer[i], NULL);
+					vkDestroyFramebuffer(_sc_params.device, _frame_buffer[i], nullptr);
 				}
 				free(_frame_buffer);
 				delete _depth_buffer;
@@ -56,7 +56,7 @@ namespace Engine
 
 				VkFramebufferCreateInfo fb_info = {};
 				fb_info.sType 					= VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-				fb_info.pNext 					= NULL;
+				fb_info.pNext 					= nullptr;
 				fb_info.renderPass 				= render_pass;
 				fb_info.attachmentCount 		= 2;
 				fb_info.pAttachments 			= img_attachments;
@@ -69,7 +69,7 @@ namespace Engine
 				for (uint32_t i = 0; i < _swap_chain->getImageCount(); i++)
 				{
 					img_attachments[0] = (_swap_chain->getSwapChainBuffer(i))->view;
-					assert(vkCreateFramebuffer(instance_device, &fb_info, NULL, &_frame_buffer[i]) == VK_SUCCESS);
+					assert(vkCreateFramebuffer(instance_device, &fb_info, nullptr, &_frame_buffer[i]) == VK_SUCCESS);
 				}
 			}
 

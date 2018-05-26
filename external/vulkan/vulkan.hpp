@@ -1166,11 +1166,11 @@ namespace vk
   {
   public:
     DeviceMemory()
-      : m_deviceMemory(VK_NULL_HANDLE)
+      : m_deviceMemory(VK_nullptr_HANDLE)
     {}
 
     DeviceMemory( std::nullptr_t )
-      : m_deviceMemory(VK_NULL_HANDLE)
+      : m_deviceMemory(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DeviceMemory( VkDeviceMemory deviceMemory )
@@ -1187,7 +1187,7 @@ namespace vk
 
     DeviceMemory & operator=( std::nullptr_t )
     {
-      m_deviceMemory = VK_NULL_HANDLE;
+      m_deviceMemory = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1215,12 +1215,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_deviceMemory != VK_NULL_HANDLE;
+      return m_deviceMemory != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_deviceMemory == VK_NULL_HANDLE;
+      return m_deviceMemory == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1233,11 +1233,11 @@ namespace vk
   {
   public:
     CommandPool()
-      : m_commandPool(VK_NULL_HANDLE)
+      : m_commandPool(VK_nullptr_HANDLE)
     {}
 
     CommandPool( std::nullptr_t )
-      : m_commandPool(VK_NULL_HANDLE)
+      : m_commandPool(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT CommandPool( VkCommandPool commandPool )
@@ -1254,7 +1254,7 @@ namespace vk
 
     CommandPool & operator=( std::nullptr_t )
     {
-      m_commandPool = VK_NULL_HANDLE;
+      m_commandPool = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1282,12 +1282,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_commandPool != VK_NULL_HANDLE;
+      return m_commandPool != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_commandPool == VK_NULL_HANDLE;
+      return m_commandPool == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1300,11 +1300,11 @@ namespace vk
   {
   public:
     Buffer()
-      : m_buffer(VK_NULL_HANDLE)
+      : m_buffer(VK_nullptr_HANDLE)
     {}
 
     Buffer( std::nullptr_t )
-      : m_buffer(VK_NULL_HANDLE)
+      : m_buffer(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Buffer( VkBuffer buffer )
@@ -1321,7 +1321,7 @@ namespace vk
 
     Buffer & operator=( std::nullptr_t )
     {
-      m_buffer = VK_NULL_HANDLE;
+      m_buffer = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1349,12 +1349,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_buffer != VK_NULL_HANDLE;
+      return m_buffer != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_buffer == VK_NULL_HANDLE;
+      return m_buffer == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1367,11 +1367,11 @@ namespace vk
   {
   public:
     BufferView()
-      : m_bufferView(VK_NULL_HANDLE)
+      : m_bufferView(VK_nullptr_HANDLE)
     {}
 
     BufferView( std::nullptr_t )
-      : m_bufferView(VK_NULL_HANDLE)
+      : m_bufferView(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT BufferView( VkBufferView bufferView )
@@ -1388,7 +1388,7 @@ namespace vk
 
     BufferView & operator=( std::nullptr_t )
     {
-      m_bufferView = VK_NULL_HANDLE;
+      m_bufferView = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1416,12 +1416,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_bufferView != VK_NULL_HANDLE;
+      return m_bufferView != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_bufferView == VK_NULL_HANDLE;
+      return m_bufferView == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1434,11 +1434,11 @@ namespace vk
   {
   public:
     Image()
-      : m_image(VK_NULL_HANDLE)
+      : m_image(VK_nullptr_HANDLE)
     {}
 
     Image( std::nullptr_t )
-      : m_image(VK_NULL_HANDLE)
+      : m_image(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Image( VkImage image )
@@ -1455,7 +1455,7 @@ namespace vk
 
     Image & operator=( std::nullptr_t )
     {
-      m_image = VK_NULL_HANDLE;
+      m_image = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1483,12 +1483,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_image != VK_NULL_HANDLE;
+      return m_image != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_image == VK_NULL_HANDLE;
+      return m_image == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1501,11 +1501,11 @@ namespace vk
   {
   public:
     ImageView()
-      : m_imageView(VK_NULL_HANDLE)
+      : m_imageView(VK_nullptr_HANDLE)
     {}
 
     ImageView( std::nullptr_t )
-      : m_imageView(VK_NULL_HANDLE)
+      : m_imageView(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT ImageView( VkImageView imageView )
@@ -1522,7 +1522,7 @@ namespace vk
 
     ImageView & operator=( std::nullptr_t )
     {
-      m_imageView = VK_NULL_HANDLE;
+      m_imageView = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1550,12 +1550,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_imageView != VK_NULL_HANDLE;
+      return m_imageView != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_imageView == VK_NULL_HANDLE;
+      return m_imageView == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1568,11 +1568,11 @@ namespace vk
   {
   public:
     ShaderModule()
-      : m_shaderModule(VK_NULL_HANDLE)
+      : m_shaderModule(VK_nullptr_HANDLE)
     {}
 
     ShaderModule( std::nullptr_t )
-      : m_shaderModule(VK_NULL_HANDLE)
+      : m_shaderModule(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT ShaderModule( VkShaderModule shaderModule )
@@ -1589,7 +1589,7 @@ namespace vk
 
     ShaderModule & operator=( std::nullptr_t )
     {
-      m_shaderModule = VK_NULL_HANDLE;
+      m_shaderModule = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1617,12 +1617,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_shaderModule != VK_NULL_HANDLE;
+      return m_shaderModule != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_shaderModule == VK_NULL_HANDLE;
+      return m_shaderModule == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1635,11 +1635,11 @@ namespace vk
   {
   public:
     Pipeline()
-      : m_pipeline(VK_NULL_HANDLE)
+      : m_pipeline(VK_nullptr_HANDLE)
     {}
 
     Pipeline( std::nullptr_t )
-      : m_pipeline(VK_NULL_HANDLE)
+      : m_pipeline(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Pipeline( VkPipeline pipeline )
@@ -1656,7 +1656,7 @@ namespace vk
 
     Pipeline & operator=( std::nullptr_t )
     {
-      m_pipeline = VK_NULL_HANDLE;
+      m_pipeline = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1684,12 +1684,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_pipeline != VK_NULL_HANDLE;
+      return m_pipeline != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_pipeline == VK_NULL_HANDLE;
+      return m_pipeline == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1702,11 +1702,11 @@ namespace vk
   {
   public:
     PipelineLayout()
-      : m_pipelineLayout(VK_NULL_HANDLE)
+      : m_pipelineLayout(VK_nullptr_HANDLE)
     {}
 
     PipelineLayout( std::nullptr_t )
-      : m_pipelineLayout(VK_NULL_HANDLE)
+      : m_pipelineLayout(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT PipelineLayout( VkPipelineLayout pipelineLayout )
@@ -1723,7 +1723,7 @@ namespace vk
 
     PipelineLayout & operator=( std::nullptr_t )
     {
-      m_pipelineLayout = VK_NULL_HANDLE;
+      m_pipelineLayout = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1751,12 +1751,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_pipelineLayout != VK_NULL_HANDLE;
+      return m_pipelineLayout != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_pipelineLayout == VK_NULL_HANDLE;
+      return m_pipelineLayout == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1769,11 +1769,11 @@ namespace vk
   {
   public:
     Sampler()
-      : m_sampler(VK_NULL_HANDLE)
+      : m_sampler(VK_nullptr_HANDLE)
     {}
 
     Sampler( std::nullptr_t )
-      : m_sampler(VK_NULL_HANDLE)
+      : m_sampler(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Sampler( VkSampler sampler )
@@ -1790,7 +1790,7 @@ namespace vk
 
     Sampler & operator=( std::nullptr_t )
     {
-      m_sampler = VK_NULL_HANDLE;
+      m_sampler = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1818,12 +1818,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_sampler != VK_NULL_HANDLE;
+      return m_sampler != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_sampler == VK_NULL_HANDLE;
+      return m_sampler == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1836,11 +1836,11 @@ namespace vk
   {
   public:
     DescriptorSet()
-      : m_descriptorSet(VK_NULL_HANDLE)
+      : m_descriptorSet(VK_nullptr_HANDLE)
     {}
 
     DescriptorSet( std::nullptr_t )
-      : m_descriptorSet(VK_NULL_HANDLE)
+      : m_descriptorSet(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DescriptorSet( VkDescriptorSet descriptorSet )
@@ -1857,7 +1857,7 @@ namespace vk
 
     DescriptorSet & operator=( std::nullptr_t )
     {
-      m_descriptorSet = VK_NULL_HANDLE;
+      m_descriptorSet = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1885,12 +1885,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_descriptorSet != VK_NULL_HANDLE;
+      return m_descriptorSet != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_descriptorSet == VK_NULL_HANDLE;
+      return m_descriptorSet == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1903,11 +1903,11 @@ namespace vk
   {
   public:
     DescriptorSetLayout()
-      : m_descriptorSetLayout(VK_NULL_HANDLE)
+      : m_descriptorSetLayout(VK_nullptr_HANDLE)
     {}
 
     DescriptorSetLayout( std::nullptr_t )
-      : m_descriptorSetLayout(VK_NULL_HANDLE)
+      : m_descriptorSetLayout(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DescriptorSetLayout( VkDescriptorSetLayout descriptorSetLayout )
@@ -1924,7 +1924,7 @@ namespace vk
 
     DescriptorSetLayout & operator=( std::nullptr_t )
     {
-      m_descriptorSetLayout = VK_NULL_HANDLE;
+      m_descriptorSetLayout = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -1952,12 +1952,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_descriptorSetLayout != VK_NULL_HANDLE;
+      return m_descriptorSetLayout != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_descriptorSetLayout == VK_NULL_HANDLE;
+      return m_descriptorSetLayout == VK_nullptr_HANDLE;
     }
 
   private:
@@ -1970,11 +1970,11 @@ namespace vk
   {
   public:
     DescriptorPool()
-      : m_descriptorPool(VK_NULL_HANDLE)
+      : m_descriptorPool(VK_nullptr_HANDLE)
     {}
 
     DescriptorPool( std::nullptr_t )
-      : m_descriptorPool(VK_NULL_HANDLE)
+      : m_descriptorPool(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DescriptorPool( VkDescriptorPool descriptorPool )
@@ -1991,7 +1991,7 @@ namespace vk
 
     DescriptorPool & operator=( std::nullptr_t )
     {
-      m_descriptorPool = VK_NULL_HANDLE;
+      m_descriptorPool = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2019,12 +2019,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_descriptorPool != VK_NULL_HANDLE;
+      return m_descriptorPool != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_descriptorPool == VK_NULL_HANDLE;
+      return m_descriptorPool == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2037,11 +2037,11 @@ namespace vk
   {
   public:
     Fence()
-      : m_fence(VK_NULL_HANDLE)
+      : m_fence(VK_nullptr_HANDLE)
     {}
 
     Fence( std::nullptr_t )
-      : m_fence(VK_NULL_HANDLE)
+      : m_fence(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Fence( VkFence fence )
@@ -2058,7 +2058,7 @@ namespace vk
 
     Fence & operator=( std::nullptr_t )
     {
-      m_fence = VK_NULL_HANDLE;
+      m_fence = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2086,12 +2086,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_fence != VK_NULL_HANDLE;
+      return m_fence != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_fence == VK_NULL_HANDLE;
+      return m_fence == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2104,11 +2104,11 @@ namespace vk
   {
   public:
     Semaphore()
-      : m_semaphore(VK_NULL_HANDLE)
+      : m_semaphore(VK_nullptr_HANDLE)
     {}
 
     Semaphore( std::nullptr_t )
-      : m_semaphore(VK_NULL_HANDLE)
+      : m_semaphore(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Semaphore( VkSemaphore semaphore )
@@ -2125,7 +2125,7 @@ namespace vk
 
     Semaphore & operator=( std::nullptr_t )
     {
-      m_semaphore = VK_NULL_HANDLE;
+      m_semaphore = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2153,12 +2153,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_semaphore != VK_NULL_HANDLE;
+      return m_semaphore != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_semaphore == VK_NULL_HANDLE;
+      return m_semaphore == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2171,11 +2171,11 @@ namespace vk
   {
   public:
     Event()
-      : m_event(VK_NULL_HANDLE)
+      : m_event(VK_nullptr_HANDLE)
     {}
 
     Event( std::nullptr_t )
-      : m_event(VK_NULL_HANDLE)
+      : m_event(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Event( VkEvent event )
@@ -2192,7 +2192,7 @@ namespace vk
 
     Event & operator=( std::nullptr_t )
     {
-      m_event = VK_NULL_HANDLE;
+      m_event = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2220,12 +2220,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_event != VK_NULL_HANDLE;
+      return m_event != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_event == VK_NULL_HANDLE;
+      return m_event == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2238,11 +2238,11 @@ namespace vk
   {
   public:
     QueryPool()
-      : m_queryPool(VK_NULL_HANDLE)
+      : m_queryPool(VK_nullptr_HANDLE)
     {}
 
     QueryPool( std::nullptr_t )
-      : m_queryPool(VK_NULL_HANDLE)
+      : m_queryPool(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT QueryPool( VkQueryPool queryPool )
@@ -2259,7 +2259,7 @@ namespace vk
 
     QueryPool & operator=( std::nullptr_t )
     {
-      m_queryPool = VK_NULL_HANDLE;
+      m_queryPool = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2287,12 +2287,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_queryPool != VK_NULL_HANDLE;
+      return m_queryPool != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_queryPool == VK_NULL_HANDLE;
+      return m_queryPool == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2305,11 +2305,11 @@ namespace vk
   {
   public:
     Framebuffer()
-      : m_framebuffer(VK_NULL_HANDLE)
+      : m_framebuffer(VK_nullptr_HANDLE)
     {}
 
     Framebuffer( std::nullptr_t )
-      : m_framebuffer(VK_NULL_HANDLE)
+      : m_framebuffer(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Framebuffer( VkFramebuffer framebuffer )
@@ -2326,7 +2326,7 @@ namespace vk
 
     Framebuffer & operator=( std::nullptr_t )
     {
-      m_framebuffer = VK_NULL_HANDLE;
+      m_framebuffer = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2354,12 +2354,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_framebuffer != VK_NULL_HANDLE;
+      return m_framebuffer != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_framebuffer == VK_NULL_HANDLE;
+      return m_framebuffer == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2372,11 +2372,11 @@ namespace vk
   {
   public:
     RenderPass()
-      : m_renderPass(VK_NULL_HANDLE)
+      : m_renderPass(VK_nullptr_HANDLE)
     {}
 
     RenderPass( std::nullptr_t )
-      : m_renderPass(VK_NULL_HANDLE)
+      : m_renderPass(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT RenderPass( VkRenderPass renderPass )
@@ -2393,7 +2393,7 @@ namespace vk
 
     RenderPass & operator=( std::nullptr_t )
     {
-      m_renderPass = VK_NULL_HANDLE;
+      m_renderPass = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2421,12 +2421,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_renderPass != VK_NULL_HANDLE;
+      return m_renderPass != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_renderPass == VK_NULL_HANDLE;
+      return m_renderPass == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2439,11 +2439,11 @@ namespace vk
   {
   public:
     PipelineCache()
-      : m_pipelineCache(VK_NULL_HANDLE)
+      : m_pipelineCache(VK_nullptr_HANDLE)
     {}
 
     PipelineCache( std::nullptr_t )
-      : m_pipelineCache(VK_NULL_HANDLE)
+      : m_pipelineCache(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT PipelineCache( VkPipelineCache pipelineCache )
@@ -2460,7 +2460,7 @@ namespace vk
 
     PipelineCache & operator=( std::nullptr_t )
     {
-      m_pipelineCache = VK_NULL_HANDLE;
+      m_pipelineCache = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2488,12 +2488,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_pipelineCache != VK_NULL_HANDLE;
+      return m_pipelineCache != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_pipelineCache == VK_NULL_HANDLE;
+      return m_pipelineCache == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2506,11 +2506,11 @@ namespace vk
   {
   public:
     ObjectTableNVX()
-      : m_objectTableNVX(VK_NULL_HANDLE)
+      : m_objectTableNVX(VK_nullptr_HANDLE)
     {}
 
     ObjectTableNVX( std::nullptr_t )
-      : m_objectTableNVX(VK_NULL_HANDLE)
+      : m_objectTableNVX(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT ObjectTableNVX( VkObjectTableNVX objectTableNVX )
@@ -2527,7 +2527,7 @@ namespace vk
 
     ObjectTableNVX & operator=( std::nullptr_t )
     {
-      m_objectTableNVX = VK_NULL_HANDLE;
+      m_objectTableNVX = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2555,12 +2555,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_objectTableNVX != VK_NULL_HANDLE;
+      return m_objectTableNVX != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_objectTableNVX == VK_NULL_HANDLE;
+      return m_objectTableNVX == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2573,11 +2573,11 @@ namespace vk
   {
   public:
     IndirectCommandsLayoutNVX()
-      : m_indirectCommandsLayoutNVX(VK_NULL_HANDLE)
+      : m_indirectCommandsLayoutNVX(VK_nullptr_HANDLE)
     {}
 
     IndirectCommandsLayoutNVX( std::nullptr_t )
-      : m_indirectCommandsLayoutNVX(VK_NULL_HANDLE)
+      : m_indirectCommandsLayoutNVX(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT IndirectCommandsLayoutNVX( VkIndirectCommandsLayoutNVX indirectCommandsLayoutNVX )
@@ -2594,7 +2594,7 @@ namespace vk
 
     IndirectCommandsLayoutNVX & operator=( std::nullptr_t )
     {
-      m_indirectCommandsLayoutNVX = VK_NULL_HANDLE;
+      m_indirectCommandsLayoutNVX = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2622,12 +2622,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_indirectCommandsLayoutNVX != VK_NULL_HANDLE;
+      return m_indirectCommandsLayoutNVX != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_indirectCommandsLayoutNVX == VK_NULL_HANDLE;
+      return m_indirectCommandsLayoutNVX == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2640,11 +2640,11 @@ namespace vk
   {
   public:
     DescriptorUpdateTemplateKHR()
-      : m_descriptorUpdateTemplateKHR(VK_NULL_HANDLE)
+      : m_descriptorUpdateTemplateKHR(VK_nullptr_HANDLE)
     {}
 
     DescriptorUpdateTemplateKHR( std::nullptr_t )
-      : m_descriptorUpdateTemplateKHR(VK_NULL_HANDLE)
+      : m_descriptorUpdateTemplateKHR(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DescriptorUpdateTemplateKHR( VkDescriptorUpdateTemplateKHR descriptorUpdateTemplateKHR )
@@ -2661,7 +2661,7 @@ namespace vk
 
     DescriptorUpdateTemplateKHR & operator=( std::nullptr_t )
     {
-      m_descriptorUpdateTemplateKHR = VK_NULL_HANDLE;
+      m_descriptorUpdateTemplateKHR = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2689,12 +2689,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_descriptorUpdateTemplateKHR != VK_NULL_HANDLE;
+      return m_descriptorUpdateTemplateKHR != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_descriptorUpdateTemplateKHR == VK_NULL_HANDLE;
+      return m_descriptorUpdateTemplateKHR == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2707,11 +2707,11 @@ namespace vk
   {
   public:
     DisplayKHR()
-      : m_displayKHR(VK_NULL_HANDLE)
+      : m_displayKHR(VK_nullptr_HANDLE)
     {}
 
     DisplayKHR( std::nullptr_t )
-      : m_displayKHR(VK_NULL_HANDLE)
+      : m_displayKHR(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DisplayKHR( VkDisplayKHR displayKHR )
@@ -2728,7 +2728,7 @@ namespace vk
 
     DisplayKHR & operator=( std::nullptr_t )
     {
-      m_displayKHR = VK_NULL_HANDLE;
+      m_displayKHR = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2756,12 +2756,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_displayKHR != VK_NULL_HANDLE;
+      return m_displayKHR != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_displayKHR == VK_NULL_HANDLE;
+      return m_displayKHR == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2774,11 +2774,11 @@ namespace vk
   {
   public:
     DisplayModeKHR()
-      : m_displayModeKHR(VK_NULL_HANDLE)
+      : m_displayModeKHR(VK_nullptr_HANDLE)
     {}
 
     DisplayModeKHR( std::nullptr_t )
-      : m_displayModeKHR(VK_NULL_HANDLE)
+      : m_displayModeKHR(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DisplayModeKHR( VkDisplayModeKHR displayModeKHR )
@@ -2795,7 +2795,7 @@ namespace vk
 
     DisplayModeKHR & operator=( std::nullptr_t )
     {
-      m_displayModeKHR = VK_NULL_HANDLE;
+      m_displayModeKHR = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2823,12 +2823,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_displayModeKHR != VK_NULL_HANDLE;
+      return m_displayModeKHR != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_displayModeKHR == VK_NULL_HANDLE;
+      return m_displayModeKHR == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2841,11 +2841,11 @@ namespace vk
   {
   public:
     SurfaceKHR()
-      : m_surfaceKHR(VK_NULL_HANDLE)
+      : m_surfaceKHR(VK_nullptr_HANDLE)
     {}
 
     SurfaceKHR( std::nullptr_t )
-      : m_surfaceKHR(VK_NULL_HANDLE)
+      : m_surfaceKHR(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT SurfaceKHR( VkSurfaceKHR surfaceKHR )
@@ -2862,7 +2862,7 @@ namespace vk
 
     SurfaceKHR & operator=( std::nullptr_t )
     {
-      m_surfaceKHR = VK_NULL_HANDLE;
+      m_surfaceKHR = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2890,12 +2890,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_surfaceKHR != VK_NULL_HANDLE;
+      return m_surfaceKHR != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_surfaceKHR == VK_NULL_HANDLE;
+      return m_surfaceKHR == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2908,11 +2908,11 @@ namespace vk
   {
   public:
     SwapchainKHR()
-      : m_swapchainKHR(VK_NULL_HANDLE)
+      : m_swapchainKHR(VK_nullptr_HANDLE)
     {}
 
     SwapchainKHR( std::nullptr_t )
-      : m_swapchainKHR(VK_NULL_HANDLE)
+      : m_swapchainKHR(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT SwapchainKHR( VkSwapchainKHR swapchainKHR )
@@ -2929,7 +2929,7 @@ namespace vk
 
     SwapchainKHR & operator=( std::nullptr_t )
     {
-      m_swapchainKHR = VK_NULL_HANDLE;
+      m_swapchainKHR = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -2957,12 +2957,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_swapchainKHR != VK_NULL_HANDLE;
+      return m_swapchainKHR != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_swapchainKHR == VK_NULL_HANDLE;
+      return m_swapchainKHR == VK_nullptr_HANDLE;
     }
 
   private:
@@ -2975,11 +2975,11 @@ namespace vk
   {
   public:
     DebugReportCallbackEXT()
-      : m_debugReportCallbackEXT(VK_NULL_HANDLE)
+      : m_debugReportCallbackEXT(VK_nullptr_HANDLE)
     {}
 
     DebugReportCallbackEXT( std::nullptr_t )
-      : m_debugReportCallbackEXT(VK_NULL_HANDLE)
+      : m_debugReportCallbackEXT(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT DebugReportCallbackEXT( VkDebugReportCallbackEXT debugReportCallbackEXT )
@@ -2996,7 +2996,7 @@ namespace vk
 
     DebugReportCallbackEXT & operator=( std::nullptr_t )
     {
-      m_debugReportCallbackEXT = VK_NULL_HANDLE;
+      m_debugReportCallbackEXT = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -3024,12 +3024,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_debugReportCallbackEXT != VK_NULL_HANDLE;
+      return m_debugReportCallbackEXT != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_debugReportCallbackEXT == VK_NULL_HANDLE;
+      return m_debugReportCallbackEXT == VK_nullptr_HANDLE;
     }
 
   private:
@@ -23915,11 +23915,11 @@ namespace vk
   {
   public:
     CommandBuffer()
-      : m_commandBuffer(VK_NULL_HANDLE)
+      : m_commandBuffer(VK_nullptr_HANDLE)
     {}
 
     CommandBuffer( std::nullptr_t )
-      : m_commandBuffer(VK_NULL_HANDLE)
+      : m_commandBuffer(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT CommandBuffer( VkCommandBuffer commandBuffer )
@@ -23936,7 +23936,7 @@ namespace vk
 
     CommandBuffer & operator=( std::nullptr_t )
     {
-      m_commandBuffer = VK_NULL_HANDLE;
+      m_commandBuffer = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -24175,12 +24175,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_commandBuffer != VK_NULL_HANDLE;
+      return m_commandBuffer != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_commandBuffer == VK_NULL_HANDLE;
+      return m_commandBuffer == VK_nullptr_HANDLE;
     }
 
   private:
@@ -24793,11 +24793,11 @@ namespace vk
   {
   public:
     Queue()
-      : m_queue(VK_NULL_HANDLE)
+      : m_queue(VK_nullptr_HANDLE)
     {}
 
     Queue( std::nullptr_t )
-      : m_queue(VK_NULL_HANDLE)
+      : m_queue(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Queue( VkQueue queue )
@@ -24814,7 +24814,7 @@ namespace vk
 
     Queue & operator=( std::nullptr_t )
     {
-      m_queue = VK_NULL_HANDLE;
+      m_queue = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -24863,12 +24863,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_queue != VK_NULL_HANDLE;
+      return m_queue != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_queue == VK_NULL_HANDLE;
+      return m_queue == VK_nullptr_HANDLE;
     }
 
   private:
@@ -24983,11 +24983,11 @@ namespace vk
   {
   public:
     Device()
-      : m_device(VK_NULL_HANDLE)
+      : m_device(VK_nullptr_HANDLE)
     {}
 
     Device( std::nullptr_t )
-      : m_device(VK_NULL_HANDLE)
+      : m_device(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Device( VkDevice device )
@@ -25004,7 +25004,7 @@ namespace vk
 
     Device & operator=( std::nullptr_t )
     {
-      m_device = VK_NULL_HANDLE;
+      m_device = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -25732,12 +25732,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_device != VK_NULL_HANDLE;
+      return m_device != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_device == VK_NULL_HANDLE;
+      return m_device == VK_nullptr_HANDLE;
     }
 
   private:
@@ -27990,11 +27990,11 @@ namespace vk
   {
   public:
     PhysicalDevice()
-      : m_physicalDevice(VK_NULL_HANDLE)
+      : m_physicalDevice(VK_nullptr_HANDLE)
     {}
 
     PhysicalDevice( std::nullptr_t )
-      : m_physicalDevice(VK_NULL_HANDLE)
+      : m_physicalDevice(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT PhysicalDevice( VkPhysicalDevice physicalDevice )
@@ -28011,7 +28011,7 @@ namespace vk
 
     PhysicalDevice & operator=( std::nullptr_t )
     {
-      m_physicalDevice = VK_NULL_HANDLE;
+      m_physicalDevice = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -28288,12 +28288,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_physicalDevice != VK_NULL_HANDLE;
+      return m_physicalDevice != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_physicalDevice == VK_NULL_HANDLE;
+      return m_physicalDevice == VK_nullptr_HANDLE;
     }
 
   private:
@@ -29224,11 +29224,11 @@ namespace vk
   {
   public:
     Instance()
-      : m_instance(VK_NULL_HANDLE)
+      : m_instance(VK_nullptr_HANDLE)
     {}
 
     Instance( std::nullptr_t )
-      : m_instance(VK_NULL_HANDLE)
+      : m_instance(VK_nullptr_HANDLE)
     {}
 
     VULKAN_HPP_TYPESAFE_EXPLICIT Instance( VkInstance instance )
@@ -29245,7 +29245,7 @@ namespace vk
 
     Instance & operator=( std::nullptr_t )
     {
-      m_instance = VK_NULL_HANDLE;
+      m_instance = VK_nullptr_HANDLE;
       return *this;
     }
 
@@ -29416,12 +29416,12 @@ namespace vk
 
     explicit operator bool() const
     {
-      return m_instance != VK_NULL_HANDLE;
+      return m_instance != VK_nullptr_HANDLE;
     }
 
     bool operator!() const
     {
-      return m_instance == VK_NULL_HANDLE;
+      return m_instance == VK_nullptr_HANDLE;
     }
 
   private:

@@ -28,18 +28,18 @@ namespace Engine
 
         private:
 
-            std::vector<VkDescriptorSetLayoutBinding>   _layout_bindings = {};
-            std::vector<VkDescriptorSetLayout> 		    _desc_layout = {};
-            VkPipelineLayout 						    _pipeline_layout = nullptr;
-            VkDescriptorPool                            _desc_pool = nullptr;
-            VkDescriptorSet                             _desc_set = nullptr;
+            std::vector<VkDescriptorSetLayoutBinding>   _layout_bindings    = {};
+            std::vector<VkDescriptorSetLayout> 		    _desc_layout        = {};
+            VkPipelineLayout 						    _pipeline_layout    = nullptr;
+            VkDescriptorPool                            _desc_pool          = nullptr;
+            VkDescriptorSet                             _desc_set           = nullptr;
 
-            Descriptors::UniformBuffer*                 _uniform_buffer = nullptr;
+            Descriptors::UniformBuffer*                 _uniform_buffer     = nullptr;
 
-            Memory::BufferImage*                        _textel_buffer = nullptr;
-            VkSampler                                   _texture_sampler = nullptr;
+            Memory::BufferImage*                        _textel_buffer      = nullptr;
+            VkSampler                                   _texture_sampler    = nullptr;
 
-            VkDevice                                    _instance_device;
+            VkDevice                                    _instance_device    = nullptr;
 
         public:
 
@@ -55,9 +55,9 @@ namespace Engine
 				vkDestroySampler(_instance_device, _texture_sampler, nullptr);
 				vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
 				for (u_int32_t i = 0; i < _desc_layout.size(); i++) {
-					vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], NULL);
+					vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
 				}
-				vkDestroyPipelineLayout(_instance_device, _pipeline_layout, NULL);
+				vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
 			}
 
             void create(struct DescriptorSetParams ds_params)
@@ -81,7 +81,7 @@ namespace Engine
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);
 
-                VkImage texture_image = NULL;
+                VkImage texture_image = nullptr;
                 if(ds_params.path != nullptr) {
                     texture_image = Textures::createTextureImage(ds_params.gpu, _instance_device, ds_params.path,
                                                                          ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
@@ -95,7 +95,7 @@ namespace Engine
 
                 /*  create Textel Buffer  */
 
-                if(texture_image != NULL) {
+                if(texture_image != nullptr) {
                     _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
                     createSampler();
                 }
@@ -176,12 +176,12 @@ namespace Engine
 
                 VkDescriptorPoolCreateInfo descriptor_pool = {};
                 descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                descriptor_pool.pNext 							 = NULL;
+                descriptor_pool.pNext 							 = nullptr;
                 descriptor_pool.maxSets 						 = 1;
                 descriptor_pool.poolSizeCount 					 = 2;
                 descriptor_pool.pPoolSizes 						 = type_count;
 
-                VkResult res = vkCreateDescriptorPool(_instance_device, &descriptor_pool, NULL, &_desc_pool);
+                VkResult res = vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool);
                 assert(res == VK_SUCCESS);
             }
 
@@ -189,7 +189,7 @@ namespace Engine
             {
                 VkDescriptorSetAllocateInfo _alloc_info[1];
                 _alloc_info[0].sType 							  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-                _alloc_info[0].pNext 							  = NULL;
+                _alloc_info[0].pNext 							  = nullptr;
                 _alloc_info[0].descriptorPool 					  = _desc_pool;
                 _alloc_info[0].descriptorSetCount 				  = 1;
                 _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
@@ -236,7 +236,7 @@ namespace Engine
                 writes.push_back(write);
 
                 if(_textel_buffer != nullptr) {
-                    VkDescriptorImageInfo texture_info;
+                    VkDescriptorImageInfo texture_info = {};
                     texture_info.imageLayout 					  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                     texture_info.imageView 						  = _textel_buffer->view;
                     texture_info.sampler 						  = _texture_sampler;

@@ -5,8 +5,8 @@
 #ifndef OBSIDIAN2D_SYNCPRIMITIVES_H
 #define OBSIDIAN2D_SYNCPRIMITIVES_H
 
+#include <cassert>
 #include <vector>
-#include <assert.h>
 #include "vulkan/vulkan.h"
 
 namespace Engine
@@ -43,31 +43,30 @@ namespace Engine
 
 			void createSemaphore()
 			{
-				VkSemaphoreCreateInfo imageAcquiredSemaphoreCreateInfo;
+				VkSemaphoreCreateInfo imageAcquiredSemaphoreCreateInfo = {};
 				imageAcquiredSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-				imageAcquiredSemaphoreCreateInfo.pNext = NULL;
+				imageAcquiredSemaphoreCreateInfo.pNext = nullptr;
 				imageAcquiredSemaphoreCreateInfo.flags = 0;
 
-				VkResult res = vkCreateSemaphore(_instance_device, &imageAcquiredSemaphoreCreateInfo, NULL, &imageAcquiredSemaphore);
+				VkResult res = vkCreateSemaphore(_instance_device, &imageAcquiredSemaphoreCreateInfo, nullptr, &imageAcquiredSemaphore);
 				assert(res == VK_SUCCESS);
 
-				res = vkCreateSemaphore(_instance_device, &imageAcquiredSemaphoreCreateInfo, NULL, &renderSemaphore);
+				res = vkCreateSemaphore(_instance_device, &imageAcquiredSemaphoreCreateInfo, nullptr, &renderSemaphore);
 				assert(res == VK_SUCCESS);
 			}
 
 			void createFence(uint32_t size)
 			{
-
 				_fences.resize(size);
 
-				VkFenceCreateInfo fenceInfo;
+				VkFenceCreateInfo fenceInfo = {};
 				fenceInfo.sType 			= VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-				fenceInfo.pNext 			= NULL;
+				fenceInfo.pNext 			= nullptr;
 				fenceInfo.flags 			= 0;
 
 				for(u_int32_t i = 0; i< size; i++)
 				{
-					vkCreateFence(_instance_device, &fenceInfo, NULL, &_fences[i]);
+					vkCreateFence(_instance_device, &fenceInfo, nullptr, &_fences[i]);
 				}
 
 			}

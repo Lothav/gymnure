@@ -257,14 +257,14 @@ typedef struct callback_t_ {
   void (*object_cb)(void *user_data, const char *name);
 
   callback_t_()
-      : vertex_cb(NULL),
-        normal_cb(NULL),
-        texcoord_cb(NULL),
-        index_cb(NULL),
-        usemtl_cb(NULL),
-        mtllib_cb(NULL),
-        group_cb(NULL),
-        object_cb(NULL) {}
+      : vertex_cb(nullptr),
+        normal_cb(nullptr),
+        texcoord_cb(nullptr),
+        index_cb(nullptr),
+        usemtl_cb(nullptr),
+        mtllib_cb(nullptr),
+        group_cb(nullptr),
+        object_cb(nullptr) {}
 } callback_t;
 
 class MaterialReader {
@@ -310,13 +310,13 @@ class MaterialStreamReader : public MaterialReader {
 /// Returns true when loading .obj become success.
 /// Returns warning and error message into `err`
 /// 'mtl_basedir' is optional, and used for base directory for .mtl file.
-/// In default(`NULL'), .mtl file is searched from an application's working
+/// In default(`nullptr'), .mtl file is searched from an application's working
 /// directory.
 /// 'triangulate' is optional, and used whether triangulate polygon face in .obj
 /// or not.
 bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              std::vector<material_t> *materials, std::string *err,
-             const char *filename, const char *mtl_basedir = NULL,
+             const char *filename, const char *mtl_basedir = nullptr,
              bool triangulate = true);
 
 /// Loads .obj from a file with custom user callback.
@@ -326,9 +326,9 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 /// Returns warning and error message into `err`
 /// See `examples/callback_api/` for how to use this function.
 bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
-                         void *user_data = NULL,
-                         MaterialReader *readMatFn = NULL,
-                         std::string *err = NULL);
+                         void *user_data = nullptr,
+                         MaterialReader *readMatFn = nullptr,
+                         std::string *err = nullptr);
 
 /// Loads object from a std::istream, uses GetMtlIStreamFn to retrieve
 /// std::istream for materials.
@@ -336,7 +336,7 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
 /// Returns warning and error message into `err`
 bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              std::vector<material_t> *materials, std::string *err,
-             std::istream *inStream, MaterialReader *readMatFn = NULL,
+             std::istream *inStream, MaterialReader *readMatFn = nullptr,
              bool triangulate = true);
 
 /// Loads materials into std::map
@@ -791,7 +791,7 @@ static bool ParseTextureNameAndOption(std::string *texname,
   texopt->turbulence[2] = 0.0f;
   texopt->type = TEXTURE_TYPE_NONE;
 
-  const char *token = linebuf;  // Assume line ends with NULL
+  const char *token = linebuf;  // Assume line ends with nullptr
 
   while (!IS_NEW_LINE((*token))) {
     token += strspn(token, " \t");  // skip space
@@ -1446,7 +1446,7 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 
 bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
              std::vector<material_t> *materials, std::string *err,
-             std::istream *inStream, MaterialReader *readMatFn /*= NULL*/,
+             std::istream *inStream, MaterialReader *readMatFn /*= nullptr*/,
              bool triangulate) {
   std::stringstream errss;
 
@@ -1738,9 +1738,9 @@ bool LoadObj(attrib_t *attrib, std::vector<shape_t> *shapes,
 }
 
 bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
-                         void *user_data /*= NULL*/,
-                         MaterialReader *readMatFn /*= NULL*/,
-                         std::string *err /*= NULL*/) {
+                         void *user_data /*= nullptr*/,
+                         MaterialReader *readMatFn /*= nullptr*/,
+                         std::string *err /*= nullptr*/) {
   std::stringstream errss;
 
   // material
@@ -1945,7 +1945,7 @@ bool LoadObjWithCallback(std::istream &inStream, const callback_t &callback,
                             static_cast<int>(names_out.size()));
 
         } else {
-          callback.group_cb(user_data, NULL, 0);
+          callback.group_cb(user_data, nullptr, 0);
         }
       }
 

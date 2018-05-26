@@ -35,8 +35,8 @@ namespace Engine
 				xcb_screen_iterator_t iter;
 				int scr;
 
-				connection = xcb_connect(NULL, &scr);
-				if (connection == NULL || xcb_connection_has_error(connection)) {
+				connection = xcb_connect(nullptr, &scr);
+				if (connection == nullptr || xcb_connection_has_error(connection)) {
 					std::cout << "Unable to make an XCB connection\n";
 					exit(-1);
 				}

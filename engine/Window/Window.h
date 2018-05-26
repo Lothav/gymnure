@@ -15,6 +15,7 @@
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "CommandBuffers.h"
 #include "GraphicPipeline/GraphicPipeline.h"
+#include "Util/Layers.h"
 
 #define APP_NAME "Obsidian2D"
 
@@ -35,7 +36,7 @@ namespace Engine
 
                 delete render_pass;
 
-                if (surface != VK_NULL_HANDLE) {
+                if (surface != VK_nullptr_HANDLE) {
                     vkDestroySurfaceKHR(instance, surface, nullptr);
                 }
 
@@ -74,7 +75,7 @@ namespace Engine
                 VkResult res;
                 VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-                res = vkAcquireNextImageKHR(device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_NULL_HANDLE, &current_buffer);
+                res = vkAcquireNextImageKHR(device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_nullptr_HANDLE, &current_buffer);
                 assert(res == VK_SUCCESS);
 
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -117,7 +118,7 @@ namespace Engine
                 present.waitSemaphoreCount 	           = 0;
                 present.pResults                       = nullptr;
 
-                if (sync_primitives->renderSemaphore != VK_NULL_HANDLE)
+                if (sync_primitives->renderSemaphore != VK_nullptr_HANDLE)
                 {
                     present.pWaitSemaphores = &sync_primitives->renderSemaphore;
                     present.waitSemaphoreCount = 1;
@@ -161,7 +162,7 @@ namespace Engine
 
                 VkApplicationInfo _app_info = {};
                 _app_info.sType 				= VK_STRUCTURE_TYPE_APPLICATION_INFO;
-                _app_info.pNext 				= NULL;
+                _app_info.pNext 				= nullptr;
                 _app_info.pApplicationName 		= APP_NAME;
                 _app_info.applicationVersion 	= 1;
                 _app_info.pEngineName 			= APP_NAME;
@@ -170,24 +171,24 @@ namespace Engine
 
                 VkInstanceCreateInfo _inst_info = {};
                 _inst_info.sType 					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-                _inst_info.pNext 					= NULL;
+                _inst_info.pNext 					= nullptr;
                 _inst_info.flags 					= 0;
                 _inst_info.pApplicationInfo 		= &_app_info;
                 _inst_info.enabledLayerCount 		= (uint32_t) _layer_names.size();
-                _inst_info.ppEnabledLayerNames 		= _layer_names.size() ? _layer_names.data() : NULL;
+                _inst_info.ppEnabledLayerNames 		= _layer_names.size() ? _layer_names.data() : nullptr;
                 _inst_info.enabledExtensionCount 	= (uint32_t) _instance_extension_names.size();
                 _inst_info.ppEnabledExtensionNames 	= _instance_extension_names.data();
 
-                VkResult res = vkCreateInstance(&_inst_info, NULL, &instance);
+                VkResult res = vkCreateInstance(&_inst_info, nullptr, &instance);
                 assert(res == VK_SUCCESS);
 
-                res = vkEnumeratePhysicalDevices(instance, &queue_family_count, NULL);
+                res = vkEnumeratePhysicalDevices(instance, &queue_family_count, nullptr);
                 assert(res == VK_SUCCESS && queue_family_count);
                 gpu_vector.resize(queue_family_count);
                 res = vkEnumeratePhysicalDevices(instance, &queue_family_count, gpu_vector.data());
                 assert(res == VK_SUCCESS);
 
-                vkGetPhysicalDeviceQueueFamilyProperties(gpu_vector[0], &queue_family_count, NULL);
+                vkGetPhysicalDeviceQueueFamilyProperties(gpu_vector[0], &queue_family_count, nullptr);
                 assert(queue_family_count >= 1);
 
                 queue_family_props.resize(queue_family_count);
@@ -210,7 +211,7 @@ namespace Engine
 
                 VkDeviceQueueCreateInfo queue_info = {};
                 queue_info.sType 			= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                queue_info.pNext 			= NULL;
+                queue_info.pNext 			= nullptr;
                 queue_info.queueCount 		= 1;
                 queue_info.pQueuePriorities = queue_priorities;
                 queue_info.queueFamilyIndex = queueFamilyIndex;
@@ -220,16 +221,16 @@ namespace Engine
 
                 VkDeviceCreateInfo device_info = {};
                 device_info.sType 					= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-                device_info.pNext 					= NULL;
+                device_info.pNext 					= nullptr;
                 device_info.queueCreateInfoCount 	= 1;
                 device_info.pQueueCreateInfos 		= &queue_info;
                 device_info.enabledExtensionCount 	= (uint32_t)device_extension_names.size();
-                device_info.ppEnabledExtensionNames = device_info.enabledExtensionCount ? device_extension_names.data() : NULL;
+                device_info.ppEnabledExtensionNames = device_info.enabledExtensionCount ? device_extension_names.data() : nullptr;
                 device_info.enabledLayerCount 		= 0;
-                device_info.ppEnabledLayerNames 	= NULL;
-                device_info.pEnabledFeatures 		= NULL;
+                device_info.ppEnabledLayerNames 	= nullptr;
+                device_info.pEnabledFeatures 		= nullptr;
 
-                res = vkCreateDevice(gpu_vector[0], &device_info, NULL, &device);
+                res = vkCreateDevice(gpu_vector[0], &device_info, nullptr, &device);
                 assert(res == VK_SUCCESS);
 
 				VkCommandPoolCreateInfo cmd_pool_info = {};

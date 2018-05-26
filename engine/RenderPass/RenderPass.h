@@ -29,7 +29,7 @@ namespace Engine
 
 			~RenderPass()
 			{
-				vkDestroyRenderPass(_sc_params.device, _render_pass, NULL);
+				vkDestroyRenderPass(_sc_params.device, _render_pass, nullptr);
 			}
 
 			void create(std::vector<struct rpAttachments> att_vector)
@@ -85,7 +85,7 @@ namespace Engine
 				rp_info.dependencyCount 					= 0;
 				rp_info.pDependencies 						= nullptr;
 
-				assert(vkCreateRenderPass(instance_device, &rp_info, NULL, &_render_pass) == VK_SUCCESS);
+				assert(vkCreateRenderPass(instance_device, &rp_info, nullptr, &_render_pass) == VK_SUCCESS);
 				this->createFrameBuffer(_render_pass);
 			}
 

@@ -66,11 +66,11 @@ namespace Engine
             VkResult setGlobalLayerProperties()
             {
                 uint32_t instance_layer_count;
-                VkLayerProperties *vk_props = NULL;
+                VkLayerProperties *vk_props = nullptr;
                 VkResult res;
 
                 do {
-                    res = vkEnumerateInstanceLayerProperties(&instance_layer_count, NULL);
+                    res = vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr);
                     if (res) return res;
                     if (instance_layer_count == 0) return VK_SUCCESS;
                     vk_props = (VkLayerProperties *)realloc(vk_props, instance_layer_count * sizeof(VkLayerProperties));
@@ -96,11 +96,11 @@ namespace Engine
                 VkExtensionProperties *instance_extensions;
                 uint32_t instance_extension_count;
                 VkResult res;
-                char *layer_name = NULL;
+                char *layer_name = nullptr;
                 layer_name = layer_props.properties.layerName;
 
                 do {
-                    res = vkEnumerateInstanceExtensionProperties(layer_name, &instance_extension_count, NULL);
+                    res = vkEnumerateInstanceExtensionProperties(layer_name, &instance_extension_count, nullptr);
                     if (res) return res;
                     if (instance_extension_count == 0) return VK_SUCCESS;
                     layer_props.extensions.resize(instance_extension_count);

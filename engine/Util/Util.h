@@ -109,7 +109,7 @@ namespace Engine
 					moduleCreateInfo.pCode = (uint32_t*)shaderCode;
 
 					VkShaderModule shaderModule;
-					VkResult res = vkCreateShaderModule(device, &moduleCreateInfo, NULL, &shaderModule);
+					VkResult res = vkCreateShaderModule(device, &moduleCreateInfo, nullptr, &shaderModule);
 					assert(res == VK_SUCCESS);
 
 					delete[] shaderCode;
@@ -119,7 +119,7 @@ namespace Engine
 				else
 				{
 					std::cerr << "Error: Could not open shader file \"" << filename << "\"" << std::endl;
-					return VK_NULL_HANDLE;
+					return VK_nullptr_HANDLE;
 				}
 			}
 		};

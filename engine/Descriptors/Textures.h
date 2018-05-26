@@ -5,12 +5,12 @@
 #ifndef OBSIDIAN2D_TEXTURES_H
 #define OBSIDIAN2D_TEXTURES_H
 
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "stb/stb_image.h"
 #include <vector>
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
 
 namespace Engine
 {
@@ -100,7 +100,7 @@ namespace Engine
 				submitInfo.commandBufferCount 				= 1;
 				submitInfo.pCommandBuffers 					= &commandBuffer;
 
-				vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+				vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_nullptr_HANDLE);
 				vkQueueWaitIdle(graphicsQueue);
 
 				vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
@@ -207,7 +207,7 @@ namespace Engine
 				stagingBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 				stagingBufferData.size              = imageSize;
 
-				Memory::Buffer * staging_buffer = new Memory::Buffer(stagingBufferData);
+				auto* staging_buffer = new Memory::Buffer(stagingBufferData);
 
 				void* data = nullptr;
 				vkMapMemory(device, staging_buffer->mem, 0, imageSize, 0, &data);

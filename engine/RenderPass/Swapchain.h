@@ -48,7 +48,7 @@ namespace Engine
 
 			~SwapChain()
 			{
-				if (_swap_chain != VK_NULL_HANDLE) {
+				if (_swap_chain != VK_nullptr_HANDLE) {
 					if(_swap_chain_buffer.size() == _image_count)
 						for (u_int32_t i = 0; i < _image_count; i++){
 							vkDestroyImageView(_swap_chain_params.device, (_swap_chain_buffer.data()[i])->view, nullptr);
@@ -70,7 +70,7 @@ namespace Engine
 				res = vkCreateSwapchainKHR(_swap_chain_params.device, &swapChainCI, nullptr, &_swap_chain);
 				assert(res == VK_SUCCESS);
 
-				res = vkGetSwapchainImagesKHR(_swap_chain_params.device, _swap_chain, &_image_count, NULL);
+				res = vkGetSwapchainImagesKHR(_swap_chain_params.device, _swap_chain, &_image_count, nullptr);
 				assert(res == VK_SUCCESS);
 
 				_swap_chain_images = (VkImage *)malloc(_image_count * sizeof(VkImage));
@@ -137,7 +137,7 @@ namespace Engine
 				uint32_t formatCount;
 				VkFormat format;
 
-				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, NULL);
+				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, nullptr);
 				assert(res == VK_SUCCESS);
 				VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, surfFormats);
@@ -301,7 +301,7 @@ namespace Engine
 				swapchain_ci.compositeAlpha 		= compositeAlpha;
 				swapchain_ci.imageArrayLayers 		= 1;
 				swapchain_ci.presentMode 			= swapchainPresentMode;
-				swapchain_ci.oldSwapchain 			= VK_NULL_HANDLE;
+				swapchain_ci.oldSwapchain 			= VK_nullptr_HANDLE;
 				swapchain_ci.clipped 				= (VkBool32)true;
 				swapchain_ci.imageColorSpace 		= VK_COLORSPACE_SRGB_NONLINEAR_KHR;
 				swapchain_ci.imageUsage 			= usageFlags;
