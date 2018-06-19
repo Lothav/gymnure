@@ -4,11 +4,13 @@
 
 #ifndef OBSIDIAN2D_TEXTURES_H
 #define OBSIDIAN2D_TEXTURES_H
+#include "vulkan/vulkan.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb/stb_image.h"
 #include <vector>
+#include <vulkan/vulkan.h>
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 
@@ -100,7 +102,7 @@ namespace Engine
 				submitInfo.commandBufferCount 				= 1;
 				submitInfo.pCommandBuffers 					= &commandBuffer;
 
-				vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_nullptr_HANDLE);
+				vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
 				vkQueueWaitIdle(graphicsQueue);
 
 				vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);

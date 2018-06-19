@@ -4,11 +4,14 @@ project(Gymnure)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CORE_MAIN_FILE src/main.cpp)
+set(Vulkan_LIBRARY /home/luiz0tavio/Downloads/vulkan/VulkanSDK/1.1.73.0/x86_64/lib)
+
+include_directories(/home/luiz0tavio/Downloads/vulkan/VulkanSDK/1.1.73.0/x86_64/)
+include_directories(/home/luiz0tavio/Downloads/vulkan/VulkanSDK/1.1.73.0/x86_64/include)
 
 include_directories(include include/)
 include_directories(include engine/)
 include_directories(include external/)
-
 
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(COMMON_COMPILE_FLAGS "-Wall -Wpedantic -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -fno-strict-aliasing -fno-builtin-memcmp")
@@ -91,4 +94,4 @@ endforeach()
 list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
 
 add_executable(core ${CORE_MAIN_FILE} gymnure.h ${CORE_HEADER_FILES} ${EXTERNAL_HEADER_FILES})
-target_link_libraries(core ${XCB_LIBRARIES} ${Vulkan_LIBRARY})
+target_link_libraries(core ${XCB_LIBRARIES} ${Vulkan_LIBRARY} vulkan)

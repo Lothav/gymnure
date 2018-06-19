@@ -83,7 +83,7 @@ namespace Engine
 				vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
 			}
 
-			VkShaderModule loadSPIRVShader(std::string filename, VkDevice device)
+			VkShaderModule loadSPIRVShader(const std::string& filename, VkDevice device)
 			{
 				size_t shaderSize;
 				char* shaderCode = nullptr;
@@ -119,7 +119,7 @@ namespace Engine
 				else
 				{
 					std::cerr << "Error: Could not open shader file \"" << filename << "\"" << std::endl;
-					return VK_nullptr_HANDLE;
+					return nullptr;
 				}
 			}
 		};

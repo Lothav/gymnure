@@ -48,20 +48,19 @@ namespace Engine
 
 			void create(VkPipelineLayout pipeline_layout, VkRenderPass render_pass)
 			{
-
                 shaderStages.resize(2);
 
 				shaderStages[0].sType 		= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				shaderStages[0].stage 		= VK_SHADER_STAGE_VERTEX_BIT;
 				shaderStages[0].module 		= loadSPIRVShader("../../shaders/vert.spv", _instance_device);
 				shaderStages[0].pName 		= "main";
-				assert(shaderStages[0].module != VK_nullptr_HANDLE);
+				assert(shaderStages[0].module != VK_NULL_HANDLE);
 
 				shaderStages[1].sType 		= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				shaderStages[1].stage 		= VK_SHADER_STAGE_FRAGMENT_BIT;
 				shaderStages[1].module 		= loadSPIRVShader("../../shaders/frag.spv", _instance_device);
 				shaderStages[1].pName 		= "main";
-				assert(shaderStages[1].module != VK_nullptr_HANDLE);
+				assert(shaderStages[1].module != VK_NULL_HANDLE);
 
 				VkVertexInputBindingDescription vi_binding = {};
 				vi_binding.binding 										= 0;
@@ -203,7 +202,7 @@ namespace Engine
 				pipeline.sType 											= VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 				pipeline.pNext 											= nullptr;
 				pipeline.layout 										= pipeline_layout;
-				pipeline.basePipelineHandle 							= VK_nullptr_HANDLE;
+				pipeline.basePipelineHandle 							= VK_NULL_HANDLE;
 				pipeline.basePipelineIndex 								= 0;
 				pipeline.flags 											= 0;
 				pipeline.pVertexInputState 								= &vi;
@@ -215,8 +214,8 @@ namespace Engine
 				pipeline.pDynamicState 									= &dynamicState;
 				pipeline.pViewportState 								= &vp;
 				pipeline.pDepthStencilState 							= &ds;
-				pipeline.pStages 										= shaderStages.data();
-				pipeline.stageCount 									= static_cast<uint32_t>(shaderStages.size());
+				pipeline.pStages 										= this->shaderStages.data();
+				pipeline.stageCount 									= static_cast<uint32_t>(this->shaderStages.size());
 				pipeline.renderPass 									= render_pass;
 				pipeline.subpass 										= 0;
 

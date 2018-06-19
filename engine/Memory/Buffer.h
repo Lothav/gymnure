@@ -27,14 +27,14 @@ namespace Engine
 
 		public:
 
-			VkBuffer 									buf;
-			VkDeviceMemory 								mem;
-			VkDescriptorBufferInfo 						buffer_info;
+			VkBuffer 				buf;
+			VkDeviceMemory 			mem;
+			VkDescriptorBufferInfo 	buffer_info;
 
 			virtual ~Buffer()
 			{
-				vkDestroyBuffer(_instance_device, buf, nullptr);
-				vkFreeMemory(_instance_device, mem, nullptr);
+				vkDestroyBuffer(this->_instance_device, this->buf, nullptr);
+				vkFreeMemory(this->_instance_device, this->mem, nullptr);
 			}
 
 			Buffer(struct BufferData buffer_data)
@@ -70,10 +70,10 @@ namespace Engine
 				allocInfo.pNext 						= nullptr;
 
 				pass = Memory::findMemoryType (
-						memProperties,
-						memRequirements.memoryTypeBits,
-                        buffer_data.properties,
-						&allocInfo.memoryTypeIndex);
+					memProperties,
+					memRequirements.memoryTypeBits,
+                    buffer_data.properties,
+					&allocInfo.memoryTypeIndex);
 
 				assert(pass);
 

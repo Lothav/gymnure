@@ -19,7 +19,6 @@
 
 #define APP_NAME "Obsidian2D"
 
-
 namespace Engine
 {
     namespace Window
@@ -36,7 +35,7 @@ namespace Engine
 
                 delete render_pass;
 
-                if (surface != VK_nullptr_HANDLE) {
+                if (surface != VK_NULL_HANDLE) {
                     vkDestroySurfaceKHR(instance, surface, nullptr);
                 }
 
@@ -75,7 +74,7 @@ namespace Engine
                 VkResult res;
                 VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-                res = vkAcquireNextImageKHR(device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_nullptr_HANDLE, &current_buffer);
+                res = vkAcquireNextImageKHR(device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_NULL_HANDLE, &current_buffer);
                 assert(res == VK_SUCCESS);
 
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -118,7 +117,7 @@ namespace Engine
                 present.waitSemaphoreCount 	           = 0;
                 present.pResults                       = nullptr;
 
-                if (sync_primitives->renderSemaphore != VK_nullptr_HANDLE)
+                if (sync_primitives->renderSemaphore != VK_NULL_HANDLE)
                 {
                     present.pWaitSemaphores = &sync_primitives->renderSemaphore;
                     present.waitSemaphoreCount = 1;
@@ -148,7 +147,7 @@ namespace Engine
 
         protected:
 
-            std::vector<Vertex::VertexBuffer *>             vertex_buffer;
+            std::vector<Vertex::VertexBuffer *>                 vertex_buffer;
             std::vector<Descriptors::DescriptorSet*> 			descriptor_set;
 
             void createApplication()
@@ -167,7 +166,7 @@ namespace Engine
                 _app_info.applicationVersion 	= 1;
                 _app_info.pEngineName 			= APP_NAME;
                 _app_info.engineVersion 		= 1;
-                _app_info.apiVersion 			= VK_API_VERSION_1_0;
+                _app_info.apiVersion 			= VK_API_VERSION_1_0 ;
 
                 VkInstanceCreateInfo _inst_info = {};
                 _inst_info.sType 					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -277,6 +276,7 @@ namespace Engine
             }
 
         public:
+
             void createCommandBuffer()
             {
                 command_buffer.push_back( new CommandBuffers(device, queueFamilyIndex, command_pool) );
@@ -303,17 +303,14 @@ namespace Engine
                         create( descriptor_set[ cm_count ]->getPipelineLayout(), render_pass->getRenderPass() );
             }
 
-            void pushVertex(std::string path_obj="", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
+            void pushVertex(const std::string& path_obj = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
             {
-
                 std::vector<VertexData> vertexData = {};
-                if(path_obj != "")
-                {
+                if(!path_obj.empty()) {
                     vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj, obj_mtl);
                 }
 
-                for (auto v_data : complementVertexData)
-                {
+                for (auto v_data : complementVertexData) {
                     vertexData.push_back(v_data);
                 }
 
@@ -331,15 +328,15 @@ namespace Engine
             void recordCommandBuffer()
             {
                 command_buffer[ cm_count ]
-                        ->bindCommandBuffer (
-                                render_pass,
-                                descriptor_set[ cm_count ],
-                                graphic_pipeline[ cm_count ]->getPipeline(),
-                                static_cast<uint32_t>(width),
-                                static_cast<uint32_t>(height),
-                                sync_primitives,
-                                vertex_buffer[ cm_count ]
-                        );
+                    ->bindGraphicCommandBuffer (
+                         render_pass,
+                         descriptor_set[ cm_count ],
+                         graphic_pipeline[ cm_count ]->getPipeline(),
+                         static_cast<uint32_t>(width),
+                         static_cast<uint32_t>(height),
+                         sync_primitives,
+                         vertex_buffer[ cm_count ]
+                    );
 
                 cm_count++;
             }

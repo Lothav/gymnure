@@ -46,14 +46,14 @@ namespace Engine
 			vkFreeCommandBuffers(_instance_device, _command_pool, 1, &_command_buffer);
 		}
 
-		void bindCommandBuffer (
-				RenderPass::RenderPass* 	render_pass,
+		void bindGraphicCommandBuffer (
+				RenderPass::RenderPass* 	    render_pass,
 				Descriptors::DescriptorSet* 	descriptor_set,
-				VkPipeline 		vkPipeline,
-				uint32_t 		width,
-				uint32_t 		height,
+				VkPipeline 		                vkPipeline,
+				uint32_t 		                width,
+				uint32_t 		                height,
 				SyncPrimitives::SyncPrimitives* sync_primitives,
-				Vertex::VertexBuffer* 	vertex_buffer
+				Vertex::VertexBuffer* 	        vertex_buffer
 		) {
 			VkResult res;
 
@@ -82,8 +82,7 @@ namespace Engine
 			cmd_buf_info.flags 							= 0;
 			cmd_buf_info.pInheritanceInfo 				= nullptr;
 
-
-			Util::Util* util = new Util::Util(width, height);
+			auto* util = new Util::Util(width, height);
 			res = vkBeginCommandBuffer(_command_buffer, &cmd_buf_info);
 			assert(res == VK_SUCCESS);
 
@@ -111,7 +110,6 @@ namespace Engine
 			assert(res == VK_SUCCESS);
 
 			delete util;
-
 		}
 
 		VkCommandBuffer getCommandBuffer()

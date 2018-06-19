@@ -17,11 +17,7 @@ namespace Engine
 		{
 		public:
 
-			static void copyMemory (
-					VkDevice device,
-					VkDeviceMemory device_memory,
-					const void * object,
-					size_t object_size)
+			static void copyMemory (VkDevice device, VkDeviceMemory device_memory, const void * object, size_t object_size)
 			{
 				VkResult res;
 				void* _buffer_address = nullptr;
@@ -32,11 +28,7 @@ namespace Engine
 				vkUnmapMemory(device, device_memory);
 			}
 
-			static bool findMemoryType(
-					VkPhysicalDeviceMemoryProperties memory_properties,
-					uint32_t typeBits,
-					VkFlags requirements_mask,
-					uint32_t *typeIndex)
+			static bool findMemoryType(VkPhysicalDeviceMemoryProperties memory_properties, uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex)
 			{
 				// Search memtypes to find first index with those properties
 				for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++) {

@@ -58,7 +58,7 @@ namespace Engine
                             }
 
                             if (mouseButtons.right) {
-                                descSets[i]->getUniformBuffer()->zoomCamera(-0.1);
+                                descSets[i]->getUniformBuffer()->zoomCamera(0.1);
                             }
                         }
 

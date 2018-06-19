@@ -111,12 +111,12 @@ namespace Engine
 				}
 
 				struct ImageProps img_props = {};
-				img_props.format 			= _depth_format;
-				img_props.tiling 			= depth_tiling;
-				img_props.aspectMask 		= depthAspectMask;
-				img_props.usage 			= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-				img_props.height 			= _sc_params.height;
-				img_props.width 			= _sc_params.width;
+				img_props.format 		= _depth_format;
+				img_props.tiling 		= depth_tiling;
+				img_props.aspectMask 	= depthAspectMask;
+				img_props.usage 		= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+				img_props.height 		= _sc_params.height;
+				img_props.width 		= _sc_params.width;
 
 				struct MemoryProps mem_props = {};
 				mem_props.memory_props 		= _sc_params.memory_props;

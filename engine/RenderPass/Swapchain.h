@@ -9,6 +9,7 @@
 #include "Descriptors/Textures.h"
 #include "Memory/BufferImage.h"
 #include <vector>
+#include <vulkan/vulkan.h>
 
 struct SwapChainParams {
 	uint32_t 								queue_family_count;
@@ -43,12 +44,12 @@ namespace Engine
 
 			SwapChain(struct SwapChainParams swap_chain_params)
 			{
-				_swap_chain_params = swap_chain_params;
+				_swap_chain_params = std::move(swap_chain_params);
 			}
 
 			~SwapChain()
 			{
-				if (_swap_chain != VK_nullptr_HANDLE) {
+				if (_swap_chain != VK_NULL_HANDLE) {
 					if(_swap_chain_buffer.size() == _image_count)
 						for (u_int32_t i = 0; i < _image_count; i++){
 							vkDestroyImageView(_swap_chain_params.device, (_swap_chain_buffer.data()[i])->view, nullptr);
@@ -125,7 +126,7 @@ namespace Engine
 					MemoryProps mem_props = {};
 					mem_props.device = _swap_chain_params.device;
 
-					Memory::BufferImage* sc_buffer = new Memory::BufferImage(mem_props, img_props, &_swap_chain_images[i]);
+					auto* sc_buffer = new Memory::BufferImage(mem_props, img_props, &_swap_chain_images[i]);
 
 					_swap_chain_buffer.push_back(sc_buffer);
 				}
@@ -139,7 +140,7 @@ namespace Engine
 
 				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, nullptr);
 				assert(res == VK_SUCCESS);
-				VkSurfaceFormatKHR *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
+				auto *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
 				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, surfFormats);
 				assert(res == VK_SUCCESS);
 				// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
@@ -163,7 +164,7 @@ namespace Engine
 				uint32_t _present_queue_family_index  = UINT32_MAX;
 
 				VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-				VkBool32 *pSupportsPresent = (VkBool32 *)malloc(_swap_chain_params.queue_family_count * sizeof(VkBool32));
+				auto *pSupportsPresent = (VkBool32 *)malloc(_swap_chain_params.queue_family_count * sizeof(VkBool32));
 
 				for (uint32_t i = 0; i < _swap_chain_params.queue_family_count; i++) {
 					vkGetPhysicalDeviceSurfaceSupportKHR(_swap_chain_params.gpu, i, _swap_chain_params.surface, &pSupportsPresent[i]);
@@ -224,7 +225,7 @@ namespace Engine
 
 				res = vkGetPhysicalDeviceSurfacePresentModesKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &_swap_chain_params.queue_family_count, nullptr);
 				assert(res == VK_SUCCESS);
-				VkPresentModeKHR *presentModes = (VkPresentModeKHR *)malloc(_swap_chain_params.queue_family_count * sizeof(VkPresentModeKHR));
+				auto *presentModes = (VkPresentModeKHR *)malloc(_swap_chain_params.queue_family_count * sizeof(VkPresentModeKHR));
 				assert(presentModes);
 				res = vkGetPhysicalDeviceSurfacePresentModesKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &_swap_chain_params.queue_family_count, presentModes);
 				assert(res == VK_SUCCESS);
@@ -301,7 +302,7 @@ namespace Engine
 				swapchain_ci.compositeAlpha 		= compositeAlpha;
 				swapchain_ci.imageArrayLayers 		= 1;
 				swapchain_ci.presentMode 			= swapchainPresentMode;
-				swapchain_ci.oldSwapchain 			= VK_nullptr_HANDLE;
+				swapchain_ci.oldSwapchain 			= VK_NULL_HANDLE;
 				swapchain_ci.clipped 				= (VkBool32)true;
 				swapchain_ci.imageColorSpace 		= VK_COLORSPACE_SRGB_NONLINEAR_KHR;
 				swapchain_ci.imageUsage 			= usageFlags;

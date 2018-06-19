@@ -59,6 +59,7 @@ namespace Engine
                 } else {
                     image = *images;
                 }
+
                 createImageView();
             }
 
@@ -70,16 +71,16 @@ namespace Engine
 
                 VkImageViewCreateInfo viewInfo = {};
                 viewInfo.sType 								= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-                viewInfo.image 								= image;
+                viewInfo.image 								= this->image;
                 viewInfo.viewType 							= VK_IMAGE_VIEW_TYPE_2D;
-                viewInfo.format 							= format;
-                viewInfo.subresourceRange.aspectMask 		= _img_pros.aspectMask;
+                viewInfo.format 							= this->format;
+                viewInfo.subresourceRange.aspectMask 		= this->_img_pros.aspectMask;
                 viewInfo.subresourceRange.baseMipLevel 		= 0;
                 viewInfo.subresourceRange.levelCount 		= 1;
                 viewInfo.subresourceRange.baseArrayLayer 	= 0;
                 viewInfo.subresourceRange.layerCount 		= 1;
 
-                res = vkCreateImageView(_mem_props.device, &viewInfo, nullptr, &this->view);
+                res = vkCreateImageView(this->_mem_props.device, &viewInfo, nullptr, &this->view);
                 assert(res == VK_SUCCESS);
             }
 
@@ -88,7 +89,7 @@ namespace Engine
                 VkResult res;
                 VkMemoryRequirements mem_reqs;
 
-                vkGetImageMemoryRequirements(_mem_props.device, image, &mem_reqs);
+                vkGetImageMemoryRequirements(this->_mem_props.device, this->image, &mem_reqs);
 
                 VkMemoryAllocateInfo mem_alloc = {};
                 mem_alloc.sType				= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
