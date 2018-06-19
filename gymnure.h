@@ -19,7 +19,7 @@ public:
 
     void insertData(const char* path_texture, std::string path_obj="", std::vector<VertexData> vertexData = {}, const char* obj_mtl = nullptr)
     {
-        _window->createCommandBuffer();
+        _window->createCommandBuffers();
         _window->createDescriptorSet(path_texture);
         _window->pushVertex(path_obj, vertexData, obj_mtl);
         _window->recordCommandBuffer();

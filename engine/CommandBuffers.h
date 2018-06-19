@@ -26,7 +26,7 @@ namespace Engine
 
 	public:
 
-		CommandBuffers(VkDevice device, uint32_t queueFamilyIndex, VkCommandPool command_pool)
+		CommandBuffers(VkDevice device, VkCommandPool command_pool)
 		{
 			_instance_device = device;
 			_command_pool = command_pool;

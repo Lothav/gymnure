@@ -53,12 +53,12 @@ namespace Engine
                 }
                 delete sync_primitives;
 
-                for (i = 0; i < command_buffer.size(); i++)
+                for (i = 0; i < graphic_command_buffers.size(); i++)
                 {
-                    delete command_buffer[i];
+                    delete graphic_command_buffers[i];
                 }
 
-				vkDestroyCommandPool(device, command_pool, nullptr);
+				vkDestroyCommandPool(device, graphic_command_pool, nullptr);
 
                 for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++)
                 {
@@ -80,10 +80,10 @@ namespace Engine
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
                 std::vector<VkCommandBuffer> cmd_buff = {};
-                for (int i = 0; i < command_buffer.size(); ++i)
+                for (int i = 0; i < graphic_command_buffers.size(); ++i)
                 {
 					descriptor_set[ i ]->getUniformBuffer()->updateMVP();
-					cmd_buff.push_back(command_buffer[i]->getCommandBuffer());
+					cmd_buff.push_back(graphic_command_buffers[i]->getCommandBuffer());
                 }
 
                 VkSubmitInfo submit_info = {};
@@ -138,12 +138,12 @@ namespace Engine
 			u_int32_t							 	            queue_family_count;
 			std::vector<VkQueueFamilyProperties> 	            queue_family_props;
 			u_int32_t                                           queueFamilyIndex = UINT_MAX;
-			VkCommandPool 							            command_pool;
-
             std::vector<GraphicPipeline::GraphicPipeline *>     graphic_pipeline;
-            std::vector<CommandBuffers *>			            command_buffer;
             SyncPrimitives::SyncPrimitives* 					sync_primitives;
             RenderPass::RenderPass* 							render_pass;
+
+			VkCommandPool 							            graphic_command_pool;
+            std::vector<CommandBuffers *>			            graphic_command_buffers;
 
         protected:
 
@@ -238,7 +238,7 @@ namespace Engine
 				cmd_pool_info.queueFamilyIndex  = queueFamilyIndex;
 				cmd_pool_info.flags 			= 0;
 
-				assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &command_pool) == VK_SUCCESS);
+				assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &graphic_command_pool) == VK_SUCCESS);
 			}
 
             void initGraphicPipeline ()
@@ -277,21 +277,21 @@ namespace Engine
 
         public:
 
-            void createCommandBuffer()
+            void createCommandBuffers()
             {
-                command_buffer.push_back( new CommandBuffers(device, queueFamilyIndex, command_pool) );
+                auto graphic_cb = new CommandBuffers(device, graphic_command_pool);
+                graphic_command_buffers.push_back(graphic_cb);
             }
 
             void createDescriptorSet(const char* path_texture)
             {
-
                 descriptor_set.push_back( new Descriptors::DescriptorSet(device) );
 
                 struct DescriptorSetParams ds_params = {};
                 ds_params.width 				= static_cast<u_int32_t>(width);
                 ds_params.height 				= static_cast<u_int32_t>(height);
                 ds_params.memory_properties		= memory_properties;
-                ds_params.command_pool			= command_pool;
+                ds_params.command_pool			= graphic_command_pool;
                 ds_params.gpu					= gpu_vector[0];
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.path                  = path_texture;
@@ -327,7 +327,7 @@ namespace Engine
 
             void recordCommandBuffer()
             {
-                command_buffer[ cm_count ]
+                graphic_command_buffers[ cm_count ]
                     ->bindGraphicCommandBuffer (
                          render_pass,
                          descriptor_set[ cm_count ],
