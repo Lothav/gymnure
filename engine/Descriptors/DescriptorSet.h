@@ -202,6 +202,8 @@ namespace Engine
                     descriptor_pool.poolSizeCount 					 = 2;
                     descriptor_pool.pPoolSizes 						 = type_count;
                     assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
+
+                    return;
                 }
 
                 if(_type == Type::COMPUTE) {
@@ -222,6 +224,8 @@ namespace Engine
                     descriptor_pool.poolSizeCount 					 = 3;
                     descriptor_pool.pPoolSizes 						 = type_count;
                     assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
+
+                    return;
                 }
 
                 assert(false);
