@@ -36,33 +36,21 @@ namespace Engine
 
                 delete render_pass;
 
-                if (surface != VK_NULL_HANDLE) {
-                    vkDestroySurfaceKHR(instance, surface, nullptr);
-                }
+                if (surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
 
-                for (i = 0; i < descriptor_set.size(); i++)
-                {
-                    delete descriptor_set[i];
-                }
-                for (i = 0; i < graphic_pipeline.size(); i++)
-                {
-                    delete graphic_pipeline[i];
-                }
-                for (i = 0; i < vertex_buffer.size(); i++)
-                {
-                    delete vertex_buffer[i];
-                }
+                for (i = 0; i < descriptor_set.size(); i++) delete descriptor_set[i];
+
+                for (i = 0; i < graphic_pipeline.size(); i++) delete graphic_pipeline[i];
+
+                for (i = 0; i < vertex_buffer.size(); i++) delete vertex_buffer[i];
+
                 delete sync_primitives;
 
-                for (i = 0; i < graphic_command_buffers.size(); i++)
-                {
-                    delete graphic_command_buffers[i];
-                }
+                for (i = 0; i < graphic_command_buffers.size(); i++) delete graphic_command_buffers[i];
 
 				vkDestroyCommandPool(device, graphic_command_pool, nullptr);
 
-                for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++)
-                {
+                for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++) {
                     vkFreeMemory(device, Descriptors::Textures::textureImageMemory[i], nullptr);
                 }
 
@@ -140,6 +128,7 @@ namespace Engine
 			std::vector<VkQueueFamilyProperties> 	            queue_family_props;
 			u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
             u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
+            VkQueue                                             compute_queue_;
             std::vector<GraphicPipeline::GraphicPipeline *>     graphic_pipeline;
             SyncPrimitives::SyncPrimitives* 					sync_primitives;
             RenderPass::RenderPass* 							render_pass;
@@ -258,7 +247,9 @@ namespace Engine
 				cmd_pool_info.flags 			= 0;
 
 				assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &graphic_command_pool) == VK_SUCCESS);
-			}
+
+                vkGetDeviceQueue(device, queueComputeFamilyIndex, 0, &compute_queue_);
+            }
 
             void initGraphicPipeline ()
             {
@@ -304,7 +295,7 @@ namespace Engine
 
             void createDescriptorSet(const char* path_texture)
             {
-                descriptor_set.push_back( new Descriptors::DescriptorSet(device) );
+                descriptor_set.push_back(new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC));
 
                 struct DescriptorSetParams ds_params = {};
                 ds_params.width 				= static_cast<u_int32_t>(width);

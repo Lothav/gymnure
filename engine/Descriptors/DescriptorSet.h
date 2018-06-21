@@ -23,6 +23,11 @@ namespace Engine
 {
     namespace Descriptors
     {
+        enum Type {
+            GRAPHIC,
+            COMPUTE
+        };
+
         class DescriptorSet
         {
 
@@ -40,13 +45,11 @@ namespace Engine
             VkSampler                                   _texture_sampler    = nullptr;
 
             VkDevice                                    _instance_device    = nullptr;
+            Type                                        _type               = Type::GRAPHIC;
 
         public:
 
-            DescriptorSet(VkDevice device)
-            {
-                _instance_device = device;
-            }
+            DescriptorSet(VkDevice device, Type type) : _instance_device (device), _type(type) {}
 
 			~DescriptorSet()
 			{
@@ -83,8 +86,8 @@ namespace Engine
 
                 VkImage texture_image = nullptr;
                 if(ds_params.path != nullptr) {
-                    texture_image = Textures::createTextureImage(ds_params.gpu, _instance_device, ds_params.path,
-                                                                         ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
+                    texture_image = Textures::createTextureImage(
+                        ds_params.gpu, _instance_device, ds_params.path, ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
                 }
                 struct MemoryProps mem_props = {};
                 mem_props.device = _instance_device;
@@ -122,19 +125,37 @@ namespace Engine
 
             void setLayoutBindings()
             {
-                _layout_bindings.resize(2);
+                if(_type == Type::GRAPHIC) {
+                    _layout_bindings.resize(2);
 
-                _layout_bindings[0].binding 					 = 0;
-                _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                _layout_bindings[0].descriptorCount 			 = 1;
-                _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
-                _layout_bindings[0].pImmutableSamplers			 = nullptr;
+                    _layout_bindings[0].binding 					 = 0;
+                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    _layout_bindings[0].descriptorCount 			 = 1;
+                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
+                    _layout_bindings[0].pImmutableSamplers			 = nullptr;
 
-                _layout_bindings[1].binding 					 = 1;
-                _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                _layout_bindings[1].descriptorCount 			 = 1;
-                _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
-                _layout_bindings[1].pImmutableSamplers 			 = nullptr;
+                    _layout_bindings[1].binding 					 = 1;
+                    _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    _layout_bindings[1].descriptorCount 			 = 1;
+                    _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
+                    _layout_bindings[1].pImmutableSamplers 			 = nullptr;
+
+                    return;
+                }
+
+                if(_type == Type::COMPUTE) {
+                    _layout_bindings.resize(1);
+
+                    _layout_bindings[0].binding 					 = 1;
+                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                    _layout_bindings[0].descriptorCount 			 = 1;
+                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_COMPUTE_BIT;
+                    _layout_bindings[0].pImmutableSamplers 			 = nullptr;
+
+                    return;
+                }
+
+                assert(false);
             }
 
             void setDescriptorLayouts()
