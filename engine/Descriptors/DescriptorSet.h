@@ -57,7 +57,7 @@ namespace Engine
 				delete _uniform_buffer;
 				vkDestroySampler(_instance_device, _texture_sampler, nullptr);
 				vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
-				for (u_int32_t i = 0; i < _desc_layout.size(); i++) {
+				for(u_int32_t i = 0; i < _desc_layout.size(); i++) {
 					vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
 				}
 				vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
@@ -168,8 +168,8 @@ namespace Engine
                 _descriptor_layout.pBindings 					 = _layout_bindings.data();
 
                 _desc_layout.resize(1);
-                res = vkCreateDescriptorSetLayout(_instance_device, &_descriptor_layout, nullptr, _desc_layout.data());
-                assert(res == VK_SUCCESS);
+
+                assert(vkCreateDescriptorSetLayout(_instance_device, &_descriptor_layout, nullptr, _desc_layout.data()) == VK_SUCCESS);
             }
 
             void setPipelineLayout()
@@ -182,28 +182,49 @@ namespace Engine
                 pPipelineLayoutCreateInfo.setLayoutCount         = 1;
                 pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
 
-                VkResult res = vkCreatePipelineLayout(_instance_device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout);
-                assert(res == VK_SUCCESS);
+                assert(vkCreatePipelineLayout(_instance_device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout) == VK_SUCCESS);
             }
 
             void setDescriptorPool()
             {
-                VkDescriptorPoolSize type_count[2];
-                type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                type_count[0].descriptorCount 					 = 1;
+                if(_type == Type::GRAPHIC) {
+                    VkDescriptorPoolSize type_count[2];
+                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    type_count[0].descriptorCount 					 = 1;
 
-                type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                type_count[1].descriptorCount 					 = 1;
+                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[1].descriptorCount 					 = 1;
 
-                VkDescriptorPoolCreateInfo descriptor_pool = {};
-                descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                descriptor_pool.pNext 							 = nullptr;
-                descriptor_pool.maxSets 						 = 1;
-                descriptor_pool.poolSizeCount 					 = 2;
-                descriptor_pool.pPoolSizes 						 = type_count;
+                    VkDescriptorPoolCreateInfo descriptor_pool = {};
+                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                    descriptor_pool.pNext 							 = nullptr;
+                    descriptor_pool.maxSets 						 = 1;
+                    descriptor_pool.poolSizeCount 					 = 2;
+                    descriptor_pool.pPoolSizes 						 = type_count;
+                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
+                }
 
-                VkResult res = vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool);
-                assert(res == VK_SUCCESS);
+                if(_type == Type::COMPUTE) {
+                    VkDescriptorPoolSize type_count[3];
+                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    type_count[0].descriptorCount 					 = 1;
+
+                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[1].descriptorCount 					 = 1;
+
+                    type_count[2].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[2].descriptorCount 					 = 1;
+
+                    VkDescriptorPoolCreateInfo descriptor_pool = {};
+                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                    descriptor_pool.pNext 							 = nullptr;
+                    descriptor_pool.maxSets 						 = 1;
+                    descriptor_pool.poolSizeCount 					 = 3;
+                    descriptor_pool.pPoolSizes 						 = type_count;
+                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
+                }
+
+                assert(false);
             }
 
             void setDescriptorSet()
@@ -215,8 +236,7 @@ namespace Engine
                 _alloc_info[0].descriptorSetCount 				  = 1;
                 _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
 
-                VkResult res = vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set);
-                assert(res == VK_SUCCESS);
+                assert(vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set) == VK_SUCCESS);
             }
 
             void createSampler()
@@ -275,6 +295,7 @@ namespace Engine
 
                 vkUpdateDescriptorSets(_instance_device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }
+
         };
     }
 }
