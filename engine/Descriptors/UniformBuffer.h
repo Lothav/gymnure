@@ -74,7 +74,6 @@ namespace Engine
 
 			void updateMVP()
 			{
-				VkResult res;
 				Memory::Memory::copyMemory(_instance_device, this->mem, &this->mvp, sizeof(this->mvp));
 			}
 
