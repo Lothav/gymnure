@@ -73,17 +73,17 @@ namespace Engine
 				vi_attribs[0].binding 									= 0;
 				vi_attribs[0].location 									= 0;
 				vi_attribs[0].format 									= VK_FORMAT_R32G32B32_SFLOAT;
-				vi_attribs[0].offset 									= offsetof(VertexData, pos);
+				vi_attribs[0].offset 									= static_cast<uint32_t>(offsetof(VertexData, pos));
 
 				vi_attribs[1].binding 									= 0;
 				vi_attribs[1].location 									= 1;
 				vi_attribs[1].format 									= VK_FORMAT_R32G32_SFLOAT;
-				vi_attribs[1].offset 									= offsetof(VertexData, uv);
+				vi_attribs[1].offset 									= static_cast<uint32_t>(offsetof(VertexData, uv));
 
 				vi_attribs[2].binding 									= 0;
 				vi_attribs[2].location 									= 2;
 				vi_attribs[2].format 									= VK_FORMAT_R32G32B32_SFLOAT;
-				vi_attribs[2].offset 									= offsetof(VertexData, normal);
+				vi_attribs[2].offset 									= static_cast<uint32_t>(offsetof(VertexData, normal));
 
 				VkPipelineCacheCreateInfo pipelineCache = {};
 				pipelineCache.sType 									= VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;

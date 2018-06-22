@@ -30,38 +30,27 @@ namespace Engine
             VkInstance 		instance;
             VkSurfaceKHR 	surface;
 
-            virtual ~Window() {
+            virtual ~Window()
+            {
                 uint32_t i;
 
                 delete render_pass;
 
-                if (surface != VK_NULL_HANDLE) {
-                    vkDestroySurfaceKHR(instance, surface, nullptr);
-                }
+                if (surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
 
-                for (i = 0; i < descriptor_set.size(); i++)
-                {
-                    delete descriptor_set[i];
-                }
-                for (i = 0; i < graphic_pipeline.size(); i++)
-                {
-                    delete graphic_pipeline[i];
-                }
-                for (i = 0; i < vertex_buffer.size(); i++)
-                {
-                    delete vertex_buffer[i];
-                }
+                for (i = 0; i < descriptor_set.size(); i++) delete descriptor_set[i];
+
+                for (i = 0; i < graphic_pipeline.size(); i++) delete graphic_pipeline[i];
+
+                for (i = 0; i < vertex_buffer.size(); i++) delete vertex_buffer[i];
+
                 delete sync_primitives;
 
-                for (i = 0; i < graphic_command_buffers.size(); i++)
-                {
-                    delete graphic_command_buffers[i];
-                }
+                for (i = 0; i < graphic_command_buffers.size(); i++) delete graphic_command_buffers[i];
 
 				vkDestroyCommandPool(device, graphic_command_pool, nullptr);
 
-                for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++)
-                {
+                for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++) {
                     vkFreeMemory(device, Descriptors::Textures::textureImageMemory[i], nullptr);
                 }
 
@@ -137,7 +126,9 @@ namespace Engine
 			std::vector<VkPhysicalDevice> 			            gpu_vector;
 			u_int32_t							 	            queue_family_count;
 			std::vector<VkQueueFamilyProperties> 	            queue_family_props;
-			u_int32_t                                           queueFamilyIndex = UINT_MAX;
+			u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
+            u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
+            VkQueue                                             compute_queue_;
             std::vector<GraphicPipeline::GraphicPipeline *>     graphic_pipeline;
             SyncPrimitives::SyncPrimitives* 					sync_primitives;
             RenderPass::RenderPass* 							render_pass;
@@ -166,7 +157,7 @@ namespace Engine
                 _app_info.applicationVersion 	= 1;
                 _app_info.pEngineName 			= APP_NAME;
                 _app_info.engineVersion 		= 1;
-                _app_info.apiVersion 			= VK_API_VERSION_1_0 ;
+                _app_info.apiVersion 			= VK_API_VERSION_1_0;
 
                 VkInstanceCreateInfo _inst_info = {};
                 _inst_info.sType 					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -196,15 +187,32 @@ namespace Engine
 
                 vkGetPhysicalDeviceMemoryProperties(gpu_vector[0], &memory_properties);
 
-                bool found = false;
+                bool foundGraphic = false;
+                bool foundCompute = false;
                 for (unsigned int i = 0; i < queue_family_count; i++) {
                     if (queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-                        queueFamilyIndex = i;
-                        found = true;
-                        break;
+                        queueGraphicFamilyIndex = i;
+                        foundGraphic = true;
+                    }
+
+                    // Some GPU's have a dedicate compute queue. Try to find it.
+                    if ((queue_family_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) && ((queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
+                        queueComputeFamilyIndex = i;
+                        foundCompute = true;
                     }
                 }
-                assert(found && queueFamilyIndex != UINT_MAX);
+
+                // If no able to find a compute queue dedicated one, find a generic that support compute.
+                if (!foundCompute) {
+                    for (unsigned int i = 0; i < queue_family_count; i++) {
+                        if (queue_family_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                            queueComputeFamilyIndex = i;
+                            foundCompute = true;
+                        }
+                    }
+                }
+
+                assert(foundGraphic && foundCompute && queueComputeFamilyIndex != UINT_MAX && queueGraphicFamilyIndex != UINT_MAX);
 
                 float queue_priorities[1] = {0.0};
 
@@ -213,7 +221,7 @@ namespace Engine
                 queue_info.pNext 			= nullptr;
                 queue_info.queueCount 		= 1;
                 queue_info.pQueuePriorities = queue_priorities;
-                queue_info.queueFamilyIndex = queueFamilyIndex;
+                queue_info.queueFamilyIndex = queueGraphicFamilyIndex;
 
                 std::vector<const char *> device_extension_names;
                 device_extension_names.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -235,11 +243,13 @@ namespace Engine
 				VkCommandPoolCreateInfo cmd_pool_info = {};
 				cmd_pool_info.sType 			= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 				cmd_pool_info.pNext 			= nullptr;
-				cmd_pool_info.queueFamilyIndex  = queueFamilyIndex;
+				cmd_pool_info.queueFamilyIndex  = queueGraphicFamilyIndex;
 				cmd_pool_info.flags 			= 0;
 
 				assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &graphic_command_pool) == VK_SUCCESS);
-			}
+
+                vkGetDeviceQueue(device, queueComputeFamilyIndex, 0, &compute_queue_);
+            }
 
             void initGraphicPipeline ()
             {
@@ -285,7 +295,7 @@ namespace Engine
 
             void createDescriptorSet(const char* path_texture)
             {
-                descriptor_set.push_back( new Descriptors::DescriptorSet(device) );
+                descriptor_set.push_back(new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC));
 
                 struct DescriptorSetParams ds_params = {};
                 ds_params.width 				= static_cast<u_int32_t>(width);
@@ -296,11 +306,10 @@ namespace Engine
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.path                  = path_texture;
 
-                descriptor_set[ cm_count ]->create(ds_params);
+                descriptor_set[cm_count]->create(ds_params);
 
-                graphic_pipeline.push_back( new GraphicPipeline::GraphicPipeline(device) );
-                graphic_pipeline[ cm_count ]->
-                        create( descriptor_set[ cm_count ]->getPipelineLayout(), render_pass->getRenderPass() );
+                graphic_pipeline.push_back(new GraphicPipeline::GraphicPipeline(device) );
+                graphic_pipeline[cm_count]->create(descriptor_set[cm_count]->getPipelineLayout(), render_pass->getRenderPass());
             }
 
             void pushVertex(const std::string& path_obj = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
@@ -327,15 +336,15 @@ namespace Engine
 
             void recordCommandBuffer()
             {
-                graphic_command_buffers[ cm_count ]
+                graphic_command_buffers[cm_count]
                     ->bindGraphicCommandBuffer (
                          render_pass,
-                         descriptor_set[ cm_count ],
-                         graphic_pipeline[ cm_count ]->getPipeline(),
+                         descriptor_set[cm_count],
+                         graphic_pipeline[cm_count]->getPipeline(),
                          static_cast<uint32_t>(width),
                          static_cast<uint32_t>(height),
                          sync_primitives,
-                         vertex_buffer[ cm_count ]
+                         vertex_buffer[cm_count]
                     );
 
                 cm_count++;

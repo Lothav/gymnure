@@ -23,6 +23,11 @@ namespace Engine
 {
     namespace Descriptors
     {
+        enum Type {
+            GRAPHIC,
+            COMPUTE
+        };
+
         class DescriptorSet
         {
 
@@ -40,25 +45,23 @@ namespace Engine
             VkSampler                                   _texture_sampler    = nullptr;
 
             VkDevice                                    _instance_device    = nullptr;
+            Type                                        _type               = Type::GRAPHIC;
 
         public:
 
-            DescriptorSet(VkDevice device)
-            {
-                _instance_device = device;
-            }
+            DescriptorSet(VkDevice device, Type type) : _instance_device (device), _type(type) {}
 
-			~DescriptorSet()
-			{
-				delete _textel_buffer;
-				delete _uniform_buffer;
-				vkDestroySampler(_instance_device, _texture_sampler, nullptr);
-				vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
-				for (u_int32_t i = 0; i < _desc_layout.size(); i++) {
-					vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
-				}
-				vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
-			}
+            ~DescriptorSet()
+            {
+                delete _textel_buffer;
+                delete _uniform_buffer;
+                vkDestroySampler(_instance_device, _texture_sampler, nullptr);
+                vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
+                for(u_int32_t i = 0; i < _desc_layout.size(); i++) {
+                    vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
+                }
+                vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
+            }
 
             void create(struct DescriptorSetParams ds_params)
             {
@@ -81,11 +84,6 @@ namespace Engine
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);
 
-                VkImage texture_image = nullptr;
-                if(ds_params.path != nullptr) {
-                    texture_image = Textures::createTextureImage(ds_params.gpu, _instance_device, ds_params.path,
-                                                                         ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
-                }
                 struct MemoryProps mem_props = {};
                 mem_props.device = _instance_device;
 
@@ -93,11 +91,20 @@ namespace Engine
                 img_props.format = VK_FORMAT_R8G8B8A8_UNORM;
                 img_props.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-                /*  create Textel Buffer  */
+                if(_type == Type::GRAPHIC) {
+                    VkImage texture_image = nullptr;
+                    if(ds_params.path != nullptr) {
+                        texture_image = Textures::createTextureImage(
+                                ds_params.gpu, _instance_device, ds_params.path, ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
+                    }
+                    if(texture_image != nullptr) {
+                        _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
+                        createSampler();
+                    }
+                }
 
-                if(texture_image != nullptr) {
-                    _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
-                    createSampler();
+                if (_type == Type::COMPUTE) {
+                    _textel_buffer = new Memory::BufferImage(mem_props, img_props);
                 }
 
                 updateDescriptorSet();
@@ -122,19 +129,37 @@ namespace Engine
 
             void setLayoutBindings()
             {
-                _layout_bindings.resize(2);
+                if(_type == Type::GRAPHIC) {
+                    _layout_bindings.resize(2);
 
-                _layout_bindings[0].binding 					 = 0;
-                _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                _layout_bindings[0].descriptorCount 			 = 1;
-                _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
-                _layout_bindings[0].pImmutableSamplers			 = nullptr;
+                    _layout_bindings[0].binding 					 = 0;
+                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    _layout_bindings[0].descriptorCount 			 = 1;
+                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
+                    _layout_bindings[0].pImmutableSamplers			 = nullptr;
 
-                _layout_bindings[1].binding 					 = 1;
-                _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                _layout_bindings[1].descriptorCount 			 = 1;
-                _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
-                _layout_bindings[1].pImmutableSamplers 			 = nullptr;
+                    _layout_bindings[1].binding 					 = 1;
+                    _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    _layout_bindings[1].descriptorCount 			 = 1;
+                    _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
+                    _layout_bindings[1].pImmutableSamplers 			 = nullptr;
+
+                    return;
+                }
+
+                if(_type == Type::COMPUTE) {
+                    _layout_bindings.resize(1);
+
+                    _layout_bindings[0].binding 					 = 1;
+                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                    _layout_bindings[0].descriptorCount 			 = 1;
+                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_COMPUTE_BIT;
+                    _layout_bindings[0].pImmutableSamplers 			 = nullptr;
+
+                    return;
+                }
+
+                assert(false);
             }
 
             void setDescriptorLayouts()
@@ -147,8 +172,8 @@ namespace Engine
                 _descriptor_layout.pBindings 					 = _layout_bindings.data();
 
                 _desc_layout.resize(1);
-                res = vkCreateDescriptorSetLayout(_instance_device, &_descriptor_layout, nullptr, _desc_layout.data());
-                assert(res == VK_SUCCESS);
+
+                assert(vkCreateDescriptorSetLayout(_instance_device, &_descriptor_layout, nullptr, _desc_layout.data()) == VK_SUCCESS);
             }
 
             void setPipelineLayout()
@@ -161,28 +186,55 @@ namespace Engine
                 pPipelineLayoutCreateInfo.setLayoutCount         = 1;
                 pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
 
-                VkResult res = vkCreatePipelineLayout(_instance_device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout);
-                assert(res == VK_SUCCESS);
+                assert(vkCreatePipelineLayout(_instance_device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout) == VK_SUCCESS);
             }
 
             void setDescriptorPool()
             {
-                VkDescriptorPoolSize type_count[2];
-                type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                type_count[0].descriptorCount 					 = 1;
+                if(_type == Type::GRAPHIC) {
+                    VkDescriptorPoolSize type_count[2];
+                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    type_count[0].descriptorCount 					 = 1;
 
-                type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                type_count[1].descriptorCount 					 = 1;
+                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[1].descriptorCount 					 = 1;
 
-                VkDescriptorPoolCreateInfo descriptor_pool = {};
-                descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                descriptor_pool.pNext 							 = nullptr;
-                descriptor_pool.maxSets 						 = 1;
-                descriptor_pool.poolSizeCount 					 = 2;
-                descriptor_pool.pPoolSizes 						 = type_count;
+                    VkDescriptorPoolCreateInfo descriptor_pool = {};
+                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                    descriptor_pool.pNext 							 = nullptr;
+                    descriptor_pool.maxSets 						 = 1;
+                    descriptor_pool.poolSizeCount 					 = 2;
+                    descriptor_pool.pPoolSizes 						 = type_count;
 
-                VkResult res = vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool);
-                assert(res == VK_SUCCESS);
+                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
+
+                    return;
+                }
+
+                if(_type == Type::COMPUTE) {
+                    VkDescriptorPoolSize type_count[3];
+                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    type_count[0].descriptorCount 					 = 1;
+
+                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[1].descriptorCount 					 = 1;
+
+                    type_count[2].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[2].descriptorCount 					 = 1;
+
+                    VkDescriptorPoolCreateInfo descriptor_pool = {};
+                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                    descriptor_pool.pNext 							 = nullptr;
+                    descriptor_pool.maxSets 						 = 1;
+                    descriptor_pool.poolSizeCount 					 = 3;
+                    descriptor_pool.pPoolSizes 						 = type_count;
+
+                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
+
+                    return;
+                }
+
+                assert(false);
             }
 
             void setDescriptorSet()
@@ -194,8 +246,7 @@ namespace Engine
                 _alloc_info[0].descriptorSetCount 				  = 1;
                 _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
 
-                VkResult res = vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set);
-                assert(res == VK_SUCCESS);
+                assert(vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set) == VK_SUCCESS);
             }
 
             void createSampler()
@@ -254,6 +305,7 @@ namespace Engine
 
                 vkUpdateDescriptorSets(_instance_device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }
+
         };
     }
 }

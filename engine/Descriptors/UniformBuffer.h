@@ -20,6 +20,7 @@ namespace Engine
 				rotation 	= { 0.0f,  0.0f, 0.0f };
 				cameraPos 	= { 0.0f,  0.0f, 0.0f };
 			}
+
 			~UniformBuffer() {}
 
 		private:
@@ -42,14 +43,14 @@ namespace Engine
 				this->updateUniform();
 			}
 
-            void zoomCamera(double _zoom)
-            {
+			void zoomCamera(double _zoom)
+			{
 				this->zoom += _zoom;
 				if (this->zoom > -2) this->zoom = -2;
 
 				std::cout << "zoom: " << this->zoom << std::endl;
-                this->updateUniform();
-            }
+				this->updateUniform();
+			}
 
 			void rotateWorld(const glm::vec3& _rotation)
 			{
@@ -59,7 +60,7 @@ namespace Engine
 			}
 
 			void updateUniform()
-            {
+			{
 				glm::mat4 viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
 
 				this->mvp.model = viewMatrix * glm::translate(glm::mat4(1.0), cameraPos);

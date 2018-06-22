@@ -17,12 +17,11 @@ namespace Engine
 		{
 		public:
 
-			static void copyMemory (VkDevice device, VkDeviceMemory device_memory, const void * object, size_t object_size)
+			static void copyMemory(VkDevice device, VkDeviceMemory device_memory, const void * object, size_t object_size)
 			{
-				VkResult res;
 				void* _buffer_address = nullptr;
 
-				res = vkMapMemory(device, device_memory, 0, object_size, 0, &_buffer_address);
+				VkResult res = vkMapMemory(device, device_memory, 0, object_size, 0, &_buffer_address);
 				assert(res == VK_SUCCESS);
 				memcpy(_buffer_address, object, object_size);
 				vkUnmapMemory(device, device_memory);
