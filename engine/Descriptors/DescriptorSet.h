@@ -51,17 +51,17 @@ namespace Engine
 
             DescriptorSet(VkDevice device, Type type) : _instance_device (device), _type(type) {}
 
-			~DescriptorSet()
-			{
-				delete _textel_buffer;
-				delete _uniform_buffer;
-				vkDestroySampler(_instance_device, _texture_sampler, nullptr);
-				vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
-				for(u_int32_t i = 0; i < _desc_layout.size(); i++) {
-					vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
-				}
-				vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
-			}
+            ~DescriptorSet()
+            {
+                delete _textel_buffer;
+                delete _uniform_buffer;
+                vkDestroySampler(_instance_device, _texture_sampler, nullptr);
+                vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
+                for(u_int32_t i = 0; i < _desc_layout.size(); i++) {
+                    vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
+                }
+                vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
+            }
 
             void create(struct DescriptorSetParams ds_params)
             {
@@ -84,11 +84,6 @@ namespace Engine
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);
 
-                VkImage texture_image = nullptr;
-                if(ds_params.path != nullptr) {
-                    texture_image = Textures::createTextureImage(
-                        ds_params.gpu, _instance_device, ds_params.path, ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
-                }
                 struct MemoryProps mem_props = {};
                 mem_props.device = _instance_device;
 
@@ -96,11 +91,20 @@ namespace Engine
                 img_props.format = VK_FORMAT_R8G8B8A8_UNORM;
                 img_props.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-                /*  create Textel Buffer  */
+                if(_type == Type::GRAPHIC) {
+                    VkImage texture_image = nullptr;
+                    if(ds_params.path != nullptr) {
+                        texture_image = Textures::createTextureImage(
+                                ds_params.gpu, _instance_device, ds_params.path, ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
+                    }
+                    if(texture_image != nullptr) {
+                        _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
+                        createSampler();
+                    }
+                }
 
-                if(texture_image != nullptr) {
-                    _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
-                    createSampler();
+                if (_type == Type::COMPUTE) {
+                    _textel_buffer = new Memory::BufferImage(mem_props, img_props);
                 }
 
                 updateDescriptorSet();
@@ -201,6 +205,7 @@ namespace Engine
                     descriptor_pool.maxSets 						 = 1;
                     descriptor_pool.poolSizeCount 					 = 2;
                     descriptor_pool.pPoolSizes 						 = type_count;
+
                     assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
 
                     return;
@@ -223,6 +228,7 @@ namespace Engine
                     descriptor_pool.maxSets 						 = 1;
                     descriptor_pool.poolSizeCount 					 = 3;
                     descriptor_pool.pPoolSizes 						 = type_count;
+
                     assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
 
                     return;
