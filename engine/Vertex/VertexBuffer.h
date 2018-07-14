@@ -29,24 +29,24 @@ namespace Engine
 
         public:
 
-            VertexBuffer(struct BufferData buffer_data, std::vector<VertexData> vertexData): Buffer(buffer_data)
+            VertexBuffer(struct BufferData buffer_data, const std::vector<VertexData>& vertexData) : Buffer(buffer_data)
             {
                 this->_vertexData = vertexData;
                 updateMemoryWithData();
             }
 
-            void update(std::vector<VertexData> vertex)
+            void update(const std::vector<VertexData>& vertex)
             {
                 _vertexData = vertex;
                 this->updateMemoryWithData();
             }
 
-            unsigned long getVertexSize()
+            unsigned long getVertexSize() const
             {
                 return _vertexData.size();
             }
 
-            static std::vector<VkBuffer> getBuffersFromVector(std::vector<VertexBuffer *> vector)
+            static std::vector<VkBuffer> getBuffersFromVector(const std::vector<VertexBuffer *>& vector)
             {
                 std::vector<VkBuffer> buffers = {};
 
@@ -57,8 +57,7 @@ namespace Engine
                 return buffers;
             }
 
-
-            static std::vector<VertexData> loadModelVertices(std::string model_path, const char * obj_mtl = nullptr)
+            static std::vector<VertexData> loadModelVertices(const std::string& model_path, const char * obj_mtl = nullptr)
             {
                 std::vector<VertexData> vertexData = {};
 
@@ -74,7 +73,6 @@ namespace Engine
 
                 std::vector<VertexData> uniqueVertices = {};
 
-
                 for (const auto& shape : shapes)
                 {
                     for (const auto& index : shape.mesh.indices)
@@ -87,8 +85,8 @@ namespace Engine
                                     attrib.vertices[3 * index.vertex_index + 2]
                                 },
                                 {
-                                    attrib.texcoords.size() > 0 ? attrib.texcoords[2 * index.texcoord_index + 0] : 1.0f,
-                                    attrib.texcoords.size() > 0 ? 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]: 1.0f
+                                    !attrib.texcoords.empty() ? attrib.texcoords[2 * index.texcoord_index + 0] : 1.0f,
+                                    !attrib.texcoords.empty() ? 1.0f - attrib.texcoords[2 * index.texcoord_index + 1]: 1.0f
                                 },
                                 {
                                     index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 0] : 1.0f,

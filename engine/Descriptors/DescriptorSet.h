@@ -57,8 +57,8 @@ namespace Engine
                 delete _uniform_buffer;
                 vkDestroySampler(_instance_device, _texture_sampler, nullptr);
                 vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
-                for(u_int32_t i = 0; i < _desc_layout.size(); i++) {
-                    vkDestroyDescriptorSetLayout(_instance_device, _desc_layout[i], nullptr);
+                for (auto &desc_layout : _desc_layout) {
+                    vkDestroyDescriptorSetLayout(_instance_device, desc_layout, nullptr);
                 }
                 vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
             }
@@ -94,8 +94,14 @@ namespace Engine
                 if(_type == Type::GRAPHIC) {
                     VkImage texture_image = nullptr;
                     if(ds_params.path != nullptr) {
-                        texture_image = Textures::createTextureImage(
-                                ds_params.gpu, _instance_device, ds_params.path, ds_params.command_pool, ds_params.graphic_queue, ds_params.memory_properties);
+                        texture_image = Textures::createTextureImage (
+                                ds_params.gpu,
+                                _instance_device,
+                                ds_params.path,
+                                ds_params.command_pool,
+                                ds_params.graphic_queue,
+                                ds_params.memory_properties
+                        );
                     }
                     if(texture_image != nullptr) {
                         _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
@@ -110,7 +116,7 @@ namespace Engine
                 updateDescriptorSet();
             }
 
-            VkPipelineLayout getPipelineLayout()
+            VkPipelineLayout getPipelineLayout() const
             {
                 return _pipeline_layout;
             }
@@ -120,7 +126,7 @@ namespace Engine
                 return &_desc_set;
             }
 
-            UniformBuffer* getUniformBuffer()
+            UniformBuffer* getUniformBuffer() const
             {
                 return _uniform_buffer;
             }

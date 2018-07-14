@@ -4,10 +4,10 @@ project(Gymnure)
 set(CMAKE_BUILD_TYPE Debug)
 
 set(CORE_MAIN_FILE src/main.cpp)
-set(Vulkan_LIBRARY /home/luiz0tavio/Downloads/vulkan/VulkanSDK/1.1.73.0/x86_64/lib)
+set(Vulkan_LIBRARY /home/luiz0tavio/vulkan/1.1.77.0/x86_64/lib)
 
-include_directories(/home/luiz0tavio/Downloads/vulkan/VulkanSDK/1.1.73.0/x86_64/)
-include_directories(/home/luiz0tavio/Downloads/vulkan/VulkanSDK/1.1.73.0/x86_64/include)
+include_directories(/home/luiz0tavio/vulkan/1.1.77.0/x86_64/)
+include_directories(/home/luiz0tavio/vulkan/1.1.77.0/x86_64/include)
 
 include_directories(include include/)
 include_directories(include engine/)

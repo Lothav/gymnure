@@ -197,7 +197,7 @@ namespace Engine
 
 				int texWidth, texHeight, texChannels;
 				stbi_uc* pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-				VkDeviceSize imageSize = static_cast<VkDeviceSize>(texWidth * texHeight * 4);
+				auto imageSize = static_cast<VkDeviceSize>(texWidth * texHeight * 4);
 
 				assert(pixels);
 

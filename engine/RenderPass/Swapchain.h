@@ -83,32 +83,32 @@ namespace Engine
 				createSwapChainBuffer(_swap_chain_images);
 			}
 
-			uint32_t getImageCount()
+			uint32_t getImageCount() const
 			{
 				return _image_count;
 			}
 
-			Memory::BufferImage * getSwapChainBuffer(uint32_t i)
+			Memory::BufferImage * getSwapChainBuffer(uint32_t i) const
 			{
 				return _swap_chain_buffer[i];
 			}
 
-			VkFormat getSwapChainFormat()
+			VkFormat getSwapChainFormat() const
 			{
 				return format;
 			}
 
-			VkSwapchainKHR getSwapChainKHR()
+			VkSwapchainKHR getSwapChainKHR() const
 			{
 				return _swap_chain;
 			}
 
-			VkQueue getGraphicQueue()
+			VkQueue getGraphicQueue() const
 			{
 				return _graphics_queue;
 			}
 
-			VkQueue getPresentQueue()
+			VkQueue getPresentQueue() const
 			{
 				return _present_queue;
 			}
@@ -132,7 +132,7 @@ namespace Engine
 				}
 			}
 
-			VkFormat getSurfaceFormatSupported()
+			VkFormat getSurfaceFormatSupported() const
 			{
 				VkResult res;
 				uint32_t formatCount;
@@ -310,7 +310,10 @@ namespace Engine
 				swapchain_ci.queueFamilyIndexCount  = 0;
 				swapchain_ci.pQueueFamilyIndices 	= nullptr;
 
-				uint32_t queueFamilyIndices[2] = {(uint32_t)_graphics_queue_family_index, (uint32_t)_present_queue_family_index};
+                auto* queueFamilyIndices = static_cast<uint32_t*>(malloc(sizeof(uint32_t) * 2));
+                queueFamilyIndices[0] = (uint32_t)_graphics_queue_family_index;
+                queueFamilyIndices[1] = (uint32_t)_present_queue_family_index;
+
 				if (_graphics_queue_family_index != _present_queue_family_index) {
 					// If the graphics and present queues are from different queue families,
 					// we either have to explicitly transfer ownership of images between the
