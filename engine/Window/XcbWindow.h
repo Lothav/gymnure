@@ -17,12 +17,14 @@ namespace Engine
 	{
 		class XcbWindow: public Window
 		{
+
 		public:
 
 			~XcbWindow() {
 				xcb_destroy_window(connection, window);
 				xcb_disconnect(connection);
 			}
+
 		private:
 
 			xcb_screen_t* 							screen;
@@ -106,23 +108,22 @@ namespace Engine
 			}
 
 		public:
+
 			XcbWindow(int32_t width, int32_t height)
 			{
-				this->width = width;
+				this->width  = width;
 				this->height = height;
-			}
 
-			void bootstrap()
-			{
 				this->createApplication();
 				this->setConnection();
 				this->createWindow();
 				this->createSurface();
 				this->initGraphicPipeline();
 			}
+
 			Engine::Util::Events* events = nullptr;
 
-			WindowEvent poolEvent()
+			WindowEvent poolEvent() override
 			{
 				if(events == nullptr){
 					events =  new Engine::Util::Events();

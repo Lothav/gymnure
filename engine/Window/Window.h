@@ -287,6 +287,11 @@ namespace Engine
 
         public:
 
+            virtual WindowEvent poolEvent()
+            {
+                return WindowEvent::None;
+            }
+
             void createCommandBuffers()
             {
                 auto graphic_cb = new CommandBuffers(device, graphic_command_pool);

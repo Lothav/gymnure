@@ -41,7 +41,7 @@ namespace Engine
 
             }
 
-			VkPipeline getPipeline()
+			VkPipeline getPipeline() const
 			{
 				return _vk_pipeline;
 			}

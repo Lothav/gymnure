@@ -7,14 +7,13 @@ class Gymnure
 {
 private:
 
-    Engine::Window::XcbWindow* _window;
+    Engine::Window::Window* _window;
 
 public:
 
     Gymnure(unsigned int windowWidth, unsigned int windowHeight)
     {
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
-        _window->bootstrap();
     }
 
     void insertData(const char* path_texture, std::string path_obj="", std::vector<VertexData> vertexData = {}, const char* obj_mtl = nullptr)
