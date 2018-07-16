@@ -298,7 +298,7 @@ namespace Engine
                 graphic_command_buffers.push_back(graphic_cb);
             }
 
-            void createDescriptorSet(const char* path_texture)
+            void createDescriptorSet(const std::string& path_texture, const std::vector<GraphicPipeline::Shader>& shaders)
             {
                 descriptor_set.push_back(new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC));
 
@@ -309,11 +309,11 @@ namespace Engine
                 ds_params.command_pool			= graphic_command_pool;
                 ds_params.gpu					= gpu_vector[0];
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
-                ds_params.path                  = path_texture;
+                ds_params.path                  = path_texture.data();
 
                 descriptor_set[cm_count]->create(ds_params);
 
-                graphic_pipeline.push_back(new GraphicPipeline::GraphicPipeline(device) );
+                graphic_pipeline.push_back(new GraphicPipeline::GraphicPipeline(device, shaders) );
                 graphic_pipeline[cm_count]->create(descriptor_set[cm_count]->getPipelineLayout(), render_pass->getRenderPass());
             }
 

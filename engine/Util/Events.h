@@ -44,7 +44,7 @@ namespace Engine
 
                     case XCB_MOTION_NOTIFY:
                     {
-                        xcb_motion_notify_event_t *motion = (xcb_motion_notify_event_t *) event;
+                        auto *motion = (xcb_motion_notify_event_t *) event;
                         for(uint16_t i = 0; i < descSets.size(); i++){
                             if (mouseButtons.left) {
                                 descSets[i]->getUniformBuffer()->rotateWorld(
@@ -67,7 +67,7 @@ namespace Engine
                         return WindowEvent::None;
                     }
                     case XCB_BUTTON_PRESS: {
-                        xcb_button_press_event_t *press = (xcb_button_press_event_t *) event;
+                        auto *press = (xcb_button_press_event_t *) event;
                         if (press->detail == XCB_BUTTON_INDEX_1)
                             mouseButtons.left = true;
                         if (press->detail == XCB_BUTTON_INDEX_2)
@@ -79,7 +79,7 @@ namespace Engine
                     }
 
                     case XCB_BUTTON_RELEASE: {
-                        xcb_button_press_event_t *press = (xcb_button_press_event_t *) event;
+                        auto *press = (xcb_button_press_event_t *) event;
                         if (press->detail == XCB_BUTTON_INDEX_1)
                             mouseButtons.left = false;
                         if (press->detail == XCB_BUTTON_INDEX_2)
@@ -90,7 +90,7 @@ namespace Engine
                     }
 
                     case XCB_KEY_PRESS: {
-                        const xcb_key_release_event_t *keyEvent = (const xcb_key_release_event_t *) event;
+                        auto *keyEvent = (const xcb_key_release_event_t *) event;
                         /*switch (keyEvent->detail) {
                             case KEY_W:
                                 camera.keys.up = true;

@@ -11,6 +11,11 @@ namespace Engine
 {
 	namespace GraphicPipeline
 	{
+		struct Shader {
+			std::string 			path;
+			VkShaderStageFlagBits 	type;
+		};
+
 		class GraphicPipeline: public Util::Util
 		{
 
@@ -24,10 +29,10 @@ namespace Engine
 
 		public:
 
-			GraphicPipeline(VkDevice device)
+			GraphicPipeline(VkDevice device, const std::vector<Shader>& shaders)
             {
                 _instance_device = device;
-				setShaderStages();
+				setShaderStages(shaders);
             }
 
             ~GraphicPipeline()
@@ -211,21 +216,17 @@ namespace Engine
 
 		private:
 
-			void setShaderStages()
+			void setShaderStages(const std::vector<Shader>& shaders)
 			{
-				_shader_stages.resize(2);
+				_shader_stages.resize(shaders.size());
 
-				_shader_stages[0].sType 				= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-				_shader_stages[0].stage 				= VK_SHADER_STAGE_VERTEX_BIT;
-				_shader_stages[0].module 				= loadSPIRVShader("../../shaders/vert.spv", _instance_device);
-				_shader_stages[0].pName 				= "main";
-				assert(_shader_stages[0].module != VK_NULL_HANDLE);
-
-				_shader_stages[1].sType 				= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-				_shader_stages[1].stage 				= VK_SHADER_STAGE_FRAGMENT_BIT;
-				_shader_stages[1].module 				= loadSPIRVShader("../../shaders/frag.spv", _instance_device);
-				_shader_stages[1].pName 				= "main";
-				assert(_shader_stages[1].module != VK_NULL_HANDLE);
+				for (int i = 0; i < shaders.size(); ++i) {
+					_shader_stages[i].sType 			= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+					_shader_stages[i].stage 			= shaders[i].type;
+					_shader_stages[i].module 			= loadSPIRVShader(shaders[i].path, _instance_device);
+					_shader_stages[i].pName 			= "main";
+					assert(_shader_stages[0].module != VK_NULL_HANDLE);
+				}
 			}
 
 		};

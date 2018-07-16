@@ -2,6 +2,15 @@
 #define GYMNURE_H
 
 #include <Window/XcbWindow.h>
+#include "GraphicPipeline/GraphicPipeline.h"
+
+struct GymnureData {
+    std::string path_texture;
+    std::string path_obj="";
+    std::vector<VertexData> vertexData = {};
+    char* obj_mtl = nullptr;
+    std::vector<Engine::GraphicPipeline::Shader> shaders = {};
+};
 
 class Gymnure
 {
@@ -16,11 +25,11 @@ public:
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
     }
 
-    void insertData(const char* path_texture, std::string path_obj="", std::vector<VertexData> vertexData = {}, const char* obj_mtl = nullptr)
+    void insertData(const GymnureData& gymnureData)
     {
         _window->createCommandBuffers();
-        _window->createDescriptorSet(path_texture);
-        _window->pushVertex(path_obj, vertexData, obj_mtl);
+        _window->createDescriptorSet(gymnureData.path_texture, gymnureData.shaders);
+        _window->pushVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
         _window->recordCommandBuffer();
     }
 

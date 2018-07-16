@@ -27,9 +27,9 @@ namespace Engine
 
 		private:
 
-			xcb_screen_t* 							screen;
-			xcb_window_t 							window;
-			xcb_connection_t*						connection;
+			xcb_screen_t* 			screen;
+			xcb_window_t 			window;
+			xcb_connection_t*		connection;
 
 			void setConnection()
 			{
@@ -87,8 +87,7 @@ namespace Engine
 
 				xcb_map_window(connection, window);
 
-				// Force the x/y coordinates to 100, 100 results are identical in consecutive
-				// runs
+				// Force the x/y coordinates to 100, 100 results are identical in consecutive runs
 				const uint32_t coords[] = {100, 100};
 				xcb_configure_window(connection, window, XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y, coords);
 				xcb_flush(connection);

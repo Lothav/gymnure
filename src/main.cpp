@@ -7,8 +7,21 @@ int main(int argc, char** argv) {
 		unsigned int windowHeight = 600;
 
 		auto* gymnure = new Gymnure(windowWidth, windowHeight);
-		//gymnure->insertData("../../assets/sky.jpg", "../../assets/cube.obj");
-		gymnure->insertData("../../assets/room2.png", "../../assets/room2.obj");
+
+		auto vert = Engine::GraphicPipeline::Shader{};
+		vert.type = VK_SHADER_STAGE_VERTEX_BIT;
+		vert.path = "../../shaders/vert.spv";
+
+		auto frag = Engine::GraphicPipeline::Shader{};
+		frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
+		frag.path = "../../shaders/frag.spv";
+
+		auto room2 = GymnureData{};
+		room2.path_texture 	= "../../assets/room2.png";
+		room2.path_obj 		= "../../assets/room2.obj";
+		room2.shaders 		= {vert, frag};
+
+		gymnure->insertData(room2);
 
 		while(1) {
 			if (!gymnure->draw()) {
