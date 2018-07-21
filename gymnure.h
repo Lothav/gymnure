@@ -57,6 +57,19 @@ public:
         _window->recordCommandBuffer();
     }
 
+    void insertText(const GymnureData& gymnureData)
+    {
+        _window->createCommandBuffers();
+
+        VkVertexInputBindingDescription vi_binding = {};
+
+        std::vector<VkVertexInputAttributeDescription> vi_attributes;
+
+        _window->createDescriptorSet(gymnureData.path_texture, gymnureData.shaders, vi_binding, vi_attributes);
+        _window->pushVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
+        _window->recordCommandBuffer();
+    }
+
     bool draw()
     {
         bool running = true;
