@@ -28,7 +28,7 @@ namespace Engine
             VkDevice                                            _instance_device;
 
             VkVertexInputBindingDescription                     _vi_binding;
-            std::vector<VkVertexInputAttributeDescription>      _vi_attributs;
+            std::vector<VkVertexInputAttributeDescription>      _vi_attributes;
 
 		public:
 
@@ -56,7 +56,7 @@ namespace Engine
 
 			void addViAttributes(const VkVertexInputAttributeDescription& vi_attr)
             {
-                _vi_attributs.push_back(vi_attr);
+                _vi_attributes.push_back(vi_attr);
 			}
 
 			void setViBinding(VkVertexInputBindingDescription vi_binding)
@@ -74,7 +74,7 @@ namespace Engine
 				vi.vertexBindingDescriptionCount 		= 1;
 				vi.pVertexBindingDescriptions 			= &_vi_binding;
 				vi.vertexAttributeDescriptionCount 		= 3;
-				vi.pVertexAttributeDescriptions 		= _vi_attributs.data();
+				vi.pVertexAttributeDescriptions 		= _vi_attributes.data();
 
 				VkPipelineCacheCreateInfo pipelineCache = {};
 				pipelineCache.sType 					= VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;

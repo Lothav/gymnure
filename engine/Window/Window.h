@@ -298,7 +298,12 @@ namespace Engine
                 graphic_command_buffers.push_back(graphic_cb);
             }
 
-            void createDescriptorSet(const std::string& path_texture, const std::vector<GraphicPipeline::Shader>& shaders)
+            void createDescriptorSet(const std::string& path_texture,
+                                     const std::vector<GraphicPipeline::Shader>& shaders,
+                                    const VkVertexInputBindingDescription& vi_binding,
+                                     const std::vector<VkVertexInputAttributeDescription>& vi_attribs
+
+            )
             {
                 descriptor_set.push_back(new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC));
 
@@ -314,32 +319,8 @@ namespace Engine
                 descriptor_set[cm_count]->create(ds_params);
 
                 graphic_pipeline.push_back(new GraphicPipeline::GraphicPipeline(device, shaders) );
-
-                VkVertexInputBindingDescription vi_binding = {};
-                vi_binding.binding 					= 0;
-                vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
-                vi_binding.stride 					= sizeof(VertexData);
                 graphic_pipeline[cm_count]->setViBinding(vi_binding);
-
-                VkVertexInputAttributeDescription vi_attribs;
-                vi_attribs.binding 					= 0;
-                vi_attribs.location 				= 0;
-                vi_attribs.format 					= VK_FORMAT_R32G32B32_SFLOAT;
-                vi_attribs.offset 					= static_cast<uint32_t>(offsetof(VertexData, pos));
-                graphic_pipeline[cm_count]->addViAttributes(vi_attribs);
-
-                vi_attribs.binding 					= 0;
-                vi_attribs.location 				= 1;
-                vi_attribs.format 					= VK_FORMAT_R32G32_SFLOAT;
-                vi_attribs.offset 					= static_cast<uint32_t>(offsetof(VertexData, uv));
-                graphic_pipeline[cm_count]->addViAttributes(vi_attribs);
-
-                vi_attribs.binding 					= 0;
-                vi_attribs.location 				= 2;
-                vi_attribs.format 					= VK_FORMAT_R32G32B32_SFLOAT;
-                vi_attribs.offset 					= static_cast<uint32_t>(offsetof(VertexData, normal));
-                graphic_pipeline[cm_count]->addViAttributes(vi_attribs);
-
+                for (auto &vi_attrib : vi_attribs) graphic_pipeline[cm_count]->addViAttributes(vi_attrib);
                 graphic_pipeline[cm_count]->create(descriptor_set[cm_count]->getPipelineLayout(), render_pass->getRenderPass());
             }
 
