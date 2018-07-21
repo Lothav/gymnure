@@ -27,6 +27,9 @@ namespace Engine
 
             VkDevice                                            _instance_device;
 
+            VkVertexInputBindingDescription                     _vi_binding;
+            std::vector<VkVertexInputAttributeDescription>      _vi_attributs;
+
 		public:
 
 			GraphicPipeline(VkDevice device, const std::vector<Shader>& shaders)
@@ -51,40 +54,27 @@ namespace Engine
 				return _vk_pipeline;
 			}
 
+			void addViAttributes(const VkVertexInputAttributeDescription& vi_attr)
+            {
+                _vi_attributs.push_back(vi_attr);
+			}
+
+			void setViBinding(VkVertexInputBindingDescription vi_binding)
+            {
+                _vi_binding = vi_binding;
+			}
+
 			void create(VkPipelineLayout pipeline_layout, VkRenderPass render_pass)
 			{
-				VkVertexInputBindingDescription vi_binding = {};
-				vi_binding.binding 						= 0;
-				vi_binding.inputRate 					= VK_VERTEX_INPUT_RATE_VERTEX;
-				vi_binding.stride 						= sizeof(VertexData);
-
-				std::vector<VkVertexInputAttributeDescription> vi_attribs;
-				vi_attribs.resize(3);
-
-				vi_attribs[0].binding 					= 0;
-				vi_attribs[0].location 					= 0;
-				vi_attribs[0].format 					= VK_FORMAT_R32G32B32_SFLOAT;
-				vi_attribs[0].offset 					= static_cast<uint32_t>(offsetof(VertexData, pos));
-
-				vi_attribs[1].binding 					= 0;
-				vi_attribs[1].location 					= 1;
-				vi_attribs[1].format 					= VK_FORMAT_R32G32_SFLOAT;
-				vi_attribs[1].offset 					= static_cast<uint32_t>(offsetof(VertexData, uv));
-
-				vi_attribs[2].binding 					= 0;
-				vi_attribs[2].location 					= 2;
-				vi_attribs[2].format 					= VK_FORMAT_R32G32B32_SFLOAT;
-				vi_attribs[2].offset 					= static_cast<uint32_t>(offsetof(VertexData, normal));
-
 				VkPipelineVertexInputStateCreateInfo vi = {};
 				memset(&vi, 0, sizeof(vi));
 				vi.sType 								= VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 				vi.pNext 								= nullptr;
 				vi.flags 								= 0;
 				vi.vertexBindingDescriptionCount 		= 1;
-				vi.pVertexBindingDescriptions 			= &vi_binding;
+				vi.pVertexBindingDescriptions 			= &_vi_binding;
 				vi.vertexAttributeDescriptionCount 		= 3;
-				vi.pVertexAttributeDescriptions 		= vi_attribs.data();
+				vi.pVertexAttributeDescriptions 		= _vi_attributs.data();
 
 				VkPipelineCacheCreateInfo pipelineCache = {};
 				pipelineCache.sType 					= VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;

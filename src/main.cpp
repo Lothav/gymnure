@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
 		gymnure->insertData(room2);
 
-		while(1) {
+		while(true) {
 			if (!gymnure->draw()) {
 				break;
 			}
