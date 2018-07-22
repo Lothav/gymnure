@@ -128,18 +128,18 @@ namespace Engine
 
         private:
 
-            VkDevice 								            device;
-            VkPhysicalDeviceMemoryProperties 		            memory_properties;
-            uint32_t 								            current_buffer = 0;
-			u_int32_t								            cm_count = 0;
-			std::vector<VkPhysicalDevice> 			            gpu_vector;
-			u_int32_t							 	            queue_family_count;
-			std::vector<VkQueueFamilyProperties> 	            queue_family_props;
-			u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
-            u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
             VkQueue                                             compute_queue_;
-            SyncPrimitives::SyncPrimitives* 					sync_primitives;
+            VkDevice 								            device;
+            uint32_t 								            current_buffer = 0;
+            u_int32_t								            cm_count = 0;
+            u_int32_t							 	            queue_family_count;
+            u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
+            u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
             RenderPass::RenderPass* 							render_pass;
+            std::vector<VkPhysicalDevice> 			            gpu_vector;
+            SyncPrimitives::SyncPrimitives* 					sync_primitives;
+            VkPhysicalDeviceMemoryProperties 		            memory_properties;
+            std::vector<VkQueueFamilyProperties> 	            queue_family_props;
 
 			VkCommandPool 							            graphic_command_pool;
 
@@ -318,6 +318,10 @@ namespace Engine
 
             void createDescriptorSet(const std::string& path_texture)
             {
+                auto* program_obj = &programs[ProgramType::OBJECT];
+
+                // Create ProgramType::OBJECT Descriptor Set
+
                 struct DescriptorSetParams ds_params = {};
                 ds_params.width 				= static_cast<u_int32_t>(width);
                 ds_params.height 				= static_cast<u_int32_t>(height);
@@ -326,6 +330,10 @@ namespace Engine
                 ds_params.gpu					= gpu_vector[0];
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.path                  = path_texture.data();
+
+                program_obj->descriptor_set->create(ds_params);
+
+                // Create ProgramType::OBJECT Graphic Pipeline
 
                 VkVertexInputBindingDescription vi_binding = {};
                 vi_binding.binding 					= 0;
@@ -350,10 +358,8 @@ namespace Engine
                 vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
                 vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
 
-                auto* program_obj = &programs[ProgramType::OBJECT];
-                program_obj->descriptor_set->create(ds_params);
+                program_obj->graphic_pipeline->addViAttributes(vi_attribs);
                 program_obj->graphic_pipeline->setViBinding(vi_binding);
-                for (auto &vi_attrib : vi_attribs) program_obj->graphic_pipeline->addViAttributes(vi_attrib);
                 program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass());
             }
 

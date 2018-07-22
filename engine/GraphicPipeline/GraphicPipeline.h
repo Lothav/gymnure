@@ -59,6 +59,11 @@ namespace Engine
                 _vi_attributes.push_back(vi_attr);
 			}
 
+			void addViAttributes(const std::vector<VkVertexInputAttributeDescription>& vi_attrs)
+			{
+				for (auto& vi_attr: vi_attrs) _vi_attributes.push_back(vi_attr);
+			}
+
 			void setViBinding(VkVertexInputBindingDescription vi_binding)
             {
                 _vi_binding = vi_binding;
