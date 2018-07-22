@@ -5,7 +5,7 @@
 #include "GraphicPipeline/GraphicPipeline.h"
 
 struct GymnureData {
-    std::string path_texture;
+    std::string path_texture="";
     std::string path_obj="";
     std::vector<VertexData> vertexData = {};
     char* obj_mtl = nullptr;
@@ -26,7 +26,8 @@ public:
 
     void insertData(const GymnureData& gymnureData)
     {
-        _window->createDescriptorSet(gymnureData.path_texture);
+        _window->createDescriptorSet();
+        if(!gymnureData.path_texture.empty()) _window->setTexture(gymnureData.path_texture);
         _window->setVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
         _window->recordCommandBuffer();
     }

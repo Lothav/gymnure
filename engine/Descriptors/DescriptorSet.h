@@ -84,6 +84,11 @@ namespace Engine
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);
 
+                updateDescriptorSet();
+            }
+
+            void setTextelBuffer(struct DescriptorSetParams ds_params)
+            {
                 struct MemoryProps mem_props = {};
                 mem_props.device = _instance_device;
 

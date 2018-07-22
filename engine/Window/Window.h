@@ -316,7 +316,7 @@ namespace Engine
                 return WindowEvent::None;
             }
 
-            void createDescriptorSet(const std::string& path_texture)
+            void createDescriptorSet()
             {
                 auto* program_obj = &programs[ProgramType::OBJECT];
 
@@ -329,7 +329,6 @@ namespace Engine
                 ds_params.command_pool			= graphic_command_pool;
                 ds_params.gpu					= gpu_vector[0];
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
-                ds_params.path                  = path_texture.data();
 
                 program_obj->descriptor_set->create(ds_params);
 
@@ -361,6 +360,21 @@ namespace Engine
                 program_obj->graphic_pipeline->addViAttributes(vi_attribs);
                 program_obj->graphic_pipeline->setViBinding(vi_binding);
                 program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass());
+            }
+
+            void setTexture(const std::string& path_texture)
+            {
+                struct DescriptorSetParams ds_params = {};
+                ds_params.width 				= static_cast<u_int32_t>(width);
+                ds_params.height 				= static_cast<u_int32_t>(height);
+                ds_params.memory_properties		= memory_properties;
+                ds_params.command_pool			= graphic_command_pool;
+                ds_params.gpu					= gpu_vector[0];
+                ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
+                ds_params.path                  = path_texture.data();
+
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                program_obj->descriptor_set->setTextelBuffer(ds_params);
             }
 
             void setVertex(const std::string& path_obj = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
