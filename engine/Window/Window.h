@@ -117,6 +117,13 @@ namespace Engine
                 cmd_buff.clear();
             }
 
+        protected:
+
+            void init()
+            {
+                this->initGraphicPipeline();
+            }
+
         private:
 
             VkDevice 								            device;
@@ -300,7 +307,7 @@ namespace Engine
 
             void createDescriptorSet(const std::string& path_texture,
                                      const std::vector<GraphicPipeline::Shader>& shaders,
-                                    const VkVertexInputBindingDescription& vi_binding,
+                                     const VkVertexInputBindingDescription& vi_binding,
                                      const std::vector<VkVertexInputAttributeDescription>& vi_attribs
 
             )

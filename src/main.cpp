@@ -1,12 +1,13 @@
+#include <memory>
 #include "../gymnure.h"
 
 int main(int argc, char** argv) {
 
-	{
-		unsigned int windowWidth  = 800;
-		unsigned int windowHeight = 600;
+	const unsigned windowWidth  = 800;
+	const unsigned windowHeight = 600;
 
-		auto* gymnure = new Gymnure(windowWidth, windowHeight);
+	{
+		auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
 		auto vert = Engine::GraphicPipeline::Shader{};
 		vert.type = VK_SHADER_STAGE_VERTEX_BIT;
@@ -28,8 +29,7 @@ int main(int argc, char** argv) {
 				break;
 			}
 		}
-
-		delete gymnure;
-		return (EXIT_SUCCESS);
 	}
+
+	return EXIT_SUCCESS;
 }

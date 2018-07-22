@@ -117,7 +117,8 @@ namespace Engine
 				this->setConnection();
 				this->createWindow();
 				this->createSurface();
-				this->initGraphicPipeline();
+
+				this->init();
 			}
 
 			Engine::Util::Events* events = nullptr;
