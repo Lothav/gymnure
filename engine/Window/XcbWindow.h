@@ -101,9 +101,7 @@ namespace Engine
 				createInfo.connection 					= connection;
 				createInfo.window 						= window;
 
-				VkResult res = vkCreateXcbSurfaceKHR(instance, &createInfo, nullptr, &surface);
-
-				assert(res == VK_SUCCESS);
+				assert(vkCreateXcbSurfaceKHR(instance, &createInfo, nullptr, &surface) == VK_SUCCESS);
 			}
 
 		public:
@@ -132,7 +130,7 @@ namespace Engine
 				xcb_generic_event_t* e = nullptr;
 				WindowEvent event = WindowEvent::None;
 				while ((e = xcb_poll_for_event(connection))) {
-                    event = events->handleEvent(e, descriptor_set);
+                    event = events->handleEvent(e, {programs[ProgramType::OBJECT].descriptor_set});
 					free(e);
 				}
 

@@ -9,7 +9,6 @@ struct GymnureData {
     std::string path_obj="";
     std::vector<VertexData> vertexData = {};
     char* obj_mtl = nullptr;
-    std::vector<Engine::GraphicPipeline::Shader> shaders = {};
 };
 
 class Gymnure
@@ -27,47 +26,13 @@ public:
 
     void insertData(const GymnureData& gymnureData)
     {
-        _window->createCommandBuffers();
-
-        VkVertexInputBindingDescription vi_binding = {};
-        vi_binding.binding 					= 0;
-        vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
-        vi_binding.stride 					= sizeof(VertexData);
-
-        std::vector<VkVertexInputAttributeDescription> vi_attribs;
-        vi_attribs.resize(3);
-
-        vi_attribs[0].binding 			    = 0;
-        vi_attribs[0].location 			    = 0;
-        vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-        vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
-
-        vi_attribs[1].binding 			    = 0;
-        vi_attribs[1].location 			    = 1;
-        vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
-        vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
-
-        vi_attribs[2].binding 			    = 0;
-        vi_attribs[2].location 			    = 2;
-        vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-        vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
-
-        _window->createDescriptorSet(gymnureData.path_texture, gymnureData.shaders, vi_binding, vi_attribs);
-        _window->pushVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
+        _window->createDescriptorSet(gymnureData.path_texture);
+        _window->setVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
         _window->recordCommandBuffer();
     }
 
     void insertText(const GymnureData& gymnureData)
     {
-        _window->createCommandBuffers();
-
-        VkVertexInputBindingDescription vi_binding = {};
-
-        std::vector<VkVertexInputAttributeDescription> vi_attributes;
-
-        _window->createDescriptorSet(gymnureData.path_texture, gymnureData.shaders, vi_binding, vi_attributes);
-        _window->pushVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
-        _window->recordCommandBuffer();
     }
 
     bool draw()

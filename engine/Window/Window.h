@@ -23,6 +23,18 @@ namespace Engine
 {
     namespace Window
     {
+        struct Program {
+            Descriptors::DescriptorSet*         descriptor_set;
+            Vertex::VertexBuffer*               vertex_buffer;
+            GraphicPipeline::GraphicPipeline*   graphic_pipeline;
+            CommandBuffers*                     graphic_command_buffers;
+        };
+
+        enum ProgramType {
+            OBJECT,
+            TEXT
+        };
+
         class Window : public Util::Layers {
 
         public:
@@ -38,15 +50,13 @@ namespace Engine
 
                 if (surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
 
-                for (i = 0; i < descriptor_set.size(); i++) delete descriptor_set[i];
-
-                for (i = 0; i < graphic_pipeline.size(); i++) delete graphic_pipeline[i];
-
-                for (i = 0; i < vertex_buffer.size(); i++) delete vertex_buffer[i];
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                delete program_obj->descriptor_set;
+                delete program_obj->graphic_pipeline;
+                delete program_obj->vertex_buffer;
+                delete program_obj->graphic_command_buffers;
 
                 delete sync_primitives;
-
-                for (i = 0; i < graphic_command_buffers.size(); i++) delete graphic_command_buffers[i];
 
 				vkDestroyCommandPool(device, graphic_command_pool, nullptr);
 
@@ -69,11 +79,10 @@ namespace Engine
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
                 std::vector<VkCommandBuffer> cmd_buff = {};
-                for (int i = 0; i < graphic_command_buffers.size(); ++i)
-                {
-					descriptor_set[ i ]->getUniformBuffer()->updateMVP();
-					cmd_buff.push_back(graphic_command_buffers[i]->getCommandBuffer());
-                }
+
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                program_obj->descriptor_set->getUniformBuffer()->updateMVP();
+                cmd_buff.push_back(program_obj->graphic_command_buffers->getCommandBuffer());
 
                 VkSubmitInfo submit_info = {};
                 submit_info.pNext                     = nullptr;
@@ -117,13 +126,6 @@ namespace Engine
                 cmd_buff.clear();
             }
 
-        protected:
-
-            void init()
-            {
-                this->initGraphicPipeline();
-            }
-
         private:
 
             VkDevice 								            device;
@@ -136,17 +138,32 @@ namespace Engine
 			u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
             u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
             VkQueue                                             compute_queue_;
-            std::vector<GraphicPipeline::GraphicPipeline *>     graphic_pipeline;
             SyncPrimitives::SyncPrimitives* 					sync_primitives;
             RenderPass::RenderPass* 							render_pass;
 
 			VkCommandPool 							            graphic_command_pool;
-            std::vector<CommandBuffers *>			            graphic_command_buffers;
 
         protected:
 
-            std::vector<Vertex::VertexBuffer *>                 vertex_buffer;
-            std::vector<Descriptors::DescriptorSet*> 			descriptor_set;
+            std::map<ProgramType, Program>                      programs;
+
+            void init()
+            {
+                this->initGraphicPipeline();
+
+                auto vert = Engine::GraphicPipeline::Shader{};
+                vert.type = VK_SHADER_STAGE_VERTEX_BIT;
+                vert.path = "../../shaders/vert.spv";
+
+                auto frag = Engine::GraphicPipeline::Shader{};
+                frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
+                frag.path = "../../shaders/frag.spv";
+
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                program_obj->descriptor_set            = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
+                program_obj->graphic_pipeline          = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
+                program_obj->graphic_command_buffers   = new CommandBuffers(device, graphic_command_pool);
+            }
 
             void createApplication()
             {
@@ -299,21 +316,8 @@ namespace Engine
                 return WindowEvent::None;
             }
 
-            void createCommandBuffers()
+            void createDescriptorSet(const std::string& path_texture)
             {
-                auto graphic_cb = new CommandBuffers(device, graphic_command_pool);
-                graphic_command_buffers.push_back(graphic_cb);
-            }
-
-            void createDescriptorSet(const std::string& path_texture,
-                                     const std::vector<GraphicPipeline::Shader>& shaders,
-                                     const VkVertexInputBindingDescription& vi_binding,
-                                     const std::vector<VkVertexInputAttributeDescription>& vi_attribs
-
-            )
-            {
-                descriptor_set.push_back(new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC));
-
                 struct DescriptorSetParams ds_params = {};
                 ds_params.width 				= static_cast<u_int32_t>(width);
                 ds_params.height 				= static_cast<u_int32_t>(height);
@@ -323,15 +327,37 @@ namespace Engine
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.path                  = path_texture.data();
 
-                descriptor_set[cm_count]->create(ds_params);
+                VkVertexInputBindingDescription vi_binding = {};
+                vi_binding.binding 					= 0;
+                vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
+                vi_binding.stride 					= sizeof(VertexData);
 
-                graphic_pipeline.push_back(new GraphicPipeline::GraphicPipeline(device, shaders) );
-                graphic_pipeline[cm_count]->setViBinding(vi_binding);
-                for (auto &vi_attrib : vi_attribs) graphic_pipeline[cm_count]->addViAttributes(vi_attrib);
-                graphic_pipeline[cm_count]->create(descriptor_set[cm_count]->getPipelineLayout(), render_pass->getRenderPass());
+                std::vector<VkVertexInputAttributeDescription> vi_attribs;
+                vi_attribs.resize(3);
+
+                vi_attribs[0].binding 			    = 0;
+                vi_attribs[0].location 			    = 0;
+                vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
+
+                vi_attribs[1].binding 			    = 0;
+                vi_attribs[1].location 			    = 1;
+                vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
+                vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
+
+                vi_attribs[2].binding 			    = 0;
+                vi_attribs[2].location 			    = 2;
+                vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
+
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                program_obj->descriptor_set->create(ds_params);
+                program_obj->graphic_pipeline->setViBinding(vi_binding);
+                for (auto &vi_attrib : vi_attribs) program_obj->graphic_pipeline->addViAttributes(vi_attrib);
+                program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass());
             }
 
-            void pushVertex(const std::string& path_obj = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
+            void setVertex(const std::string& path_obj = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
             {
                 std::vector<VertexData> vertexData = {};
                 if(!path_obj.empty()) {
@@ -350,20 +376,22 @@ namespace Engine
                 vertexBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
                 vertexBufferData.size              = vertexData.size() * sizeof(VertexData);
 
-                vertex_buffer.push_back( new Vertex::VertexBuffer(vertexBufferData, vertexData) );
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                program_obj->vertex_buffer = new Vertex::VertexBuffer(vertexBufferData, vertexData);
             }
 
             void recordCommandBuffer()
             {
-                graphic_command_buffers[cm_count]
+                auto* program_obj = &programs[ProgramType::OBJECT];
+                program_obj->graphic_command_buffers
                     ->bindGraphicCommandBuffer (
                          render_pass,
-                         descriptor_set[cm_count],
-                         graphic_pipeline[cm_count]->getPipeline(),
+                         program_obj->descriptor_set,
+                         program_obj->graphic_pipeline->getPipeline(),
                          static_cast<uint32_t>(width),
                          static_cast<uint32_t>(height),
                          sync_primitives,
-                         vertex_buffer[cm_count]
+                         program_obj->vertex_buffer
                     );
 
                 cm_count++;

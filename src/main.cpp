@@ -9,18 +9,9 @@ int main(int argc, char** argv) {
 	{
 		auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
-		auto vert = Engine::GraphicPipeline::Shader{};
-		vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-		vert.path = "../../shaders/vert.spv";
-
-		auto frag = Engine::GraphicPipeline::Shader{};
-		frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-		frag.path = "../../shaders/frag.spv";
-
 		auto room2 = GymnureData{};
 		room2.path_texture 	= "../../assets/room2.png";
 		room2.path_obj 		= "../../assets/room2.obj";
-		room2.shaders 		= {vert, frag};
 
 		gymnure->insertData(room2);
 
