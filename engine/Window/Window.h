@@ -23,11 +23,16 @@ namespace Engine
 {
     namespace Window
     {
+        struct ProgramData {
+            CommandBuffers*                     command_buffer;
+            Descriptors::Texture                texture;
+            Vertex::VertexBuffer*               vertex_buffer;
+        };
+
         struct Program {
             Descriptors::DescriptorSet*         descriptor_set;
-            Vertex::VertexBuffer*               vertex_buffer;
+            std::vector<ProgramData*>           data;
             GraphicPipeline::GraphicPipeline*   graphic_pipeline;
-            CommandBuffers*                     graphic_command_buffers;
         };
 
         enum ProgramType {
@@ -53,12 +58,16 @@ namespace Engine
                 auto* program_obj = &programs[ProgramType::OBJECT];
                 delete program_obj->descriptor_set;
                 delete program_obj->graphic_pipeline;
-                delete program_obj->vertex_buffer;
-                delete program_obj->graphic_command_buffers;
+                for (auto &data : program_obj->data) {
+                    delete data->command_buffer;
+                    delete data->vertex_buffer;
+                    delete data->texture.buffer;
+                    vkDestroySampler(device, data->texture.sampler, nullptr);
+                }
 
                 delete sync_primitives;
 
-				vkDestroyCommandPool(device, graphic_command_pool, nullptr);
+                vkDestroyCommandPool(device, graphic_command_pool, nullptr);
 
                 for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++) {
                     vkFreeMemory(device, Descriptors::Textures::textureImageMemory[i], nullptr);
@@ -78,11 +87,13 @@ namespace Engine
 
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-                std::vector<VkCommandBuffer> cmd_buff = {};
-
                 auto* program_obj = &programs[ProgramType::OBJECT];
                 program_obj->descriptor_set->getUniformBuffer()->updateMVP();
-                cmd_buff.push_back(program_obj->graphic_command_buffers->getCommandBuffer());
+
+                std::vector<VkCommandBuffer> cmd_buff = {};
+                for(auto data: program_obj->data) {
+                    cmd_buff.push_back(data->command_buffer->getCommandBuffer());
+                }
 
                 VkSubmitInfo submit_info = {};
                 submit_info.pNext                     = nullptr;
@@ -131,7 +142,6 @@ namespace Engine
             VkQueue                                             compute_queue_;
             VkDevice 								            device;
             uint32_t 								            current_buffer = 0;
-            u_int32_t								            cm_count = 0;
             u_int32_t							 	            queue_family_count;
             u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
             u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
@@ -141,7 +151,7 @@ namespace Engine
             VkPhysicalDeviceMemoryProperties 		            memory_properties;
             std::vector<VkQueueFamilyProperties> 	            queue_family_props;
 
-			VkCommandPool 							            graphic_command_pool;
+            VkCommandPool 							            graphic_command_pool;
 
         protected:
 
@@ -162,7 +172,6 @@ namespace Engine
                 auto* program_obj = &programs[ProgramType::OBJECT];
                 program_obj->descriptor_set            = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
                 program_obj->graphic_pipeline          = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
-                program_obj->graphic_command_buffers   = new CommandBuffers(device, graphic_command_pool);
             }
 
             void createApplication()
@@ -264,13 +273,13 @@ namespace Engine
                 res = vkCreateDevice(gpu_vector[0], &device_info, nullptr, &device);
                 assert(res == VK_SUCCESS);
 
-				VkCommandPoolCreateInfo cmd_pool_info = {};
-				cmd_pool_info.sType 			= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-				cmd_pool_info.pNext 			= nullptr;
-				cmd_pool_info.queueFamilyIndex  = queueGraphicFamilyIndex;
-				cmd_pool_info.flags 			= 0;
+                VkCommandPoolCreateInfo cmd_pool_info = {};
+                cmd_pool_info.sType 			= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+                cmd_pool_info.pNext 			= nullptr;
+                cmd_pool_info.queueFamilyIndex  = queueGraphicFamilyIndex;
+                cmd_pool_info.flags 			= 0;
 
-				assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &graphic_command_pool) == VK_SUCCESS);
+                assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &graphic_command_pool) == VK_SUCCESS);
 
                 vkGetDeviceQueue(device, queueComputeFamilyIndex, 0, &compute_queue_);
             }
@@ -296,7 +305,7 @@ namespace Engine
                 std::vector< struct rpAttachments > rp_attachments = {};
                 struct rpAttachments attch = {};
                 attch.format = render_pass->getSwapChain()->getSwapChainFormat();
-                attch.clear  = true;
+                attch.clear  = false;
                 rp_attachments.push_back(attch);
                 attch.format = render_pass->getDepthBufferFormat();
                 attch.clear  = true;
@@ -304,9 +313,9 @@ namespace Engine
 
                 render_pass->create(rp_attachments);
 
-				sync_primitives = new SyncPrimitives::SyncPrimitives(device);
-				sync_primitives->createSemaphore();
-				sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
+                sync_primitives = new SyncPrimitives::SyncPrimitives(device);
+                sync_primitives->createSemaphore();
+                sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
             }
 
         public:
@@ -362,8 +371,15 @@ namespace Engine
                 program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass());
             }
 
-            void setTexture(const std::string& path_texture)
+            void addObj(const ProgramType program_type = ProgramType::OBJECT, const std::string& path_obj = "", const std::string& path_texture = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
             {
+                auto* program_obj = &programs[ProgramType::OBJECT];
+
+                auto* program_data = new ProgramData();
+                program_data->command_buffer = new CommandBuffers(device, graphic_command_pool);
+
+                // Load Texture
+
                 struct DescriptorSetParams ds_params = {};
                 ds_params.width 				= static_cast<u_int32_t>(width);
                 ds_params.height 				= static_cast<u_int32_t>(height);
@@ -373,12 +389,10 @@ namespace Engine
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.path                  = path_texture.data();
 
-                auto* program_obj = &programs[ProgramType::OBJECT];
-                program_obj->descriptor_set->setTextelBuffer(ds_params);
-            }
+                program_data->texture = program_obj->descriptor_set->getTextelBuffer(ds_params);
 
-            void setVertex(const std::string& path_obj = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
-            {
+                // Load Vertex
+
                 std::vector<VertexData> vertexData = {};
                 if(!path_obj.empty()) {
                     vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj, obj_mtl);
@@ -396,25 +410,38 @@ namespace Engine
                 vertexBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
                 vertexBufferData.size              = vertexData.size() * sizeof(VertexData);
 
-                auto* program_obj = &programs[ProgramType::OBJECT];
-                program_obj->vertex_buffer = new Vertex::VertexBuffer(vertexBufferData, vertexData);
+                program_data->vertex_buffer = new Vertex::VertexBuffer(vertexBufferData, vertexData);
+
+                addProgramData(program_type, program_data);
             }
 
-            void recordCommandBuffer()
+            void addProgramData(const ProgramType program_type, ProgramData* program_data)
+            {
+                programs[program_type].data.push_back(program_data);
+
+                auto object_id = programs[program_type].data.size()-1;
+
+                recordCommandBuffer(object_id);
+            }
+
+            void recordCommandBuffer(const ulong data_id)
             {
                 auto* program_obj = &programs[ProgramType::OBJECT];
-                program_obj->graphic_command_buffers
-                    ->bindGraphicCommandBuffer (
-                         render_pass,
-                         program_obj->descriptor_set,
-                         program_obj->graphic_pipeline->getPipeline(),
-                         static_cast<uint32_t>(width),
-                         static_cast<uint32_t>(height),
-                         sync_primitives,
-                         program_obj->vertex_buffer
-                    );
 
-                cm_count++;
+                if (data_id >= program_obj->data.size()) assert(false);
+
+                program_obj->descriptor_set->updateDescriptorSet(program_obj->data[data_id]->texture);
+
+                program_obj->data[data_id]->command_buffer
+                        ->bindGraphicCommandBuffer(
+                                render_pass,
+                                program_obj->descriptor_set,
+                                program_obj->graphic_pipeline->getPipeline(),
+                                static_cast<uint32_t>(width),
+                                static_cast<uint32_t>(height),
+                                sync_primitives,
+                                program_obj->data[data_id]->vertex_buffer
+                        );
             }
 
         };

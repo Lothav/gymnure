@@ -23,6 +23,11 @@ namespace Engine
 {
     namespace Descriptors
     {
+        struct Texture {
+            Memory::BufferImage*    buffer;
+            VkSampler               sampler;
+        };
+
         enum Type {
             GRAPHIC,
             COMPUTE
@@ -41,9 +46,6 @@ namespace Engine
 
             Descriptors::UniformBuffer*                 _uniform_buffer     = nullptr;
 
-            Memory::BufferImage*                        _textel_buffer      = nullptr;
-            VkSampler                                   _texture_sampler    = nullptr;
-
             VkDevice                                    _instance_device    = nullptr;
             Type                                        _type               = Type::GRAPHIC;
 
@@ -53,9 +55,7 @@ namespace Engine
 
             ~DescriptorSet()
             {
-                delete _textel_buffer;
                 delete _uniform_buffer;
-                vkDestroySampler(_instance_device, _texture_sampler, nullptr);
                 vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
                 for (auto &desc_layout : _desc_layout) {
                     vkDestroyDescriptorSetLayout(_instance_device, desc_layout, nullptr);
@@ -83,11 +83,9 @@ namespace Engine
 
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
                 _uniform_buffer->initModelView(ds_params.width, ds_params.height);
-
-                updateDescriptorSet();
             }
 
-            void setTextelBuffer(struct DescriptorSetParams ds_params)
+            Texture getTextelBuffer(struct DescriptorSetParams ds_params)
             {
                 struct MemoryProps mem_props = {};
                 mem_props.device = _instance_device;
@@ -107,18 +105,57 @@ namespace Engine
                                 ds_params.graphic_queue,
                                 ds_params.memory_properties
                         );
-                    }
-                    if(texture_image != nullptr) {
-                        _textel_buffer = new Memory::BufferImage(mem_props, img_props, &texture_image);
-                        createSampler();
+
+                        if(texture_image != nullptr) {
+                            return Texture{
+                                .buffer  = new Memory::BufferImage(mem_props, img_props, &texture_image),
+                                .sampler = createSampler()
+                            };
+                        }
                     }
                 }
 
                 if (_type == Type::COMPUTE) {
-                    _textel_buffer = new Memory::BufferImage(mem_props, img_props);
+                    return Texture{
+                        .buffer = new Memory::BufferImage(mem_props, img_props),
+                    };
                 }
 
-                updateDescriptorSet();
+                assert(false);
+            }
+
+            void updateDescriptorSet(Texture texture)
+            {
+                std::vector<VkWriteDescriptorSet> writes = {};
+
+                VkWriteDescriptorSet write = {};
+                write.sType 									  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.pNext 									  = nullptr;
+                write.dstSet 									  = _desc_set;
+                write.descriptorCount 							  = 1;
+                write.descriptorType 							  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write.pBufferInfo 								  = &_uniform_buffer->buffer_info;
+                write.dstArrayElement 							  = 0;
+                write.dstBinding 								  = 0;
+                writes.push_back(write);
+
+                VkDescriptorImageInfo texture_info = {};
+                texture_info.imageLayout 					  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                texture_info.imageView 						  = texture.buffer->view;
+                texture_info.sampler 						  = texture.sampler;
+
+                write = {};
+                write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.pNext 								  = nullptr;
+                write.dstSet 								  = _desc_set;
+                write.descriptorCount 						  = 1;
+                write.descriptorType 						  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                write.pImageInfo 							  = &texture_info;
+                write.dstArrayElement 						  = 0;
+                write.dstBinding 							  = 1;
+                writes.push_back(write);
+
+                vkUpdateDescriptorSets(_instance_device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }
 
             VkPipelineLayout getPipelineLayout() const
@@ -260,7 +297,7 @@ namespace Engine
                 assert(vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set) == VK_SUCCESS);
             }
 
-            void createSampler()
+            VkSampler createSampler()
             {
                 VkSamplerCreateInfo sampler = {};
                 sampler.sType 									  = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -279,43 +316,13 @@ namespace Engine
                 sampler.anisotropyEnable 						  = VK_FALSE;
                 sampler.borderColor 							  = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-                assert(vkCreateSampler(_instance_device, &sampler, nullptr, &_texture_sampler) == VK_SUCCESS);
+                VkSampler sampler_obj = {};
+
+                assert(vkCreateSampler(_instance_device, &sampler, nullptr, &sampler_obj) == VK_SUCCESS);
+
+                return sampler_obj;
             }
 
-            void updateDescriptorSet()
-            {
-                std::vector<VkWriteDescriptorSet> writes = {};
-
-                VkWriteDescriptorSet write = {};
-                write.sType 									  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write.pNext 									  = nullptr;
-                write.dstSet 									  = _desc_set;
-                write.descriptorCount 							  = 1;
-                write.descriptorType 							  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                write.pBufferInfo 								  = &_uniform_buffer->buffer_info;
-                write.dstArrayElement 							  = 0;
-                write.dstBinding 								  = 0;
-                writes.push_back(write);
-
-                if(_textel_buffer != nullptr) {
-                    VkDescriptorImageInfo texture_info = {};
-                    texture_info.imageLayout 					  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                    texture_info.imageView 						  = _textel_buffer->view;
-                    texture_info.sampler 						  = _texture_sampler;
-
-                    write = {};
-                    write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                    write.dstSet 								  = _desc_set;
-                    write.dstBinding 							  = 1;
-                    write.descriptorCount 						  = 1;
-                    write.descriptorType 						  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    write.pImageInfo 							  = &texture_info;
-                    write.dstArrayElement 						  = 0;
-                    writes.push_back(write);
-                }
-
-                vkUpdateDescriptorSets(_instance_device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
-            }
 
         };
     }

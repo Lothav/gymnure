@@ -22,30 +22,26 @@ public:
     Gymnure(unsigned int windowWidth, unsigned int windowHeight)
     {
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
+        _window->createDescriptorSet();
     }
 
     void insertData(const GymnureData& gymnureData)
     {
-        _window->createDescriptorSet();
-        if(!gymnureData.path_texture.empty()) _window->setTexture(gymnureData.path_texture);
-        _window->setVertex(gymnureData.path_obj, gymnureData.vertexData, gymnureData.obj_mtl);
-        _window->recordCommandBuffer();
+        _window->addObj(Engine::Window::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture);
     }
 
     void insertText(const GymnureData& gymnureData)
-    {
-    }
+    {}
 
     bool draw()
     {
         bool running = true;
         WindowEvent e = _window->poolEvent();
-        if(e == WindowEvent::Close) {
-            running = false;
-        }
-        if(running) {
-            _window->draw();
-        }
+        
+        if(e == WindowEvent::Close) running = false;
+
+        if(running) _window->draw();
+
         return running;
     }
 

@@ -15,6 +15,12 @@ int main(int argc, char** argv) {
 
 		gymnure->insertData(room2);
 
+		auto chalet = GymnureData{};
+		chalet.path_texture 	= "../../assets/chalet.jpg";
+		chalet.path_obj 		= "../../assets/chalet.obj";
+
+		gymnure->insertData(chalet);
+
 		while(true) {
 			if (!gymnure->draw()) {
 				break;

@@ -20,6 +20,7 @@ namespace Engine
         class VertexBuffer: public Memory::Buffer {
 
         private:
+
             std::vector<VertexData> _vertexData = {};
 
             void updateMemoryWithData()
@@ -31,14 +32,8 @@ namespace Engine
 
             VertexBuffer(struct BufferData buffer_data, const std::vector<VertexData>& vertexData) : Buffer(buffer_data)
             {
-                this->_vertexData = vertexData;
+                _vertexData = vertexData;
                 updateMemoryWithData();
-            }
-
-            void update(const std::vector<VertexData>& vertex)
-            {
-                _vertexData = vertex;
-                this->updateMemoryWithData();
             }
 
             unsigned long getVertexSize() const

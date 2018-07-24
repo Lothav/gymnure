@@ -58,12 +58,12 @@ namespace Engine
 			VkResult res;
 
 			VkClearValue clear_values[2];
-			clear_values[0].color.float32[0] = 0.2f;
-			clear_values[0].color.float32[1] = 0.2f;
-			clear_values[0].color.float32[2] = 0.2f;
-			clear_values[0].color.float32[3] = 0.2f;
-			clear_values[1].depthStencil.depth = 1.0f;
-			clear_values[1].depthStencil.stencil = 0;
+			clear_values[0].color.float32[0] 			= 0.2f;
+			clear_values[0].color.float32[1] 			= 0.2f;
+			clear_values[0].color.float32[2] 			= 0.2f;
+			clear_values[0].color.float32[3] 			= 0.2f;
+			clear_values[1].depthStencil.depth 			= 1.0f;
+			clear_values[1].depthStencil.stencil 		= 0;
 
 			VkRenderPassBeginInfo rp_begin = {};
 			rp_begin.sType 								= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

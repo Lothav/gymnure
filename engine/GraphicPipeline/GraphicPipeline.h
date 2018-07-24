@@ -5,6 +5,7 @@
 #ifndef OBSIDIAN2D_GRAPHICPIPELINE_H
 #define OBSIDIAN2D_GRAPHICPIPELINE_H
 
+#include <array>
 #include "Util/Util.h"
 
 namespace Engine
@@ -156,10 +157,12 @@ namespace Engine
 				ds.sType 								= VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 				ds.pNext 								= nullptr;
 				ds.flags 								= 0;
-				ds.depthTestEnable 						= (VkBool32) true;
-				ds.depthWriteEnable 					= (VkBool32) true;
+
+				ds.depthTestEnable 						= VK_TRUE;
+				ds.depthWriteEnable 					= VK_TRUE;
 				ds.depthCompareOp 						= VK_COMPARE_OP_LESS_OR_EQUAL;
 				ds.depthBoundsTestEnable 				= VK_FALSE;
+
 				ds.stencilTestEnable 					= VK_FALSE;
 				ds.back.failOp 							= VK_STENCIL_OP_KEEP;
 				ds.back.passOp 							= VK_STENCIL_OP_KEEP;
@@ -170,7 +173,6 @@ namespace Engine
 				ds.back.writeMask 						= 0;
 				ds.minDepthBounds 						= 0;
 				ds.maxDepthBounds 						= 0;
-				ds.stencilTestEnable 					= VK_FALSE;
 				ds.front 								= ds.back;
 
 				VkPipelineMultisampleStateCreateInfo ms = {};
