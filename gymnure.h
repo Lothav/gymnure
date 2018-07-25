@@ -27,7 +27,7 @@ public:
 
     void insertData(const GymnureData& gymnureData)
     {
-        _window->addObj(Engine::Window::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture);
+        _window->addObj(Engine::Window::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
     }
 
     void insertText(const GymnureData& gymnureData)
@@ -37,7 +37,7 @@ public:
     {
         bool running = true;
         WindowEvent e = _window->poolEvent();
-        
+
         if(e == WindowEvent::Close) running = false;
 
         if(running) _window->draw();

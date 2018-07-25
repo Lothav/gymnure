@@ -16,7 +16,7 @@ struct DescriptorSetParams {
     VkQueue                             graphic_queue;
     VkCommandPool                       command_pool;
     VkPhysicalDeviceMemoryProperties    memory_properties;
-    const char*                         path;
+    std::string                         texture_path;
 };
 
 namespace Engine
@@ -24,8 +24,8 @@ namespace Engine
     namespace Descriptors
     {
         struct Texture {
-            Memory::BufferImage*    buffer;
-            VkSampler               sampler;
+            Memory::BufferImage*    buffer  = nullptr;
+            VkSampler               sampler = nullptr;
         };
 
         enum Type {
@@ -96,11 +96,11 @@ namespace Engine
 
                 if(_type == Type::GRAPHIC) {
                     VkImage texture_image = nullptr;
-                    if(ds_params.path != nullptr) {
+                    if(!ds_params.texture_path.empty()) {
                         texture_image = Textures::createTextureImage (
                                 ds_params.gpu,
                                 _instance_device,
-                                ds_params.path,
+                                ds_params.texture_path,
                                 ds_params.command_pool,
                                 ds_params.graphic_queue,
                                 ds_params.memory_properties

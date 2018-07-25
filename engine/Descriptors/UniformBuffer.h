@@ -39,7 +39,7 @@ namespace Engine
 
 			void initModelView(u_int32_t width, u_int32_t height)
 			{
-				this->mvp.projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 256.0f);;
+				this->mvp.projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 1000.0f);
 				this->updateUniform();
 			}
 

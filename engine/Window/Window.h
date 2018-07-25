@@ -24,15 +24,15 @@ namespace Engine
     namespace Window
     {
         struct ProgramData {
-            CommandBuffers*                     command_buffer;
-            Descriptors::Texture                texture;
-            Vertex::VertexBuffer*               vertex_buffer;
+            CommandBuffers*                     command_buffer      = nullptr;
+            Descriptors::Texture                texture             = {};
+            Vertex::VertexBuffer*               vertex_buffer       = nullptr;
         };
 
         struct Program {
-            Descriptors::DescriptorSet*         descriptor_set;
-            std::vector<ProgramData*>           data;
-            GraphicPipeline::GraphicPipeline*   graphic_pipeline;
+            Descriptors::DescriptorSet*         descriptor_set      = nullptr;
+            std::vector<ProgramData*>           data                = {};
+            GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
         };
 
         enum ProgramType {
@@ -387,9 +387,11 @@ namespace Engine
                 ds_params.command_pool			= graphic_command_pool;
                 ds_params.gpu					= gpu_vector[0];
                 ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
-                ds_params.path                  = path_texture.data();
 
-                program_data->texture = program_obj->descriptor_set->getTextelBuffer(ds_params);
+                if (!path_texture.empty()) {
+                    ds_params.texture_path = path_texture;
+                    program_data->texture = program_obj->descriptor_set->getTextelBuffer(ds_params);
+                }
 
                 // Load Vertex
 
@@ -430,18 +432,20 @@ namespace Engine
 
                 if (data_id >= program_obj->data.size()) assert(false);
 
-                program_obj->descriptor_set->updateDescriptorSet(program_obj->data[data_id]->texture);
+                if (program_obj->data[data_id]->texture.buffer != nullptr) {
+                    program_obj->descriptor_set->updateDescriptorSet(program_obj->data[data_id]->texture);
+                }
 
                 program_obj->data[data_id]->command_buffer
-                        ->bindGraphicCommandBuffer(
-                                render_pass,
-                                program_obj->descriptor_set,
-                                program_obj->graphic_pipeline->getPipeline(),
-                                static_cast<uint32_t>(width),
-                                static_cast<uint32_t>(height),
-                                sync_primitives,
-                                program_obj->data[data_id]->vertex_buffer
-                        );
+                    ->bindGraphicCommandBuffer(
+                            render_pass,
+                            program_obj->descriptor_set,
+                            program_obj->graphic_pipeline->getPipeline(),
+                            static_cast<uint32_t>(width),
+                            static_cast<uint32_t>(height),
+                            sync_primitives,
+                            program_obj->data[data_id]->vertex_buffer
+                    );
             }
 
         };

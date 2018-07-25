@@ -187,7 +187,7 @@ namespace Engine
 			static VkImage createTextureImage(
 					VkPhysicalDevice physicalDevice,
 					VkDevice device,
-					const char* path,
+					std::string texture_path,
 					VkCommandPool commandPool,
 					VkQueue graphicQueue,
 					VkPhysicalDeviceMemoryProperties memory_properties)
@@ -196,7 +196,7 @@ namespace Engine
 				VkImage 				textureImage;
 
 				int texWidth, texHeight, texChannels;
-				stbi_uc* pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+				stbi_uc* pixels = stbi_load(texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 				auto imageSize = static_cast<VkDeviceSize>(texWidth * texHeight * 4);
 
 				assert(pixels);
