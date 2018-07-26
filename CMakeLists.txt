@@ -95,3 +95,4 @@ list(REMOVE_DUPLICATES XCB_INCLUDE_DIRS)
 
 add_executable(core ${CORE_MAIN_FILE} gymnure.h ${CORE_HEADER_FILES} ${EXTERNAL_HEADER_FILES})
 target_link_libraries(core ${XCB_LIBRARIES} ${Vulkan_LIBRARY} vulkan)
+set_target_properties(core PROPERTIES CXX_STANDARD 17)
