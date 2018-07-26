@@ -25,9 +25,14 @@ public:
         _window->createDescriptorSet();
     }
 
-    void insertData(const GymnureData& gymnureData)
+    void addObject(const GymnureData& gymnureData)
     {
         _window->addObj(Engine::Window::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
+    }
+
+    void addSkybox(const GymnureData& gymnureData)
+    {
+        _window->addObj(Engine::Window::ProgramType::SKYBOX, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
     }
 
     void insertText(const GymnureData& gymnureData)

@@ -12,18 +12,18 @@ int main(int argc, char** argv) {
 		auto room2 = GymnureData{};
 		room2.path_texture 	= "../../assets/room2.png";
 		room2.path_obj 		= "../../assets/room2.obj";
-		gymnure->insertData(room2);
+		gymnure->addObject(room2);
 
 		auto chalet = GymnureData{};
-		chalet.path_texture 	= "../../assets/chalet.jpg";
-		chalet.path_obj 		= "../../assets/chalet.obj";
-		gymnure->insertData(chalet);
+		chalet.path_texture = "../../assets/chalet.jpg";
+		chalet.path_obj 	= "../../assets/chalet.obj";
+		gymnure->addObject(chalet);
 
 		auto cube = GymnureData{};
 		cube.path_obj 		= "../../assets/cube.obj";
 		cube.path_texture 	= "../../assets/sky.jpg";
 		cube.obj_mtl 		= const_cast<char *>(std::string("../../assets/cube.mtl").data());
-		gymnure->insertData(cube);
+		gymnure->addSkybox(cube);
 
 		while(true) {
 			if (!gymnure->draw()) {

@@ -37,7 +37,8 @@ namespace Engine
 
         enum ProgramType {
             OBJECT,
-            TEXT
+            TEXT,
+            SKYBOX
         };
 
         class Window : public Util::Layers {
@@ -55,14 +56,16 @@ namespace Engine
 
                 if (surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
 
-                auto* program_obj = &programs[ProgramType::OBJECT];
-                delete program_obj->descriptor_set;
-                delete program_obj->graphic_pipeline;
-                for (auto &data : program_obj->data) {
-                    delete data->command_buffer;
-                    delete data->vertex_buffer;
-                    delete data->texture.buffer;
-                    vkDestroySampler(device, data->texture.sampler, nullptr);
+                for(auto& [key, program_obj]: programs) {
+                    delete program_obj.descriptor_set;
+                    delete program_obj.graphic_pipeline;
+                    for (auto &data : program_obj.data) {
+                        delete data->command_buffer;
+                        delete data->vertex_buffer;
+                        delete data->texture.buffer;
+                        vkDestroySampler(device, data->texture.sampler, nullptr);
+                    }
+
                 }
 
                 delete sync_primitives;
@@ -87,12 +90,15 @@ namespace Engine
 
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-                auto* program_obj = &programs[ProgramType::OBJECT];
-                program_obj->descriptor_set->getUniformBuffer()->updateMVP();
-
                 std::vector<VkCommandBuffer> cmd_buff = {};
-                for(auto data: program_obj->data) {
-                    cmd_buff.push_back(data->command_buffer->getCommandBuffer());
+                {
+                    for(auto& [key, program_obj]: programs) {
+                        program_obj.descriptor_set->getUniformBuffer()->updateMVP();
+
+                        for(auto data: program_obj.data) {
+                            cmd_buff.push_back(data->command_buffer->getCommandBuffer());
+                        }
+                    }
                 }
 
                 VkSubmitInfo submit_info = {};
@@ -161,17 +167,34 @@ namespace Engine
             {
                 this->initGraphicPipeline();
 
-                auto vert = Engine::GraphicPipeline::Shader{};
-                vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                vert.path = "../../shaders/vert.spv";
+                {
+                    auto vert = Engine::GraphicPipeline::Shader{};
+                    vert.type = VK_SHADER_STAGE_VERTEX_BIT;
+                    vert.path = "../../shaders/phong.vert.spv";
 
-                auto frag = Engine::GraphicPipeline::Shader{};
-                frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                frag.path = "../../shaders/frag.spv";
+                    auto frag = Engine::GraphicPipeline::Shader{};
+                    frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
+                    frag.path = "../../shaders/phong.frag.spv";
 
-                auto* program_obj = &programs[ProgramType::OBJECT];
-                program_obj->descriptor_set            = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
-                program_obj->graphic_pipeline          = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
+                    auto* program_obj = &programs[ProgramType::OBJECT];
+                    program_obj->descriptor_set   = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
+                    program_obj->graphic_pipeline = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
+                }
+
+                {
+                    auto vert = Engine::GraphicPipeline::Shader{};
+                    vert.type = VK_SHADER_STAGE_VERTEX_BIT;
+                    vert.path = "../../shaders/phong.vert.spv";
+
+                    auto frag = Engine::GraphicPipeline::Shader{};
+                    frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
+                    frag.path = "../../shaders/phong.frag.spv";
+
+                    auto* program_obj = &programs[ProgramType::SKYBOX];
+                    program_obj->descriptor_set   = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
+                    program_obj->graphic_pipeline = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
+                }
+
             }
 
             void createApplication()
@@ -327,53 +350,101 @@ namespace Engine
 
             void createDescriptorSet()
             {
-                auto* program_obj = &programs[ProgramType::OBJECT];
+                {
+                    auto* program_obj = &programs[ProgramType::OBJECT];
+                    // Create ProgramType::OBJECT Descriptor Set
 
-                // Create ProgramType::OBJECT Descriptor Set
+                    struct DescriptorSetParams ds_params = {};
+                    ds_params.width 				    = static_cast<u_int32_t>(width);
+                    ds_params.height 				    = static_cast<u_int32_t>(height);
+                    ds_params.memory_properties		    = memory_properties;
+                    ds_params.command_pool			    = graphic_command_pool;
+                    ds_params.gpu					    = gpu_vector[0];
+                    ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
 
-                struct DescriptorSetParams ds_params = {};
-                ds_params.width 				= static_cast<u_int32_t>(width);
-                ds_params.height 				= static_cast<u_int32_t>(height);
-                ds_params.memory_properties		= memory_properties;
-                ds_params.command_pool			= graphic_command_pool;
-                ds_params.gpu					= gpu_vector[0];
-                ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
+                    program_obj->descriptor_set->create(ds_params);
 
-                program_obj->descriptor_set->create(ds_params);
+                    // Create ProgramType::OBJECT Graphic Pipeline
 
-                // Create ProgramType::OBJECT Graphic Pipeline
+                    VkVertexInputBindingDescription vi_binding = {};
+                    vi_binding.binding 					= 0;
+                    vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
+                    vi_binding.stride 					= sizeof(VertexData);
 
-                VkVertexInputBindingDescription vi_binding = {};
-                vi_binding.binding 					= 0;
-                vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
-                vi_binding.stride 					= sizeof(VertexData);
+                    std::vector<VkVertexInputAttributeDescription> vi_attribs;
+                    vi_attribs.resize(3);
 
-                std::vector<VkVertexInputAttributeDescription> vi_attribs;
-                vi_attribs.resize(3);
+                    vi_attribs[0].binding 			    = 0;
+                    vi_attribs[0].location 			    = 0;
+                    vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                    vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
 
-                vi_attribs[0].binding 			    = 0;
-                vi_attribs[0].location 			    = 0;
-                vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
+                    vi_attribs[1].binding 			    = 0;
+                    vi_attribs[1].location 			    = 1;
+                    vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
+                    vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
 
-                vi_attribs[1].binding 			    = 0;
-                vi_attribs[1].location 			    = 1;
-                vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
-                vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
+                    vi_attribs[2].binding 			    = 0;
+                    vi_attribs[2].location 			    = 2;
+                    vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                    vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
 
-                vi_attribs[2].binding 			    = 0;
-                vi_attribs[2].location 			    = 2;
-                vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
+                    program_obj->graphic_pipeline->addViAttributes(vi_attribs);
+                    program_obj->graphic_pipeline->setViBinding(vi_binding);
+                    program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass(), VK_CULL_MODE_BACK_BIT);
 
-                program_obj->graphic_pipeline->addViAttributes(vi_attribs);
-                program_obj->graphic_pipeline->setViBinding(vi_binding);
-                program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass());
+                }
+
+                {
+                    auto* program_obj = &programs[ProgramType::SKYBOX];
+
+                    // Create ProgramType::OBJECT Descriptor Set
+
+                    struct DescriptorSetParams ds_params = {};
+                    ds_params.width 				    = static_cast<u_int32_t>(width);
+                    ds_params.height 				    = static_cast<u_int32_t>(height);
+                    ds_params.memory_properties		    = memory_properties;
+                    ds_params.command_pool			    = graphic_command_pool;
+                    ds_params.gpu					    = gpu_vector[0];
+                    ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
+
+                    program_obj->descriptor_set->create(ds_params);
+
+                    // Create ProgramType::OBJECT Graphic Pipeline
+
+                    VkVertexInputBindingDescription vi_binding = {};
+                    vi_binding.binding 					= 0;
+                    vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
+                    vi_binding.stride 					= sizeof(VertexData);
+
+                    std::vector<VkVertexInputAttributeDescription> vi_attribs;
+                    vi_attribs.resize(3);
+
+                    vi_attribs[0].binding 			    = 0;
+                    vi_attribs[0].location 			    = 0;
+                    vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                    vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
+
+                    vi_attribs[1].binding 			    = 0;
+                    vi_attribs[1].location 			    = 1;
+                    vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
+                    vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
+
+                    vi_attribs[2].binding 			    = 0;
+                    vi_attribs[2].location 			    = 2;
+                    vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                    vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
+
+                    program_obj->graphic_pipeline->addViAttributes(vi_attribs);
+                    program_obj->graphic_pipeline->setViBinding(vi_binding);
+                    program_obj->graphic_pipeline->create(program_obj->descriptor_set->getPipelineLayout(), render_pass->getRenderPass(), VK_CULL_MODE_FRONT_BIT);
+                }
+
             }
 
             void addObj(const ProgramType program_type = ProgramType::OBJECT, const std::string& path_obj = "", const std::string& path_texture = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
             {
-                auto* program_obj = &programs[ProgramType::OBJECT];
+                auto* program_obj = &programs[program_type];
 
                 auto* program_data = new ProgramData();
                 program_data->command_buffer = new CommandBuffers(device, graphic_command_pool);
@@ -423,12 +494,12 @@ namespace Engine
 
                 auto object_id = programs[program_type].data.size()-1;
 
-                recordCommandBuffer(object_id);
+                recordCommandBuffer(object_id, program_type);
             }
 
-            void recordCommandBuffer(const ulong data_id)
+            void recordCommandBuffer(const ulong data_id, const ProgramType& type)
             {
-                auto* program_obj = &programs[ProgramType::OBJECT];
+                auto* program_obj = &programs[type];
 
                 if (data_id >= program_obj->data.size()) assert(false);
 
@@ -438,14 +509,15 @@ namespace Engine
 
                 program_obj->data[data_id]->command_buffer
                     ->bindGraphicCommandBuffer(
-                            render_pass,
-                            program_obj->descriptor_set,
-                            program_obj->graphic_pipeline->getPipeline(),
-                            static_cast<uint32_t>(width),
-                            static_cast<uint32_t>(height),
-                            sync_primitives,
-                            program_obj->data[data_id]->vertex_buffer
+                        render_pass,
+                        program_obj->descriptor_set,
+                        program_obj->graphic_pipeline->getPipeline(),
+                        static_cast<uint32_t>(width),
+                        static_cast<uint32_t>(height),
+                        sync_primitives,
+                        program_obj->data[data_id]->vertex_buffer
                     );
+
             }
 
         };

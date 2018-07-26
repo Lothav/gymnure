@@ -70,7 +70,7 @@ namespace Engine
                 _vi_binding = vi_binding;
 			}
 
-			void create(VkPipelineLayout pipeline_layout, VkRenderPass render_pass)
+			void create(VkPipelineLayout pipeline_layout, VkRenderPass render_pass, VkCullModeFlagBits cull_mode)
 			{
 				VkPipelineVertexInputStateCreateInfo vi = {};
 				memset(&vi, 0, sizeof(vi));
