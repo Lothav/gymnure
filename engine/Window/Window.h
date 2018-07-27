@@ -36,9 +36,9 @@ namespace Engine
         };
 
         enum ProgramType {
+            SKYBOX,
             OBJECT,
             TEXT,
-            SKYBOX
         };
 
         class Window : public Util::Layers {
@@ -184,11 +184,11 @@ namespace Engine
                 {
                     auto vert = Engine::GraphicPipeline::Shader{};
                     vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                    vert.path = "../../shaders/phong.vert.spv";
+                    vert.path = "../../shaders/skybox.vert.spv";
 
                     auto frag = Engine::GraphicPipeline::Shader{};
                     frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                    frag.path = "../../shaders/phong.frag.spv";
+                    frag.path = "../../shaders/skybox.frag.spv";
 
                     auto* program_obj = &programs[ProgramType::SKYBOX];
                     program_obj->descriptor_set   = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
