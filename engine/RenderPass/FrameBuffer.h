@@ -21,7 +21,7 @@ namespace Engine
 
 		private:
 
-			Memory::BufferImage* 				_depth_buffer;
+			Memory::BufferImage* 		_depth_buffer;
 			VkFramebuffer* 				_frame_buffer;
 			VkFormat 					_depth_format;
 
@@ -50,7 +50,6 @@ namespace Engine
 
 			void createFrameBuffer(VkRenderPass render_pass)
 			{
-
 				VkImageView img_attachments[2];
 				img_attachments[1] = _depth_buffer->view;
 
@@ -66,8 +65,7 @@ namespace Engine
 
 				_frame_buffer = (VkFramebuffer *) malloc(_swap_chain->getImageCount() * sizeof(VkFramebuffer));
 
-				for (uint32_t i = 0; i < _swap_chain->getImageCount(); i++)
-				{
+				for (uint32_t i = 0; i < _swap_chain->getImageCount(); i++) {
 					img_attachments[0] = (_swap_chain->getSwapChainBuffer(i))->view;
 					assert(vkCreateFramebuffer(instance_device, &fb_info, nullptr, &_frame_buffer[i]) == VK_SUCCESS);
 				}
@@ -93,7 +91,6 @@ namespace Engine
 			void createDepthBuffer()
 			{
 				_depth_format = VK_FORMAT_D16_UNORM;
-				const VkImageAspectFlags depthAspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 				VkFormatProperties props;
 				VkImageTiling depth_tiling;
@@ -106,14 +103,14 @@ namespace Engine
 					depth_tiling = VK_IMAGE_TILING_OPTIMAL;
 				} else {
 					/* Try other depth formats? */
-					std::cout << "depth_format " << _depth_format << " Unsupported.\n";
-					exit(-1);
+					std::cerr << "depth_format " << _depth_format << " Unsupported.\n";
+					assert(false);
 				}
 
 				struct ImageProps img_props = {};
 				img_props.format 		= _depth_format;
 				img_props.tiling 		= depth_tiling;
-				img_props.aspectMask 	= depthAspectMask;
+				img_props.aspectMask 	= VK_IMAGE_ASPECT_DEPTH_BIT;
 				img_props.usage 		= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 				img_props.height 		= _sc_params.height;
 				img_props.width 		= _sc_params.width;

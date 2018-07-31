@@ -163,9 +163,9 @@ namespace Engine
                 return _pipeline_layout;
             }
 
-            VkDescriptorSet* getDescriptorSet()
+            VkDescriptorSet getDescriptorSet()
             {
-                return &_desc_set;
+                return _desc_set;
             }
 
             UniformBuffer* getUniformBuffer() const

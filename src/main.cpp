@@ -25,6 +25,8 @@ int main(int argc, char** argv) {
 		cube.obj_mtl 		= const_cast<char *>(std::string("../../assets/cube.mtl").data());
 		gymnure->addSkybox(cube);
 
+		gymnure->prepare();
+
 		while(true) {
 			if (!gymnure->draw()) {
 				break;

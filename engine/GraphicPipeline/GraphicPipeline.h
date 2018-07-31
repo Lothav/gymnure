@@ -160,8 +160,10 @@ namespace Engine
 
 				ds.depthTestEnable 						= VK_TRUE;
 				ds.depthWriteEnable 					= VK_TRUE;
-				ds.depthCompareOp 						= VK_COMPARE_OP_LESS_OR_EQUAL;
+				ds.depthCompareOp 						= VK_COMPARE_OP_LESS;
 				ds.depthBoundsTestEnable 				= VK_FALSE;
+				ds.minDepthBounds 						= 0.0f; // Optional
+				ds.maxDepthBounds 						= 1.0f; // Optional
 
 				ds.stencilTestEnable 					= VK_FALSE;
 				ds.back.failOp 							= VK_STENCIL_OP_KEEP;

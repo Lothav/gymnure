@@ -23,23 +23,6 @@ namespace Engine
 {
     namespace Window
     {
-        struct ProgramData {
-            CommandBuffers*                     command_buffer      = nullptr;
-            Descriptors::Texture                texture             = {};
-            Vertex::VertexBuffer*               vertex_buffer       = nullptr;
-        };
-
-        struct Program {
-            Descriptors::DescriptorSet*         descriptor_set      = nullptr;
-            std::vector<ProgramData*>           data                = {};
-            GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
-        };
-
-        enum ProgramType {
-            SKYBOX,
-            OBJECT,
-            TEXT,
-        };
 
         class Window : public Util::Layers {
 
@@ -56,16 +39,16 @@ namespace Engine
 
                 if (surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
 
+                delete command_buffer;
+
                 for(auto& [key, program_obj]: programs) {
-                    delete program_obj.descriptor_set;
                     delete program_obj.graphic_pipeline;
                     for (auto &data : program_obj.data) {
-                        delete data->command_buffer;
+                        delete data->descriptor_set;
                         delete data->vertex_buffer;
                         delete data->texture.buffer;
                         vkDestroySampler(device, data->texture.sampler, nullptr);
                     }
-
                 }
 
                 delete sync_primitives;
@@ -92,11 +75,10 @@ namespace Engine
 
                 std::vector<VkCommandBuffer> cmd_buff = {};
                 {
+                    cmd_buff.push_back(command_buffer->getCommandBuffer());
                     for(auto& [key, program_obj]: programs) {
-                        program_obj.descriptor_set->getUniformBuffer()->updateMVP();
-
-                        for(auto data: program_obj.data) {
-                            cmd_buff.push_back(data->command_buffer->getCommandBuffer());
+                        for (auto &data : program_obj.data){
+                            data->descriptor_set->getUniformBuffer()->updateMVP();
                         }
                     }
                 }
@@ -132,8 +114,7 @@ namespace Engine
                 present.waitSemaphoreCount 	           = 0;
                 present.pResults                       = nullptr;
 
-                if (sync_primitives->renderSemaphore != VK_NULL_HANDLE)
-                {
+                if (sync_primitives->renderSemaphore != VK_NULL_HANDLE) {
                     present.pWaitSemaphores = &sync_primitives->renderSemaphore;
                     present.waitSemaphoreCount = 1;
                 }
@@ -158,6 +139,7 @@ namespace Engine
             std::vector<VkQueueFamilyProperties> 	            queue_family_props;
 
             VkCommandPool 							            graphic_command_pool;
+            CommandBuffers*                                     command_buffer = nullptr;
 
         protected:
 
@@ -177,7 +159,6 @@ namespace Engine
                     frag.path = "../../shaders/phong.frag.spv";
 
                     auto* program_obj = &programs[ProgramType::OBJECT];
-                    program_obj->descriptor_set   = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
                     program_obj->graphic_pipeline = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
                 }
 
@@ -191,10 +172,10 @@ namespace Engine
                     frag.path = "../../shaders/skybox.frag.spv";
 
                     auto* program_obj = &programs[ProgramType::SKYBOX];
-                    program_obj->descriptor_set   = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
                     program_obj->graphic_pipeline = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
                 }
 
+                command_buffer = new CommandBuffers(device, graphic_command_pool);
             }
 
             void createApplication()
@@ -352,20 +333,8 @@ namespace Engine
             {
                 {
                     auto* program_obj = &programs[ProgramType::OBJECT];
-                    // Create ProgramType::OBJECT Descriptor Set
-
-                    struct DescriptorSetParams ds_params = {};
-                    ds_params.width 				    = static_cast<u_int32_t>(width);
-                    ds_params.height 				    = static_cast<u_int32_t>(height);
-                    ds_params.memory_properties		    = memory_properties;
-                    ds_params.command_pool			    = graphic_command_pool;
-                    ds_params.gpu					    = gpu_vector[0];
-                    ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
-
-                    program_obj->descriptor_set->create(ds_params);
 
                     // Create ProgramType::OBJECT Graphic Pipeline
-
                     VkVertexInputBindingDescription vi_binding = {};
                     vi_binding.binding 					= 0;
                     vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
@@ -398,20 +367,7 @@ namespace Engine
                 {
                     auto* program_obj = &programs[ProgramType::SKYBOX];
 
-                    // Create ProgramType::OBJECT Descriptor Set
-
-                    struct DescriptorSetParams ds_params = {};
-                    ds_params.width 				    = static_cast<u_int32_t>(width);
-                    ds_params.height 				    = static_cast<u_int32_t>(height);
-                    ds_params.memory_properties		    = memory_properties;
-                    ds_params.command_pool			    = graphic_command_pool;
-                    ds_params.gpu					    = gpu_vector[0];
-                    ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
-
-                    program_obj->descriptor_set->create(ds_params);
-
                     // Create ProgramType::OBJECT Graphic Pipeline
-
                     VkVertexInputBindingDescription vi_binding = {};
                     vi_binding.binding 					= 0;
                     vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
@@ -447,25 +403,26 @@ namespace Engine
                 auto* program_obj = &programs[program_type];
 
                 auto* program_data = new ProgramData();
-                program_data->command_buffer = new CommandBuffers(device, graphic_command_pool);
 
-                // Load Texture
+                program_data->descriptor_set = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
 
                 struct DescriptorSetParams ds_params = {};
-                ds_params.width 				= static_cast<u_int32_t>(width);
-                ds_params.height 				= static_cast<u_int32_t>(height);
-                ds_params.memory_properties		= memory_properties;
-                ds_params.command_pool			= graphic_command_pool;
-                ds_params.gpu					= gpu_vector[0];
-                ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
+                ds_params.width 				    = static_cast<u_int32_t>(width);
+                ds_params.height 				    = static_cast<u_int32_t>(height);
+                ds_params.memory_properties		    = memory_properties;
+                ds_params.command_pool			    = graphic_command_pool;
+                ds_params.gpu					    = gpu_vector[0];
+                ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
 
+                program_data->descriptor_set->create(ds_params);
+
+                // Load Texture
                 if (!path_texture.empty()) {
                     ds_params.texture_path = path_texture;
-                    program_data->texture = program_obj->descriptor_set->getTextelBuffer(ds_params);
+                    program_data->texture = program_data->descriptor_set->getTextelBuffer(ds_params);
                 }
 
                 // Load Vertex
-
                 std::vector<VertexData> vertexData = {};
                 if(!path_obj.empty()) {
                     vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj, obj_mtl);
@@ -504,20 +461,13 @@ namespace Engine
                 if (data_id >= program_obj->data.size()) assert(false);
 
                 if (program_obj->data[data_id]->texture.buffer != nullptr) {
-                    program_obj->descriptor_set->updateDescriptorSet(program_obj->data[data_id]->texture);
+                    program_obj->data[data_id]->descriptor_set->updateDescriptorSet(program_obj->data[data_id]->texture);
                 }
+            }
 
-                program_obj->data[data_id]->command_buffer
-                    ->bindGraphicCommandBuffer(
-                        render_pass,
-                        program_obj->descriptor_set,
-                        program_obj->graphic_pipeline->getPipeline(),
-                        static_cast<uint32_t>(width),
-                        static_cast<uint32_t>(height),
-                        sync_primitives,
-                        program_obj->data[data_id]->vertex_buffer
-                    );
-
+            void prepare()
+            {
+                command_buffer->bindGraphicCommandBuffer(programs, render_pass, static_cast<uint32_t>(width), static_cast<uint32_t>(height), sync_primitives);
             }
 
         };

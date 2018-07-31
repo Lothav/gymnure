@@ -27,16 +27,21 @@ public:
 
     void addObject(const GymnureData& gymnureData)
     {
-        _window->addObj(Engine::Window::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
+        _window->addObj(Engine::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
     }
 
     void addSkybox(const GymnureData& gymnureData)
     {
-        _window->addObj(Engine::Window::ProgramType::SKYBOX, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
+        _window->addObj(Engine::ProgramType::SKYBOX, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
     }
 
     void insertText(const GymnureData& gymnureData)
     {}
+
+    void prepare()
+    {
+        _window->prepare();
+    }
 
     bool draw()
     {

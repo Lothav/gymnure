@@ -19,8 +19,8 @@ namespace Engine
         private:
 
             const std::vector<const char *> DESIRED_LAYERS = {
-                    //"VK_LAYER_LUNARG_standard_validation",
-                    //"VK_LAYER_LUNARG_object_tracker"
+                    "VK_LAYER_LUNARG_standard_validation",
+                    "VK_LAYER_LUNARG_object_tracker"
             };
 
         public:

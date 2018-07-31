@@ -64,22 +64,22 @@ namespace Engine
 			void init_viewports(VkCommandBuffer cmd_buffer)
 			{
 				VkViewport viewport;
-				viewport.height = (float)height;
-				viewport.width = (float)width;
-				viewport.minDepth = (float)0.0f;
-				viewport.maxDepth = (float)1.0f;
-				viewport.x = 0;
-				viewport.y = 0;
+				viewport.height 	= static_cast<float>(height);
+				viewport.width 		= static_cast<float>(width);
+				viewport.minDepth 	= 0.0f;
+				viewport.maxDepth 	= 1.0f;
+				viewport.x 			= 0;
+				viewport.y 			= 0;
 				vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
 			}
 
 			void init_scissors(VkCommandBuffer cmd_buffer)
 			{
 				VkRect2D scissor;
-				scissor.extent.width =  (uint32_t)width;
-				scissor.extent.height = (uint32_t)height;
-				scissor.offset.x = 0;
-				scissor.offset.y = 0;
+				scissor.extent.width 	= (uint32_t)width;
+				scissor.extent.height 	= (uint32_t)height;
+				scissor.offset.x 		= 0;
+				scissor.offset.y 		= 0;
 				vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
 			}
 
