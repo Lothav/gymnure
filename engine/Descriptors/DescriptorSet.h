@@ -41,8 +41,6 @@ namespace Engine
             std::vector<VkDescriptorSetLayoutBinding>   _layout_bindings    = {};
             std::vector<VkDescriptorSetLayout> 		    _desc_layout        = {};
             VkPipelineLayout 						    _pipeline_layout    = nullptr;
-            VkDescriptorPool                            _desc_pool          = nullptr;
-            VkDescriptorSet                             _desc_set           = nullptr;
 
             Descriptors::UniformBuffer*                 _uniform_buffer     = nullptr;
 
@@ -56,7 +54,6 @@ namespace Engine
             ~DescriptorSet()
             {
                 delete _uniform_buffer;
-                vkDestroyDescriptorPool(_instance_device, _desc_pool, nullptr);
                 for (auto &desc_layout : _desc_layout) {
                     vkDestroyDescriptorSetLayout(_instance_device, desc_layout, nullptr);
                 }
@@ -68,8 +65,8 @@ namespace Engine
                 setLayoutBindings();
                 setDescriptorLayouts();
                 setPipelineLayout();
-                setDescriptorPool();
-                setDescriptorSet();
+                //setDescriptorPool();
+                //setDescriptorSet();
 
                 /*  create Uniform Buffer  */
 
@@ -124,19 +121,19 @@ namespace Engine
                 assert(false);
             }
 
-            void updateDescriptorSet(Texture texture)
+            void updateDescriptorSet(Texture texture, VkDescriptorSet desc_set)
             {
                 std::vector<VkWriteDescriptorSet> writes = {};
 
                 VkWriteDescriptorSet write = {};
-                write.sType 									  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write.pNext 									  = nullptr;
-                write.dstSet 									  = _desc_set;
-                write.descriptorCount 							  = 1;
-                write.descriptorType 							  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                write.pBufferInfo 								  = &_uniform_buffer->buffer_info;
-                write.dstArrayElement 							  = 0;
-                write.dstBinding 								  = 0;
+                write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                write.pNext 								  = nullptr;
+                write.dstSet 								  = desc_set;
+                write.descriptorCount 						  = 1;
+                write.descriptorType 						  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write.pBufferInfo 							  = &_uniform_buffer->buffer_info;
+                write.dstArrayElement 						  = 0;
+                write.dstBinding 							  = 0;
                 writes.push_back(write);
 
                 VkDescriptorImageInfo texture_info = {};
@@ -147,7 +144,7 @@ namespace Engine
                 write = {};
                 write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 write.pNext 								  = nullptr;
-                write.dstSet 								  = _desc_set;
+                write.dstSet 								  = desc_set;
                 write.descriptorCount 						  = 1;
                 write.descriptorType 						  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 write.pImageInfo 							  = &texture_info;
@@ -158,14 +155,75 @@ namespace Engine
                 vkUpdateDescriptorSets(_instance_device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }
 
+            VkDescriptorPool createDescriptorPool()
+            {
+                VkDescriptorPool desc_pool;
+
+                if(_type == Type::GRAPHIC) {
+                    VkDescriptorPoolSize type_count[2];
+                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    type_count[0].descriptorCount 					 = 1;
+
+                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[1].descriptorCount 					 = 1;
+
+                    VkDescriptorPoolCreateInfo descriptor_pool = {};
+                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                    descriptor_pool.pNext 							 = nullptr;
+                    descriptor_pool.maxSets 						 = 1;
+                    descriptor_pool.poolSizeCount 					 = 2;
+                    descriptor_pool.pPoolSizes 						 = type_count;
+
+                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
+
+                    return desc_pool;
+                }
+
+                if(_type == Type::COMPUTE) {
+                    VkDescriptorPoolSize type_count[3];
+                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    type_count[0].descriptorCount 					 = 1;
+
+                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[1].descriptorCount 					 = 1;
+
+                    type_count[2].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    type_count[2].descriptorCount 					 = 1;
+
+                    VkDescriptorPoolCreateInfo descriptor_pool = {};
+                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+                    descriptor_pool.pNext 							 = nullptr;
+                    descriptor_pool.maxSets 						 = 1;
+                    descriptor_pool.poolSizeCount 					 = 3;
+                    descriptor_pool.pPoolSizes 						 = type_count;
+
+                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
+
+                    return desc_pool;
+                }
+
+                assert(false);
+            }
+
+            VkDescriptorSet createDescriptorSet(VkDescriptorPool desc_pool)
+            {
+                VkDescriptorSet _desc_set = nullptr;
+
+                VkDescriptorSetAllocateInfo _alloc_info[1];
+                _alloc_info[0].sType 							  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                _alloc_info[0].pNext 							  = nullptr;
+                _alloc_info[0].descriptorPool 					  = desc_pool;
+                _alloc_info[0].descriptorSetCount 				  = 1;
+                _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
+
+                assert(vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set) == VK_SUCCESS);
+
+                return _desc_set;
+            }
+
             VkPipelineLayout getPipelineLayout() const
             {
                 return _pipeline_layout;
-            }
-
-            VkDescriptorSet getDescriptorSet()
-            {
-                return _desc_set;
             }
 
             UniformBuffer* getUniformBuffer() const
@@ -235,66 +293,6 @@ namespace Engine
                 pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
 
                 assert(vkCreatePipelineLayout(_instance_device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout) == VK_SUCCESS);
-            }
-
-            void setDescriptorPool()
-            {
-                if(_type == Type::GRAPHIC) {
-                    VkDescriptorPoolSize type_count[2];
-                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    type_count[0].descriptorCount 					 = 1;
-
-                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    type_count[1].descriptorCount 					 = 1;
-
-                    VkDescriptorPoolCreateInfo descriptor_pool = {};
-                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                    descriptor_pool.pNext 							 = nullptr;
-                    descriptor_pool.maxSets 						 = 1;
-                    descriptor_pool.poolSizeCount 					 = 2;
-                    descriptor_pool.pPoolSizes 						 = type_count;
-
-                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
-
-                    return;
-                }
-
-                if(_type == Type::COMPUTE) {
-                    VkDescriptorPoolSize type_count[3];
-                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    type_count[0].descriptorCount 					 = 1;
-
-                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    type_count[1].descriptorCount 					 = 1;
-
-                    type_count[2].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    type_count[2].descriptorCount 					 = 1;
-
-                    VkDescriptorPoolCreateInfo descriptor_pool = {};
-                    descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-                    descriptor_pool.pNext 							 = nullptr;
-                    descriptor_pool.maxSets 						 = 1;
-                    descriptor_pool.poolSizeCount 					 = 3;
-                    descriptor_pool.pPoolSizes 						 = type_count;
-
-                    assert(vkCreateDescriptorPool(_instance_device, &descriptor_pool, nullptr, &_desc_pool) == VK_SUCCESS);
-
-                    return;
-                }
-
-                assert(false);
-            }
-
-            void setDescriptorSet()
-            {
-                VkDescriptorSetAllocateInfo _alloc_info[1];
-                _alloc_info[0].sType 							  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-                _alloc_info[0].pNext 							  = nullptr;
-                _alloc_info[0].descriptorPool 					  = _desc_pool;
-                _alloc_info[0].descriptorSetCount 				  = 1;
-                _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
-
-                assert(vkAllocateDescriptorSets(_instance_device, _alloc_info, &_desc_set) == VK_SUCCESS);
             }
 
             VkSampler createSampler()

@@ -130,7 +130,7 @@ namespace Engine
 				xcb_generic_event_t* e = nullptr;
 				WindowEvent event = WindowEvent::None;
 				while ((e = xcb_poll_for_event(connection))) {
-                    event = events->handleEvent(e, {programs[ProgramType::OBJECT].descriptor_set, programs[ProgramType::SKYBOX].descriptor_set});
+                    event = events->handleEvent(e, {programs[ProgramType::OBJECT].descriptor_layout, programs[ProgramType::SKYBOX].descriptor_layout});
 					free(e);
 				}
 

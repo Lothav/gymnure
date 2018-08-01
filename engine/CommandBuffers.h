@@ -15,23 +15,24 @@
 
 namespace Engine
 {
+	struct ProgramData {
+		Descriptors::Texture                texture             = {};
+		Vertex::VertexBuffer*               vertex_buffer       = nullptr;
+		VkDescriptorPool                    descriptor_pool     = nullptr;
+		VkDescriptorSet                     descriptor_set      = nullptr;
+	};
 
-    struct ProgramData {
-        Descriptors::Texture                texture             = {};
-        Vertex::VertexBuffer*               vertex_buffer       = nullptr;
-		Descriptors::DescriptorSet*         descriptor_set      = nullptr;
-    };
+	struct Program {
+		Descriptors::DescriptorSet*         descriptor_layout   = nullptr;
+		std::vector<ProgramData*>           data                = {};
+		GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
+	};
 
-    struct Program {
-        std::vector<ProgramData*>           data                = {};
-        GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
-    };
-
-    enum ProgramType {
-        SKYBOX,
-        OBJECT,
-        TEXT,
-    };
+	enum ProgramType {
+		SKYBOX,
+		OBJECT,
+		TEXT,
+	};
 
 	class CommandBuffers
 	{
@@ -66,7 +67,7 @@ namespace Engine
 		}
 
 		void bindGraphicCommandBuffer (
-                std::map<ProgramType, Program>  programs,
+				std::map<ProgramType, Program>  programs,
 				RenderPass::RenderPass* 	    render_pass,
 				uint32_t 		                width,
 				uint32_t 		                height,
@@ -109,28 +110,23 @@ namespace Engine
 				rp_begin.framebuffer =  render_pass->getFrameBuffer()[i];
 				vkCmdBeginRenderPass(_command_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
-                for(auto& [key, program_obj]: programs) {
+				for(auto& [key, program_obj]: programs) {
 
-                    ulong vertex_size = 0;
-                    std::vector<VkBuffer> vertex_buffers = {};
-                    std::vector<VkDescriptorSet > descriptors = {};
-                    for(auto &data : program_obj.data) {
-                        vertex_size += data->vertex_buffer->getVertexSize();
-                        vertex_buffers.push_back(data->vertex_buffer->buf);
-                        descriptors.push_back(data->descriptor_set->getDescriptorSet());
-                    }
 
-                    vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj.graphic_pipeline->getPipeline());
-                    vkCmdBindDescriptorSets(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                            program_obj.data[0]->descriptor_set->getPipelineLayout(), 0,
-											static_cast<uint32_t>(descriptors.size()), descriptors.data(), 0, nullptr);
-                    vkCmdBindVertexBuffers(_command_buffer, 0, static_cast<uint32_t>(vertex_buffers.size()), vertex_buffers.data(), offsets);
+					for(auto &data : program_obj.data) {
 
-                    util->init_viewports(_command_buffer);
-                    util->init_scissors(_command_buffer);
+						vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj.graphic_pipeline->getPipeline());
+						vkCmdBindDescriptorSets(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+												program_obj.descriptor_layout->getPipelineLayout(), 0,
+												1, &data->descriptor_set, 0, nullptr);
+						vkCmdBindVertexBuffers(_command_buffer, 0, 1, &data->vertex_buffer->buf, offsets);
 
-                    vkCmdDraw(_command_buffer, static_cast<uint32_t>(vertex_size), 1, 0, 0);
-                }
+						util->init_viewports(_command_buffer);
+						util->init_scissors(_command_buffer);
+
+						vkCmdDraw(_command_buffer, static_cast<uint32_t>(data->vertex_buffer->getVertexSize()), 1, 0, 0);
+					}
+				}
 
 				vkCmdEndRenderPass(_command_buffer);
 			}
@@ -141,7 +137,7 @@ namespace Engine
 			delete util;
 		}
 
-        VkCommandBuffer getCommandBuffer()
+		VkCommandBuffer getCommandBuffer()
 		{
 			return _command_buffer;
 		}
