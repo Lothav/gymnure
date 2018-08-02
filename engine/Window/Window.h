@@ -225,6 +225,13 @@ namespace Engine
 
                 vkGetPhysicalDeviceMemoryProperties(gpu_vector[0], &memory_properties);
 
+                std::cout << "Devices found:" << std::endl;
+                for (auto &gpu_device : gpu_vector) {
+                    VkPhysicalDeviceProperties device_properties;
+                    vkGetPhysicalDeviceProperties(gpu_device, &device_properties);
+                    std::cout << "\t" << device_properties.deviceName << std::endl;
+                }
+
                 bool foundGraphic = false;
                 bool foundCompute = false;
                 for (unsigned int i = 0; i < queue_family_count; i++) {

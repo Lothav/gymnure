@@ -1,4 +1,5 @@
 #include <memory>
+#include <chrono>
 #include "../gymnure.h"
 
 int main(int argc, char** argv) {
@@ -28,10 +29,17 @@ int main(int argc, char** argv) {
 		gymnure->prepare();
 
 		while(true) {
-			if (!gymnure->draw()) {
-				break;
-			}
-		}
+
+            auto start = std::chrono::high_resolution_clock::now();
+
+			if (!gymnure->draw()) break;
+
+            auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+            auto fps = 1.f / (static_cast<float>(duration) * 0.000001);
+
+            std::cout << fps << std::endl;
+        }
 	}
 
 	return EXIT_SUCCESS;
