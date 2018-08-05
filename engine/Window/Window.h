@@ -406,8 +406,6 @@ namespace Engine
                     vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
                     vi_binding.stride 					= sizeof(VertexData);
 
-                    program_obj->descriptor_layout->create(ds_params);
-
                     std::vector<VkVertexInputAttributeDescription> vi_attribs;
                     vi_attribs.resize(3);
 
