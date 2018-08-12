@@ -27,6 +27,8 @@ namespace Engine
 
             virtual void init(VkDevice device) = 0;
 
+            virtual void createDescriptorSet(struct DescriptorSetParams ds_params) = 0;
+
         protected:
 
             Descriptors::DescriptorSet*         descriptor_layout   = nullptr;

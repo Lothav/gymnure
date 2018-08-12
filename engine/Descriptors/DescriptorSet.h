@@ -16,6 +16,7 @@ struct DescriptorSetParams {
     VkQueue                             graphic_queue;
     VkCommandPool                       command_pool;
     VkPhysicalDeviceMemoryProperties    memory_properties;
+    VkRenderPass                        render_pass;
     std::string                         texture_path;
 };
 

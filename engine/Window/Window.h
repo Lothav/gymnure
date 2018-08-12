@@ -315,95 +315,16 @@ namespace Engine
 
             void createDescriptorSet()
             {
-                {
-                    auto* program_obj = &programs[ProgramType::OBJECT];
-                    // Create ProgramType::OBJECT Descriptor Set
+                struct DescriptorSetParams ds_params = {};
+                ds_params.width 				    = static_cast<u_int32_t>(width);
+                ds_params.height 				    = static_cast<u_int32_t>(height);
+                ds_params.memory_properties		    = memory_properties;
+                ds_params.command_pool			    = graphic_command_pool;
+                ds_params.gpu					    = gpu_vector[0];
+                ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
+                ds_params.render_pass               = render_pass->getRenderPass();
 
-                    struct DescriptorSetParams ds_params = {};
-                    ds_params.width 				    = static_cast<u_int32_t>(width);
-                    ds_params.height 				    = static_cast<u_int32_t>(height);
-                    ds_params.memory_properties		    = memory_properties;
-                    ds_params.command_pool			    = graphic_command_pool;
-                    ds_params.gpu					    = gpu_vector[0];
-                    ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
-
-                    program_obj->descriptor_layout->create(ds_params);
-
-                    // Create ProgramType::OBJECT Graphic Pipeline
-
-                    VkVertexInputBindingDescription vi_binding = {};
-                    vi_binding.binding 					= 0;
-                    vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
-                    vi_binding.stride 					= sizeof(VertexData);
-
-                    std::vector<VkVertexInputAttributeDescription> vi_attribs;
-                    vi_attribs.resize(3);
-
-                    vi_attribs[0].binding 			    = 0;
-                    vi_attribs[0].location 			    = 0;
-                    vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                    vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
-
-                    vi_attribs[1].binding 			    = 0;
-                    vi_attribs[1].location 			    = 1;
-                    vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
-                    vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
-
-                    vi_attribs[2].binding 			    = 0;
-                    vi_attribs[2].location 			    = 2;
-                    vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                    vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
-
-                    program_obj->graphic_pipeline->addViAttributes(vi_attribs);
-                    program_obj->graphic_pipeline->setViBinding(vi_binding);
-                    program_obj->graphic_pipeline->create(program_obj->descriptor_layout->getPipelineLayout(), render_pass->getRenderPass(), VK_CULL_MODE_BACK_BIT);
-                }
-
-                {
-                    auto* program_obj = &programs[ProgramType::SKYBOX];
-
-                    // Create ProgramType::OBJECT Descriptor Set
-
-                    struct DescriptorSetParams ds_params = {};
-                    ds_params.width 				    = static_cast<u_int32_t>(width);
-                    ds_params.height 				    = static_cast<u_int32_t>(height);
-                    ds_params.memory_properties		    = memory_properties;
-                    ds_params.command_pool			    = graphic_command_pool;
-                    ds_params.gpu					    = gpu_vector[0];
-                    ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
-
-                    program_obj->descriptor_layout->create(ds_params);
-
-                    // Create ProgramType::OBJECT Graphic Pipeline
-
-                    VkVertexInputBindingDescription vi_binding = {};
-                    vi_binding.binding 					= 0;
-                    vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
-                    vi_binding.stride 					= sizeof(VertexData);
-
-                    std::vector<VkVertexInputAttributeDescription> vi_attribs;
-                    vi_attribs.resize(3);
-
-                    vi_attribs[0].binding 			    = 0;
-                    vi_attribs[0].location 			    = 0;
-                    vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                    vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
-
-                    vi_attribs[1].binding 			    = 0;
-                    vi_attribs[1].location 			    = 1;
-                    vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
-                    vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
-
-                    vi_attribs[2].binding 			    = 0;
-                    vi_attribs[2].location 			    = 2;
-                    vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                    vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
-
-                    program_obj->graphic_pipeline->addViAttributes(vi_attribs);
-                    program_obj->graphic_pipeline->setViBinding(vi_binding);
-                    program_obj->graphic_pipeline->create(program_obj->descriptor_layout->getPipelineLayout(), render_pass->getRenderPass(), VK_CULL_MODE_FRONT_BIT);
-                }
-
+                for(auto& program : programs) program.createDescriptorSet(ds_params);
             }
 
             void addObj(const ProgramType program_type = ProgramType::OBJECT, const std::string& path_obj = "", const std::string& path_texture = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
