@@ -16,6 +16,7 @@
 #include "CommandBuffers.h"
 #include "GraphicPipeline/GraphicPipeline.h"
 #include "Util/Layers.h"
+#include "Programs/Program.h"
 
 #define APP_NAME "Obsidian2D"
 
@@ -28,8 +29,9 @@ namespace Engine
 
         public:
 
-            VkInstance 		instance;
-            VkSurfaceKHR 	surface;
+            VkInstance 		                       instance;
+            VkSurfaceKHR 	                       surface;
+            std::vector<Engine::Programs::Program> programs;
 
             virtual ~Window()
             {
@@ -142,39 +144,13 @@ namespace Engine
 
         protected:
 
-            std::map<ProgramType, Program>                      programs;
+            //std::map<ProgramType, Program>                      programs;
 
             void init()
             {
                 this->initGraphicPipeline();
 
-                {
-                    auto vert = Engine::GraphicPipeline::Shader{};
-                    vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                    vert.path = "../../shaders/phong.vert.spv";
-
-                    auto frag = Engine::GraphicPipeline::Shader{};
-                    frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                    frag.path = "../../shaders/phong.frag.spv";
-
-                    auto* program_obj = &programs[ProgramType::OBJECT];
-                    program_obj->descriptor_layout = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
-                    program_obj->graphic_pipeline  = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
-                }
-
-                {
-                    auto vert = Engine::GraphicPipeline::Shader{};
-                    vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                    vert.path = "../../shaders/skybox.vert.spv";
-
-                    auto frag = Engine::GraphicPipeline::Shader{};
-                    frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                    frag.path = "../../shaders/skybox.frag.spv";
-
-                    auto* program_obj = &programs[ProgramType::SKYBOX];
-                    program_obj->descriptor_layout = new Descriptors::DescriptorSet(device, Descriptors::Type::GRAPHIC);
-                    program_obj->graphic_pipeline  = new GraphicPipeline::GraphicPipeline(device, {vert, frag});
-                }
+                for (auto &program : programs) program.init(device);
 
                 command_buffer = new CommandBuffers(device, graphic_command_pool);
             }
@@ -381,7 +357,6 @@ namespace Engine
                     program_obj->graphic_pipeline->addViAttributes(vi_attribs);
                     program_obj->graphic_pipeline->setViBinding(vi_binding);
                     program_obj->graphic_pipeline->create(program_obj->descriptor_layout->getPipelineLayout(), render_pass->getRenderPass(), VK_CULL_MODE_BACK_BIT);
-
                 }
 
                 {
