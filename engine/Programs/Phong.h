@@ -15,13 +15,12 @@ namespace Engine
         class Phong : public Program
         {
 
-        private:
-
-            struct DescriptorSetParams ds_params_ = {};
-
         public:
 
-            explicit Phong(struct DescriptorSetParams ds_params) : ds_params_(std::move(ds_params)) {};
+            explicit Phong(struct DescriptorSetParams ds_params)
+            {
+                ds_params_ = std::move(ds_params);
+            }
 
             void init() override
             {
@@ -35,10 +34,7 @@ namespace Engine
 
                 descriptor_layout = new Descriptors::DescriptorSet(ds_params_.device, Descriptors::Type::GRAPHIC);
                 graphic_pipeline  = new GraphicPipeline::GraphicPipeline(ds_params_.device, {vert, frag});
-            }
 
-            void createDescriptorSet() override
-            {
                 descriptor_layout->create(ds_params_);
 
                 VkVertexInputBindingDescription vi_binding = {};
@@ -78,7 +74,7 @@ namespace Engine
 
                 if(!obj_data.path_texture.empty()) {
                     ds_params_.texture_path = obj_data.path_texture;
-                    program_data->texture = descriptor_layout->getTextelBuffer(ds_params_);
+                    program_data->texture   = descriptor_layout->getTextelBuffer(ds_params_);
                 }
 
                 // Load Vertex
@@ -95,12 +91,11 @@ namespace Engine
 
                 program_data->vertex_buffer = new Vertex::VertexBuffer(vbData, vertexData);
 
-                data.push_back(program_data);
-
-                auto object_id = data.size() - 1;
-                if (data[object_id]->texture.buffer != nullptr) {
-                    descriptor_layout->updateDescriptorSet(data[object_id]->texture, data[object_id]->descriptor_set);
+                if (program_data->texture.buffer != nullptr) {
+                    descriptor_layout->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
                 }
+
+                data.push_back(program_data);
             }
 
         };

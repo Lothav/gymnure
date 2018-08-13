@@ -25,7 +25,7 @@ namespace Engine
 
             void updateMemoryWithData()
             {
-                Memory::Memory::copyMemory(_instance_device, mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
+                Memory::Memory::copyMemory(buffer_data_.device, mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
             }
 
         public:
@@ -36,25 +36,11 @@ namespace Engine
                 updateMemoryWithData();
             }
 
-            ~VertexBuffer() override
-            {
-                _vertexData.clear();
-            }
+            ~VertexBuffer() = default;
 
             unsigned long getVertexSize() const
             {
                 return _vertexData.size();
-            }
-
-            static std::vector<VkBuffer> getBuffersFromVector(const std::vector<VertexBuffer *>& vector)
-            {
-                std::vector<VkBuffer> buffers = {};
-
-                for(auto vertex : vector){
-                    buffers.push_back(vertex->buf);
-                }
-
-                return buffers;
             }
 
             static std::vector<VertexData> loadModelVertices(const std::string& model_path, const char * obj_mtl = nullptr)
@@ -70,8 +56,6 @@ namespace Engine
                 if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, model_path.c_str(), obj_mtl)) {
                     throw std::runtime_error(err);
                 }
-
-                std::vector<VertexData> uniqueVertices = {};
 
                 for (const auto& shape : shapes)
                 {
@@ -99,6 +83,7 @@ namespace Engine
                         vertexData.push_back(vertex);
                     }
                 }
+
                 return vertexData;
             }
 

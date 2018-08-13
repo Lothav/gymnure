@@ -21,25 +21,39 @@ namespace Engine
     namespace Programs
     {
         struct ProgramData {
-            Descriptors::Texture                texture             = {};
-            Vertex::VertexBuffer*               vertex_buffer       = nullptr;
-            VkDescriptorPool                    descriptor_pool     = nullptr;
-            VkDescriptorSet                     descriptor_set      = nullptr;
+            Descriptors::Texture  texture         = {};
+            Vertex::VertexBuffer* vertex_buffer   = nullptr;
+            VkDescriptorPool      descriptor_pool = nullptr;
+            VkDescriptorSet       descriptor_set  = nullptr;
         };
 
         class Program
         {
 
-        public:
+        protected:
 
-            virtual void init()                                     = 0;
-            virtual void createDescriptorSet()                      = 0;
-            virtual void addObjData(const GymnureObjData& obj_data) = 0;
+            struct DescriptorSetParams ds_params_ = {};
+
+        public:
 
             Descriptors::DescriptorSet*         descriptor_layout   = nullptr;
             std::vector<ProgramData*>           data                = {};
             GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
 
+            ~Program()
+            {
+                delete graphic_pipeline;
+                delete descriptor_layout;
+                for(auto &d : data) {
+                    vkDestroyDescriptorPool(ds_params_.device, d->descriptor_pool, nullptr);
+                    delete d->vertex_buffer;
+                    delete d->texture.buffer;
+                    vkDestroySampler(ds_params_.device, d->texture.sampler, nullptr);
+                }
+            }
+
+            virtual void init() = 0;
+            virtual void addObjData(const GymnureObjData& obj_data) = 0;
         };
     }
 }

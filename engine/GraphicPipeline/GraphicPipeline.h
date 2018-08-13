@@ -43,11 +43,6 @@ namespace Engine
             {
                 vkDestroyPipeline(_instance_device, _vk_pipeline, nullptr);
                 vkDestroyPipelineCache(_instance_device, _pipeline_cache, nullptr);
-
-                for (auto &shader_stage : _shader_stages) {
-                    vkDestroyShaderModule(_instance_device, shader_stage.module, nullptr);
-                }
-
             }
 
 			VkPipeline getPipeline() const
@@ -211,6 +206,10 @@ namespace Engine
 
 				res = vkCreateGraphicsPipelines(_instance_device, _pipeline_cache, 1, &pipeline, nullptr, &_vk_pipeline);
 				assert(res == VK_SUCCESS);
+
+				for (auto &shader_stage : _shader_stages) {
+					vkDestroyShaderModule(_instance_device, shader_stage.module, nullptr);
+				}
 			}
 
 		private:

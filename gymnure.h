@@ -21,6 +21,11 @@ public:
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
     }
 
+    ~Gymnure()
+    {
+        delete _window;
+    }
+
     void initPhongProgram()
     {
         if(phong_ != nullptr) {
@@ -69,20 +74,14 @@ public:
 
     bool draw()
     {
-        bool running = true;
         WindowEvent e = _window->poolEvent();
+        if(e == WindowEvent::Close) return false;
 
-        if(e == WindowEvent::Close) running = false;
+        _window->draw();
 
-        if(running) _window->draw();
-
-        return running;
+        return true;
     }
 
-    ~Gymnure()
-    {
-        delete _window;
-    }
 };
 
 #endif //GYMNURE_GYMNURE_H

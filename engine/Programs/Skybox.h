@@ -5,6 +5,7 @@
 #ifndef GYMNURE_SKYBOX_H
 #define GYMNURE_SKYBOX_H
 
+#include <utility>
 #include "Program.h"
 
 namespace Engine
@@ -14,13 +15,12 @@ namespace Engine
         class Skybox : public Program
         {
 
-        private:
-
-            struct DescriptorSetParams ds_params_ = {};
-
         public:
 
-            explicit Skybox(struct DescriptorSetParams ds_params) : ds_params_(std::move(ds_params)) {};
+            explicit Skybox(struct DescriptorSetParams ds_params)
+            {
+                ds_params_ = std::move(ds_params);
+            }
 
             void init() override
             {
@@ -34,34 +34,31 @@ namespace Engine
 
                 descriptor_layout = new Descriptors::DescriptorSet(ds_params_.device, Descriptors::Type::GRAPHIC);
                 graphic_pipeline  = new GraphicPipeline::GraphicPipeline(ds_params_.device, {vert, frag});
-            }
 
-            void createDescriptorSet() override
-            {
                 descriptor_layout->create(ds_params_);
 
                 VkVertexInputBindingDescription vi_binding = {};
-                vi_binding.binding 					= 0;
-                vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
-                vi_binding.stride 					= sizeof(VertexData);
+                vi_binding.binding 		= 0;
+                vi_binding.inputRate 	= VK_VERTEX_INPUT_RATE_VERTEX;
+                vi_binding.stride 		= sizeof(VertexData);
 
                 std::vector<VkVertexInputAttributeDescription> vi_attribs;
                 vi_attribs.resize(3);
 
-                vi_attribs[0].binding 			    = 0;
-                vi_attribs[0].location 			    = 0;
-                vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
+                vi_attribs[0].binding 	= 0;
+                vi_attribs[0].location 	= 0;
+                vi_attribs[0].format 	= VK_FORMAT_R32G32B32_SFLOAT;
+                vi_attribs[0].offset 	= static_cast<uint32_t>(offsetof(VertexData, pos));
 
-                vi_attribs[1].binding 			    = 0;
-                vi_attribs[1].location 			    = 1;
-                vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
-                vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
+                vi_attribs[1].binding 	= 0;
+                vi_attribs[1].location 	= 1;
+                vi_attribs[1].format 	= VK_FORMAT_R32G32_SFLOAT;
+                vi_attribs[1].offset 	= static_cast<uint32_t>(offsetof(VertexData, uv));
 
-                vi_attribs[2].binding 			    = 0;
-                vi_attribs[2].location 			    = 2;
-                vi_attribs[2].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
-                vi_attribs[2].offset 				= static_cast<uint32_t>(offsetof(VertexData, normal));
+                vi_attribs[2].binding 	= 0;
+                vi_attribs[2].location 	= 2;
+                vi_attribs[2].format 	= VK_FORMAT_R32G32B32_SFLOAT;
+                vi_attribs[2].offset 	= static_cast<uint32_t>(offsetof(VertexData, normal));
 
                 graphic_pipeline->addViAttributes(vi_attribs);
                 graphic_pipeline->setViBinding(vi_binding);
@@ -94,12 +91,11 @@ namespace Engine
 
                 program_data->vertex_buffer = new Vertex::VertexBuffer(vbData, vertexData);
 
-                data.push_back(program_data);
-
-                auto object_id = data.size() - 1;
-                if (data[object_id]->texture.buffer != nullptr) {
-                    descriptor_layout->updateDescriptorSet(data[object_id]->texture, data[object_id]->descriptor_set);
+                if(program_data->texture.buffer != nullptr) {
+                    descriptor_layout->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
                 }
+
+                data.push_back(program_data);
             }
 
         };

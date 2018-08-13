@@ -14,14 +14,14 @@ namespace Engine
 		{
 		public:
 
-			UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
+            explicit UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
 			{
 				zoom 		= -7.0f;
 				rotation 	= { 0.0f,  0.0f, 0.0f };
 				cameraPos 	= { 0.0f,  0.0f, 0.0f };
 			}
 
-			~UniformBuffer() {}
+			~UniformBuffer() = default;
 
 		private:
 
@@ -32,7 +32,7 @@ namespace Engine
 			} mvp;
 
 			glm::vec3 cameraPos = glm::vec3();
-			glm::vec3 rotation = glm::vec3();
+			glm::vec3 rotation  = glm::vec3();
 			float zoom = 0;
 
 		public:
@@ -75,7 +75,7 @@ namespace Engine
 
 			void updateMVP()
 			{
-				Memory::Memory::copyMemory(_instance_device, this->mem, &this->mvp, sizeof(this->mvp));
+				Memory::Memory::copyMemory(buffer_data_.device, this->mem, &this->mvp, sizeof(this->mvp));
 			}
 
 		};

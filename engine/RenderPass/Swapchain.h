@@ -30,37 +30,21 @@ namespace Engine
 
 		private:
 
-			uint32_t 		_image_count;
+			uint32_t 		_image_count{};
 			VkSwapchainKHR  _swap_chain = nullptr;
-			VkQueue 		_graphics_queue, _present_queue;
+			VkQueue 		_graphics_queue{}, _present_queue{};
 			VkFormat 		format;
 
 			struct SwapChainParams _swap_chain_params 	  = {};
-
 
 			std::vector<Memory::BufferImage *> _swap_chain_buffer = {};
 
 		public:
 
-			SwapChain(struct SwapChainParams swap_chain_params)
+			explicit SwapChain(struct SwapChainParams swap_chain_params)
 			{
 				_swap_chain_params = std::move(swap_chain_params);
-			}
 
-			~SwapChain()
-			{
-				if (_swap_chain != VK_NULL_HANDLE) {
-					if(_swap_chain_buffer.size() == _image_count)
-						for (u_int32_t i = 0; i < _image_count; i++){
-							vkDestroyImageView(_swap_chain_params.device, (_swap_chain_buffer.data()[i])->view, nullptr);
-							free(_swap_chain_buffer[i]);
-						}
-					vkDestroySwapchainKHR(_swap_chain_params.device, _swap_chain, nullptr);
-				}
-			}
-
-			void createSwapChain()
-			{
 				VkResult res;
 				VkImage* _swap_chain_images = nullptr;
 
@@ -81,6 +65,17 @@ namespace Engine
 				assert( res == VK_SUCCESS );
 
 				createSwapChainBuffer(_swap_chain_images);
+			}
+
+			~SwapChain()
+			{
+				if(_swap_chain_buffer.size() == _image_count) {
+					for (u_int32_t i = 0; i < _image_count; i++){
+						_swap_chain_buffer[i]->image = nullptr;
+						delete _swap_chain_buffer[i];
+					}
+				}
+				vkDestroySwapchainKHR(_swap_chain_params.device, _swap_chain, nullptr);
 			}
 
 			uint32_t getImageCount() const
@@ -310,9 +305,9 @@ namespace Engine
 				swapchain_ci.queueFamilyIndexCount  = 0;
 				swapchain_ci.pQueueFamilyIndices 	= nullptr;
 
-                auto* queueFamilyIndices = static_cast<uint32_t*>(malloc(sizeof(uint32_t) * 2));
-                queueFamilyIndices[0] = (uint32_t)_graphics_queue_family_index;
-                queueFamilyIndices[1] = (uint32_t)_present_queue_family_index;
+				auto* queueFamilyIndices = static_cast<uint32_t*>(malloc(sizeof(uint32_t) * 2));
+				queueFamilyIndices[0] = (uint32_t)_graphics_queue_family_index;
+				queueFamilyIndices[1] = (uint32_t)_present_queue_family_index;
 
 				if (_graphics_queue_family_index != _present_queue_family_index) {
 					// If the graphics and present queues are from different queue families,

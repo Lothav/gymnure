@@ -32,13 +32,11 @@ namespace Engine
 
 			~SyncPrimitives()
 			{
-				u_int32_t i;
-				for (i = 0; i < _fences.size(); i++)
-				{
-					vkDestroyFence(_instance_device, _fences[i], nullptr);
-				}
 				vkDestroySemaphore(_instance_device, imageAcquiredSemaphore, nullptr);
 				vkDestroySemaphore(_instance_device, renderSemaphore, nullptr);
+				for (auto &_fence : _fences) {
+					vkDestroyFence(_instance_device, _fence, nullptr);
+				}
 			}
 
 			void createSemaphore()

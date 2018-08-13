@@ -42,9 +42,9 @@ namespace Engine
 
             ~BufferImage()
             {
-                vkDestroyImage(_mem_props.device, image, nullptr);
-                vkDestroyImageView(_mem_props.device, view, nullptr);
-                vkFreeMemory(_mem_props.device, mem, nullptr);
+                if(image != nullptr) vkDestroyImage(_mem_props.device, image, nullptr);
+                if(view  != nullptr) vkDestroyImageView(_mem_props.device, view, nullptr);
+                if(mem   != nullptr) vkFreeMemory(_mem_props.device, mem, nullptr);
             }
 
             BufferImage (struct MemoryProps memory_pro, struct ImageProps img_props, VkImage* images = nullptr)

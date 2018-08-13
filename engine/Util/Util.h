@@ -85,7 +85,7 @@ namespace Engine
 
 			VkShaderModule loadSPIRVShader(const std::string& filename, VkDevice device)
 			{
-				size_t shaderSize;
+				long shaderSize;
 				char* shaderCode = nullptr;
 
 				std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
@@ -93,12 +93,13 @@ namespace Engine
 				if (is.is_open())
 				{
 					shaderSize = is.tellg();
+					assert(shaderSize > 0);
+
 					is.seekg(0, std::ios::beg);
 					// Copy file contents into a buffer
 					shaderCode = new char[shaderSize];
 					is.read(shaderCode, shaderSize);
 					is.close();
-					assert(shaderSize > 0);
 				}
 				if (shaderCode)
 				{

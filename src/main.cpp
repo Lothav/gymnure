@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
             duration += std::chrono::duration<double, std::milli>(end - start).count();
 
             // Update FPS every 3 sec
-            if (duration >= 3000) {
-				auto fps = std::abs((float)frames * (1000.0f / duration));
+            if (duration >= 3e3) {
+				auto fps = std::abs((float)frames * (1.e3 / duration));
 
 				std::cout << fps << std::endl;
 

@@ -23,37 +23,38 @@ namespace Engine
 		{
 
         protected:
-			VkDevice _instance_device;
+
+            BufferData buffer_data_{};
 
 		public:
 
-			VkBuffer 				buf;
-			VkDeviceMemory 			mem;
-			VkDescriptorBufferInfo 	buffer_info;
+			VkBuffer 				buf{};
+			VkDeviceMemory 			mem{};
+			VkDescriptorBufferInfo 	buffer_info{};
 
 			virtual ~Buffer()
 			{
-				vkDestroyBuffer(this->_instance_device, this->buf, nullptr);
-				vkFreeMemory(this->_instance_device, this->mem, nullptr);
+                vkDestroyBuffer(buffer_data_.device, this->buf, nullptr);
+				vkFreeMemory(buffer_data_.device, this->mem, nullptr);
             }
 
-			Buffer(struct BufferData buffer_data)
+            explicit Buffer(const struct BufferData& buffer_data)
 			{
-				this->_instance_device = buffer_data.device;
+                buffer_data_.device = buffer_data.device;
 
 				VkResult res;
 				bool pass;
 
 				VkBufferCreateInfo bufferInfo = {};
 
-				bufferInfo.sType 						= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-				bufferInfo.size 						= buffer_data.size;
-				bufferInfo.usage 						= buffer_data.usage;
-				bufferInfo.queueFamilyIndexCount		= 0;
-				bufferInfo.pQueueFamilyIndices 			= nullptr;
-				bufferInfo.sharingMode 					= VK_SHARING_MODE_EXCLUSIVE;
-				bufferInfo.flags 						= 0;
-				bufferInfo.pNext 						= nullptr;
+				bufferInfo.sType 				 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+				bufferInfo.size 				 = buffer_data.size;
+				bufferInfo.usage 				 = buffer_data.usage;
+				bufferInfo.queueFamilyIndexCount = 0;
+				bufferInfo.pQueueFamilyIndices 	 = nullptr;
+				bufferInfo.sharingMode 			 = VK_SHARING_MODE_EXCLUSIVE;
+				bufferInfo.flags 				 = 0;
+				bufferInfo.pNext 				 = nullptr;
 
 				res = vkCreateBuffer(buffer_data.device, &bufferInfo, nullptr, &this->buf);
 				assert(res == VK_SUCCESS);
@@ -69,7 +70,7 @@ namespace Engine
 				allocInfo.allocationSize 				= memRequirements.size;
 				allocInfo.pNext 						= nullptr;
 
-				pass = Memory::findMemoryType (
+				pass = Memory::findMemoryType(
 					memProperties,
 					memRequirements.memoryTypeBits,
                     buffer_data.properties,
@@ -82,9 +83,9 @@ namespace Engine
 
 				vkBindBufferMemory(buffer_data.device, this->buf, this->mem, 0);
 
-				this->buffer_info.range 				= buffer_data.size;
-				this->buffer_info.offset 				= 0;
-				this->buffer_info.buffer 				= this->buf;
+				this->buffer_info.range  = buffer_data.size;
+				this->buffer_info.offset = 0;
+				this->buffer_info.buffer = this->buf;
 			}
         };
 	}

@@ -8,6 +8,7 @@
 #include <vector>
 #include <cassert>
 #include <GraphicPipeline/GraphicPipeline.h>
+#include <Programs/Program.h>
 #include "RenderPass/RenderPass.h"
 #include "Descriptors/DescriptorSet.h"
 #include "SyncPrimitives/SyncPrimitives.h"
@@ -15,112 +16,121 @@
 
 namespace Engine
 {
-	class CommandBuffers
-	{
+    struct CommandBuffersData {
+        VkDevice device;
+        VkCommandPool command_pool;
+    };
 
-	private:
+    class CommandBuffers
+    {
 
-		VkDevice 							_instance_device;
+    private:
 
-		VkCommandPool 						_command_pool = nullptr;
-		VkCommandBuffer 					_command_buffer = nullptr;
+        VkCommandBuffer                     _command_buffer{};
 
-	public:
+        struct CommandBuffersData           data_{};
 
-		CommandBuffers(VkDevice device, VkCommandPool command_pool)
-		{
-			_instance_device = device;
-			_command_pool    = command_pool;
+    public:
 
-			VkCommandBufferAllocateInfo cmd = {};
-			cmd.sType 				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd.pNext 			 	= nullptr;
-			cmd.commandPool 	 	= command_pool;
-			cmd.level 			 	= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			cmd.commandBufferCount  = 1;
+        CommandBuffers(const CommandBuffersData& data) : data_(data)
+        {
+            VkCommandBufferAllocateInfo cmd = {};
+            cmd.sType 				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            cmd.pNext 			 	= nullptr;
+            cmd.commandPool 	 	= data_.command_pool;
+            cmd.level 			 	= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            cmd.commandBufferCount  = 1;
 
-			assert(vkAllocateCommandBuffers(_instance_device, &cmd, &_command_buffer) == VK_SUCCESS);
-		}
+            assert(vkAllocateCommandBuffers(data_.device, &cmd, &_command_buffer) == VK_SUCCESS);
+        }
 
-		~CommandBuffers()
-		{
-			vkFreeCommandBuffers(_instance_device, _command_pool, 1, &_command_buffer);
-		}
+        ~CommandBuffers()
+        {
+            vkFreeCommandBuffers(data_.device, data_.command_pool, 1, &_command_buffer);
+        }
 
-		void bindGraphicCommandBuffer (
-				std::vector<Programs::Program*>  programs,
-				RenderPass::RenderPass* 	     render_pass,
-				uint32_t 		                 width,
-				uint32_t 		                 height,
-				SyncPrimitives::SyncPrimitives*  sync_primitives
-		) {
-			VkResult res;
-			const VkDeviceSize offsets[1] = {0};
+        void bindGraphicCommandBuffer (
+                std::vector<Programs::Program*>  programs,
+                RenderPass::RenderPass* 	     render_pass,
+                uint32_t 		                 width,
+                uint32_t 		                 height,
+                SyncPrimitives::SyncPrimitives*  sync_primitives
+        ) {
+            VkResult res;
+            const VkDeviceSize offsets[1] = {0};
 
-			VkClearValue clear_values[2];
-			clear_values[0].color.float32[0] 			= 0.f;
-			clear_values[0].color.float32[1] 			= 0.f;
-			clear_values[0].color.float32[2] 			= 0.f;
-			clear_values[0].color.float32[3] 			= 1.f;
-			clear_values[1].depthStencil.depth 			= 1.f;
-			clear_values[1].depthStencil.stencil 		= 0;
+            VkClearValue clear_values[2];
+            clear_values[0].color.float32[0] 			= 0.f;
+            clear_values[0].color.float32[1] 			= 0.f;
+            clear_values[0].color.float32[2] 			= 0.f;
+            clear_values[0].color.float32[3] 			= 1.f;
+            clear_values[1].depthStencil.depth 			= 1.f;
+            clear_values[1].depthStencil.stencil 		= 0;
 
-			VkRenderPassBeginInfo rp_begin = {};
-			rp_begin.sType 								= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			rp_begin.pNext 								= nullptr;
-			rp_begin.renderPass 						= render_pass->getRenderPass();
-			rp_begin.renderArea.offset.x 				= 0;
-			rp_begin.renderArea.offset.y 				= 0;
-			rp_begin.renderArea.extent.width 			= width;
-			rp_begin.renderArea.extent.height 			= height;
-			rp_begin.clearValueCount 					= 2;
-			rp_begin.pClearValues 						= clear_values;
+            VkRenderPassBeginInfo rp_begin = {};
+            rp_begin.sType 								= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            rp_begin.pNext 								= nullptr;
+            rp_begin.renderPass 						= render_pass->getRenderPass();
+            rp_begin.renderArea.offset.x 				= 0;
+            rp_begin.renderArea.offset.y 				= 0;
+            rp_begin.renderArea.extent.width 			= width;
+            rp_begin.renderArea.extent.height 			= height;
+            rp_begin.clearValueCount 					= 2;
+            rp_begin.pClearValues 						= clear_values;
 
-			VkCommandBufferBeginInfo cmd_buf_info = {};
-			cmd_buf_info.sType 							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			cmd_buf_info.pNext 							= nullptr;
-			cmd_buf_info.flags 							= 0;
-			cmd_buf_info.pInheritanceInfo 				= nullptr;
+            VkCommandBufferBeginInfo cmd_buf_info = {};
+            cmd_buf_info.sType 							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            cmd_buf_info.pNext 							= nullptr;
+            cmd_buf_info.flags 							= 0;
+            cmd_buf_info.pInheritanceInfo 				= nullptr;
 
-			auto util = std::make_unique<Util::Util>(width, height);
-			res = vkBeginCommandBuffer(_command_buffer, &cmd_buf_info);
-			assert(res == VK_SUCCESS);
+            auto util = std::make_unique<Util::Util>(width, height);
+            res = vkBeginCommandBuffer(_command_buffer, &cmd_buf_info);
+            assert(res == VK_SUCCESS);
 
-			for(uint32_t i = 0; i < render_pass->getSwapChain()->getImageCount(); i++)
-			{
-				rp_begin.framebuffer =  render_pass->getFrameBuffer()[i];
-				vkCmdBeginRenderPass(_command_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
+            for(uint32_t i = 0; i < render_pass->getSwapChain()->getImageCount(); i++)
+            {
+                auto frame_buffers = render_pass->getFrameBuffers();
+                if(frame_buffers.size() <= i) assert(false);
 
-				for(auto& program_obj : programs) {
+                rp_begin.framebuffer = frame_buffers[i];
+                vkCmdBeginRenderPass(_command_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
-					for(auto &data : program_obj->data) {
+                for(auto& program_obj : programs) {
 
-						vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj->graphic_pipeline->getPipeline());
-						vkCmdBindDescriptorSets(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-												program_obj->descriptor_layout->getPipelineLayout(), 0,
-												1, &data->descriptor_set, 0, nullptr);
-						vkCmdBindVertexBuffers(_command_buffer, 0, 1, &data->vertex_buffer->buf, offsets);
+                    for(auto &data : program_obj->data) {
 
-						util->init_viewports(_command_buffer);
-						util->init_scissors(_command_buffer);
+                        vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj->graphic_pipeline->getPipeline());
+                        vkCmdBindDescriptorSets(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                                program_obj->descriptor_layout->getPipelineLayout(), 0,
+                                                1, &data->descriptor_set, 0, nullptr);
+                        vkCmdBindVertexBuffers(_command_buffer, 0, 1, &data->vertex_buffer->buf, offsets);
 
-						vkCmdDraw(_command_buffer, static_cast<uint32_t>(data->vertex_buffer->getVertexSize()), 1, 0, 0);
-					}
-				}
+                        util->init_viewports(_command_buffer);
+                        util->init_scissors(_command_buffer);
 
-				vkCmdEndRenderPass(_command_buffer);
-			}
+                        vkCmdDraw(_command_buffer, static_cast<uint32_t>(data->vertex_buffer->getVertexSize()), 1, 0, 0);
+                    }
+                }
 
-			res = vkEndCommandBuffer(_command_buffer);
-			assert(res == VK_SUCCESS);
-		}
+                vkCmdEndRenderPass(_command_buffer);
+            }
 
-		VkCommandBuffer getCommandBuffer()
-		{
-			return _command_buffer;
-		}
+            res = vkEndCommandBuffer(_command_buffer);
+            assert(res == VK_SUCCESS);
+        }
 
-	};
+        VkCommandBuffer getCommandBuffer()
+        {
+            return _command_buffer;
+        }
+
+        VkCommandBuffer* getCommandBufferPtr()
+        {
+            return &_command_buffer;
+        }
+
+    };
 }
 
 #endif //OBSIDIAN2D_COMMANDBUFFERS_H

@@ -20,16 +20,29 @@ namespace Engine
 
 		public:
 
+			XcbWindow(u_int32_t width, u_int32_t height)
+			{
+				this->width  = width;
+				this->height = height;
+
+			    this->createApplication();
+                this->setConnection();
+                this->createWindow();
+                this->createSurface();
+
+                this->init();
+			}
+
 			~XcbWindow() {
-				xcb_destroy_window(connection, window);
-				xcb_disconnect(connection);
+				//xcb_destroy_window(connection, window);
+				//xcb_disconnect(connection);
 			}
 
 		private:
 
-			xcb_screen_t* 			screen;
-			xcb_window_t 			window;
-			xcb_connection_t*		connection;
+			xcb_screen_t* 			screen{};
+			xcb_window_t 			window{};
+			xcb_connection_t*		connection{};
 
 			void setConnection()
 			{
@@ -105,19 +118,6 @@ namespace Engine
 			}
 
 		public:
-
-			XcbWindow(int32_t width, int32_t height)
-			{
-				this->width  = width;
-				this->height = height;
-
-				this->createApplication();
-				this->setConnection();
-				this->createWindow();
-				this->createSurface();
-
-				this->init();
-			}
 
 			Engine::Util::Events* events = nullptr;
 

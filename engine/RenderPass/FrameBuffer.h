@@ -22,30 +22,28 @@ namespace Engine
 		private:
 
 			Memory::BufferImage* 		_depth_buffer;
-			VkFramebuffer* 				_frame_buffer;
+			std::vector<VkFramebuffer>  _frame_buffers;
 			VkFormat 					_depth_format;
 
 		public:
 
-			FrameBuffer(VkDevice device, struct SwapChainParams sc_params)
+			FrameBuffer(VkDevice device, const struct SwapChainParams &sc_params)
 			{
 				instance_device = device;
 				_sc_params = sc_params;
 
 				_swap_chain = new SwapChain(sc_params);
-				_swap_chain->createSwapChain();
 
 				createDepthBuffer();
 			}
 
 			virtual ~FrameBuffer()
 			{
-				for (u_int32_t i = 0; i < _swap_chain->getImageCount(); i++) {
-					vkDestroyFramebuffer(_sc_params.device, _frame_buffer[i], nullptr);
-				}
-				free(_frame_buffer);
 				delete _depth_buffer;
 				delete _swap_chain;
+				for (auto &_frame_buffer : _frame_buffers) {
+					vkDestroyFramebuffer(_sc_params.device, _frame_buffer, nullptr);
+				}
 			}
 
 			void createFrameBuffer(VkRenderPass render_pass)
@@ -63,11 +61,11 @@ namespace Engine
 				fb_info.height 					= _sc_params.height;
 				fb_info.layers 					= 1;
 
-				_frame_buffer = (VkFramebuffer *) malloc(_swap_chain->getImageCount() * sizeof(VkFramebuffer));
+				_frame_buffers.resize(_swap_chain->getImageCount());
 
 				for (uint32_t i = 0; i < _swap_chain->getImageCount(); i++) {
 					img_attachments[0] = (_swap_chain->getSwapChainBuffer(i))->view;
-					assert(vkCreateFramebuffer(instance_device, &fb_info, nullptr, &_frame_buffer[i]) == VK_SUCCESS);
+					assert(vkCreateFramebuffer(instance_device, &fb_info, nullptr, &_frame_buffers[i]) == VK_SUCCESS);
 				}
 			}
 
@@ -81,9 +79,9 @@ namespace Engine
 				return _swap_chain;
 			}
 
-			VkFramebuffer* getFrameBuffer()
+			std::vector<VkFramebuffer> getFrameBuffers()
 			{
-				return _frame_buffer;
+				return _frame_buffers;
 			}
 
 		private :

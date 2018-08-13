@@ -5,6 +5,7 @@
 #ifndef OBSIDIAN2D_CORE_WINDOW2_H
 #define OBSIDIAN2D_CORE_WINDOW2_H
 
+#include "Util/Layers.h"
 #include <Programs/Phong.h>
 #include <Programs/Skybox.h>
 #include "Descriptors/UniformBuffer.h"
@@ -17,7 +18,6 @@
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "CommandBuffers.h"
 #include "GraphicPipeline/GraphicPipeline.h"
-#include "Util/Layers.h"
 #include "Programs/Program.h"
 
 #define APP_NAME "Obsidian2D"
@@ -27,17 +27,23 @@ namespace Engine
     namespace Window
     {
 
-        class Window : public Util::Layers {
+        class Window : public Engine::Util::Layers {
 
         public:
 
-            VkInstance 		                        instance;
-            VkSurfaceKHR 	                        surface;
-            std::vector<Engine::Programs::Program*> programs;
+            VkInstance 		                        instance{};
+            VkSurfaceKHR 	                        surface{};
+            std::vector<Engine::Programs::Program*> programs = {};
+
+            Window() = default;
 
             virtual ~Window()
             {
-                uint32_t i;
+                vkDeviceWaitIdle(device);
+
+                for(auto &program: programs) delete program;
+
+                delete sync_primitives;
 
                 delete render_pass;
 
@@ -45,23 +51,10 @@ namespace Engine
 
                 delete command_buffer;
 
-                for(auto& program_obj : programs) {
-                    delete program_obj->graphic_pipeline;
-                    delete program_obj->descriptor_layout;
-                    for (auto &data : program_obj->data) {
-                        vkDestroyDescriptorPool(device, data->descriptor_pool, nullptr);
-                        delete data->vertex_buffer;
-                        delete data->texture.buffer;
-                        vkDestroySampler(device, data->texture.sampler, nullptr);
-                    }
-                }
-
-                delete sync_primitives;
-
                 vkDestroyCommandPool(device, graphic_command_pool, nullptr);
 
-                for (i = 0; i < Descriptors::Textures::textureImageMemory.size(); i++) {
-                    vkFreeMemory(device, Descriptors::Textures::textureImageMemory[i], nullptr);
+                for (auto &i : Descriptors::Textures::textureImageMemory) {
+                    vkFreeMemory(device, i, nullptr);
                 }
 
                 vkDestroyDevice(device, nullptr);
@@ -78,13 +71,7 @@ namespace Engine
 
                 VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-                std::vector<VkCommandBuffer> cmd_buff = {};
-                {
-                    cmd_buff.push_back(command_buffer->getCommandBuffer());
-                    for(auto& program_obj: programs) {
-                        program_obj->descriptor_layout->getUniformBuffer()->updateMVP();
-                    }
-                }
+                for(auto& program_obj: programs) program_obj->descriptor_layout->getUniformBuffer()->updateMVP();
 
                 VkSubmitInfo submit_info = {};
                 submit_info.pNext                     = nullptr;
@@ -92,8 +79,8 @@ namespace Engine
                 submit_info.waitSemaphoreCount        = 1;
                 submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
                 submit_info.pWaitDstStageMask         = &pipe_stage_flags;
-                submit_info.commandBufferCount        = static_cast<uint32_t>(cmd_buff.size());
-                submit_info.pCommandBuffers           = cmd_buff.data();
+                submit_info.commandBufferCount        = static_cast<uint32_t>(1);
+                submit_info.pCommandBuffers           = command_buffer->getCommandBufferPtr();
                 submit_info.signalSemaphoreCount      = 1;
                 submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
 
@@ -107,15 +94,14 @@ namespace Engine
                 vkResetFences(device, 1, sync_primitives->getFence(current_buffer));
 
                 VkPresentInfoKHR present = {};
-
-                present.sType 				           = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-                present.pNext 				           = nullptr;
-                present.swapchainCount 		           = 1;
-                present.pSwapchains 		           = &swap_c;
-                present.pImageIndices 		           = &current_buffer;
-                present.pWaitSemaphores 	           = nullptr;
-                present.waitSemaphoreCount 	           = 0;
-                present.pResults                       = nullptr;
+                present.sType 				  = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+                present.pNext 				  = nullptr;
+                present.swapchainCount 		  = 1;
+                present.pSwapchains 		  = &swap_c;
+                present.pImageIndices 		  = &current_buffer;
+                present.pWaitSemaphores 	  = nullptr;
+                present.waitSemaphoreCount 	  = 0;
+                present.pResults              = nullptr;
 
                 if (sync_primitives->renderSemaphore != VK_NULL_HANDLE) {
                     present.pWaitSemaphores = &sync_primitives->renderSemaphore;
@@ -124,35 +110,38 @@ namespace Engine
 
                 res = vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present);
                 assert(res == VK_SUCCESS);
-                cmd_buff.clear();
+
+                res = vkDeviceWaitIdle(device);
+                assert(res == VK_SUCCESS);
             }
 
         private:
 
-            VkQueue                                             compute_queue_;
-            VkDevice 								            device;
+            VkQueue                                             compute_queue_{};
+            VkDevice 								            device{};
             uint32_t 								            current_buffer = 0;
-            u_int32_t							 	            queue_family_count;
+            u_int32_t							 	            queue_family_count{};
             u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
             u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
-            RenderPass::RenderPass* 							render_pass;
+            RenderPass::RenderPass* 							render_pass{};
             std::vector<VkPhysicalDevice> 			            gpu_vector;
-            SyncPrimitives::SyncPrimitives* 					sync_primitives;
-            VkPhysicalDeviceMemoryProperties 		            memory_properties;
+            SyncPrimitives::SyncPrimitives* 					sync_primitives{};
+            VkPhysicalDeviceMemoryProperties 		            memory_properties{};
             std::vector<VkQueueFamilyProperties> 	            queue_family_props;
 
-            VkCommandPool 							            graphic_command_pool;
+            VkCommandPool 							            graphic_command_pool{};
             CommandBuffers*                                     command_buffer = nullptr;
 
         protected:
-
-            //std::map<ProgramType, Program>                      programs;
 
             void init()
             {
                 this->initGraphicPipeline();
 
-                command_buffer = new CommandBuffers(device, graphic_command_pool);
+                auto command_buffer_data = CommandBuffersData{};
+                command_buffer_data.command_pool = graphic_command_pool;
+                command_buffer_data.device = device;
+                command_buffer = new CommandBuffers(command_buffer_data);
             }
 
             void createApplication()
@@ -327,7 +316,6 @@ namespace Engine
 
                 auto program = new Programs::Phong(ds_params);
                 program->init();
-                program->createDescriptorSet();
 
                 programs.push_back(program);
 
@@ -348,7 +336,6 @@ namespace Engine
 
                 auto program = new Programs::Skybox(ds_params);
                 program->init();
-                program->createDescriptorSet();
 
                 programs.push_back(program);
 

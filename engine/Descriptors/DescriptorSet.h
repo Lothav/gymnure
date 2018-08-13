@@ -55,11 +55,11 @@ namespace Engine
 
             ~DescriptorSet()
             {
-                delete _uniform_buffer;
+                vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
                 for (auto &desc_layout : _desc_layout) {
                     vkDestroyDescriptorSetLayout(_instance_device, desc_layout, nullptr);
                 }
-                vkDestroyPipelineLayout(_instance_device, _pipeline_layout, nullptr);
+                delete _uniform_buffer;
             }
 
             void create(struct DescriptorSetParams ds_params)
@@ -67,8 +67,6 @@ namespace Engine
                 setLayoutBindings();
                 setDescriptorLayouts();
                 setPipelineLayout();
-                //setDescriptorPool();
-                //setDescriptorSet();
 
                 /*  create Uniform Buffer  */
 
