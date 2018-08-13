@@ -35,7 +35,7 @@ namespace Engine
 			{
 				vkDestroyBuffer(this->_instance_device, this->buf, nullptr);
 				vkFreeMemory(this->_instance_device, this->mem, nullptr);
-			}
+            }
 
 			Buffer(struct BufferData buffer_data)
 			{

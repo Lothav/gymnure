@@ -36,6 +36,11 @@ namespace Engine
                 updateMemoryWithData();
             }
 
+            ~VertexBuffer() override
+            {
+                _vertexData.clear();
+            }
+
             unsigned long getVertexSize() const
             {
                 return _vertexData.size();

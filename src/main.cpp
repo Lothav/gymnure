@@ -31,17 +31,26 @@ int main(int argc, char** argv) {
 
 		gymnure->prepare();
 
+		uint frames		= 0;
+		float duration  = 0.f;
 		while(true) {
 
             auto start = std::chrono::high_resolution_clock::now();
-
 			if (!gymnure->draw()) break;
-
             auto end = std::chrono::high_resolution_clock::now();
-            auto duration = std::chrono::duration<double, std::milli>(end - start).count();
-            auto fps = (float)1.f * (1000.0f / duration);
 
-            std::cout << fps << std::endl;
+            frames 	 += 1;
+            duration += std::chrono::duration<double, std::milli>(end - start).count();
+
+            // Update FPS every 3 sec
+            if (duration >= 3000) {
+				auto fps = std::abs((float)frames * (1000.0f / duration));
+
+				std::cout << fps << std::endl;
+
+				frames 	 = 0;
+				duration = 0.f;
+            }
         }
 	}
 
