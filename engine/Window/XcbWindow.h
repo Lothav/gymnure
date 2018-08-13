@@ -123,14 +123,16 @@ namespace Engine
 
 			WindowEvent poolEvent() override
 			{
-				if(events == nullptr){
-					events =  new Engine::Util::Events();
-				}
+				if(events == nullptr) events = new Engine::Util::Events();
 
 				xcb_generic_event_t* e = nullptr;
 				WindowEvent event = WindowEvent::None;
-				while ((e = xcb_poll_for_event(connection))) {
-                    event = events->handleEvent(e, {programs[ProgramType::OBJECT].descriptor_layout, programs[ProgramType::SKYBOX].descriptor_layout});
+				while ((e = xcb_poll_for_event(connection)))
+				{
+					std::vector<Engine::Descriptors::DescriptorSet*> descs;
+					for(auto& program_obj : programs) descs.push_back(program_obj->descriptor_layout);
+
+                    event = events->handleEvent(e, descs);
 					free(e);
 				}
 

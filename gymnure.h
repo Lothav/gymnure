@@ -2,13 +2,14 @@
 #define GYMNURE_H
 
 #include <Window/XcbWindow.h>
+#include <Programs/Skybox.h>
 #include "GraphicPipeline/GraphicPipeline.h"
 
 struct GymnureData {
-    std::string path_texture="";
-    std::string path_obj="";
-    std::vector<VertexData> vertexData = {};
-    char* obj_mtl = nullptr;
+    std::string             path_obj        ="";
+    std::string             path_texture    ="";
+    std::vector<VertexData> vertexData      = {};
+    char*                   obj_mtl         = nullptr;
 };
 
 class Gymnure
@@ -17,26 +18,56 @@ private:
 
     Engine::Window::Window* _window;
 
+    Engine::Programs::Phong*  phong_;
+    Engine::Programs::Skybox* skybox_;
+
 public:
 
-    Gymnure(unsigned int windowWidth, unsigned int windowHeight)
+    Gymnure(unsigned int windowWidth, unsigned int windowHeight) : phong_(nullptr)
     {
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
-        _window->createDescriptorSet();
     }
 
-    void addObject(const GymnureData& gymnureData)
+    void initPhongProgram()
     {
-        _window->addObj(Engine::ProgramType::OBJECT, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
+        if(phong_ != nullptr) {
+            std::cerr << "Phong Program already loaded!" << std::endl;
+            return;
+        }
+
+        phong_ = _window->createPhongProgram();
     }
 
-    void addSkybox(const GymnureData& gymnureData)
+    void addPhongData(const GymnureData& gymnure_data)
     {
-        _window->addObj(Engine::ProgramType::SKYBOX, gymnureData.path_obj, gymnureData.path_texture, gymnureData.vertexData, gymnureData.obj_mtl);
+        if(phong_ == nullptr) {
+            std::cerr << "Phong Program must be loaded first!" << std::endl;
+            return;
+        }
+
+        phong_->addObj(gymnure_data.path_obj, gymnure_data.path_texture, gymnure_data.vertexData, gymnure_data.obj_mtl);
     }
 
-    void insertText(const GymnureData& gymnureData)
-    {}
+    void initSkyboxProgram()
+    {
+        if(skybox_ != nullptr) {
+            std::cerr << "Skybox Program already loaded!" << std::endl;
+            return;
+        }
+
+        skybox_ = _window->createSkyboxProgram();
+    }
+
+    void addSkyboxData(const GymnureData& gymnure_data)
+    {
+        if(skybox_ == nullptr) {
+            std::cerr << "Skybox Program must be loaded first!" << std::endl;
+            return;
+        }
+
+        skybox_->addObj(gymnure_data.path_obj, gymnure_data.path_texture, gymnure_data.vertexData, gymnure_data.obj_mtl);
+    }
+
 
     void prepare()
     {

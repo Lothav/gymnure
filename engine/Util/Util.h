@@ -50,10 +50,10 @@ namespace Engine
 		{
 		public:
 
-			int32_t						width;
-			int32_t						height;
+			u_int32_t						width;
+			u_int32_t						height;
 
-			Util(int32_t _width, int32_t _height)
+			Util(u_int32_t _width, u_int32_t _height)
 			{
 				width  = _width;
 				height = _height;

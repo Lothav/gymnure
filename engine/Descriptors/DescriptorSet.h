@@ -10,6 +10,7 @@
 #include "Memory/BufferImage.h"
 
 struct DescriptorSetParams {
+    VkDevice                            device;
     VkPhysicalDevice                    gpu;
     uint32_t                            width;
     uint32_t                            height;

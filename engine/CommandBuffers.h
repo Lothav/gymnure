@@ -15,18 +15,6 @@
 
 namespace Engine
 {
-	struct ProgramData {
-		Descriptors::Texture                texture             = {};
-		Vertex::VertexBuffer*               vertex_buffer       = nullptr;
-		VkDescriptorPool                    descriptor_pool     = nullptr;
-		VkDescriptorSet                     descriptor_set      = nullptr;
-	};
-
-	struct Program {
-		Descriptors::DescriptorSet*         descriptor_layout   = nullptr;
-		std::vector<ProgramData*>           data                = {};
-		GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
-	};
 
 	enum ProgramType {
 		SKYBOX,
@@ -67,11 +55,11 @@ namespace Engine
 		}
 
 		void bindGraphicCommandBuffer (
-				std::map<ProgramType, Program>  programs,
-				RenderPass::RenderPass* 	    render_pass,
-				uint32_t 		                width,
-				uint32_t 		                height,
-				SyncPrimitives::SyncPrimitives* sync_primitives
+				std::vector<Programs::Program*>  programs,
+				RenderPass::RenderPass* 	     render_pass,
+				uint32_t 		                 width,
+				uint32_t 		                 height,
+				SyncPrimitives::SyncPrimitives*  sync_primitives
 		) {
 			VkResult res;
 			const VkDeviceSize offsets[1] = {0};
@@ -110,14 +98,13 @@ namespace Engine
 				rp_begin.framebuffer =  render_pass->getFrameBuffer()[i];
 				vkCmdBeginRenderPass(_command_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 
-				for(auto& [key, program_obj]: programs) {
+				for(auto& program_obj : programs) {
 
+					for(auto &data : program_obj->data) {
 
-					for(auto &data : program_obj.data) {
-
-						vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj.graphic_pipeline->getPipeline());
+						vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj->graphic_pipeline->getPipeline());
 						vkCmdBindDescriptorSets(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-												program_obj.descriptor_layout->getPipelineLayout(), 0,
+												program_obj->descriptor_layout->getPipelineLayout(), 0,
 												1, &data->descriptor_set, 0, nullptr);
 						vkCmdBindVertexBuffers(_command_buffer, 0, 1, &data->vertex_buffer->buf, offsets);
 

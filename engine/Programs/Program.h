@@ -25,11 +25,8 @@ namespace Engine
 
         public:
 
-            virtual void init(VkDevice device) = 0;
-
-            virtual void createDescriptorSet(struct DescriptorSetParams ds_params) = 0;
-
-        protected:
+            virtual void init()                                     = 0;
+            virtual void createDescriptorSet()                      = 0;
 
             Descriptors::DescriptorSet*         descriptor_layout   = nullptr;
             std::vector<ProgramData*>           data                = {};

@@ -5,6 +5,8 @@
 #ifndef OBSIDIAN2D_CORE_WINDOW2_H
 #define OBSIDIAN2D_CORE_WINDOW2_H
 
+#include <Programs/Phong.h>
+#include <Programs/Skybox.h>
 #include "Descriptors/UniformBuffer.h"
 #include "Memory/Memory.h"
 #include "Descriptors/Textures.h"
@@ -29,9 +31,9 @@ namespace Engine
 
         public:
 
-            VkInstance 		                       instance;
-            VkSurfaceKHR 	                       surface;
-            std::vector<Engine::Programs::Program> programs;
+            VkInstance 		                        instance;
+            VkSurfaceKHR 	                        surface;
+            std::vector<Engine::Programs::Program*> programs;
 
             virtual ~Window()
             {
@@ -43,10 +45,10 @@ namespace Engine
 
                 delete command_buffer;
 
-                for(auto& [key, program_obj]: programs) {
-                    delete program_obj.graphic_pipeline;
-                    delete program_obj.descriptor_layout;
-                    for (auto &data : program_obj.data) {
+                for(auto& program_obj : programs) {
+                    delete program_obj->graphic_pipeline;
+                    delete program_obj->descriptor_layout;
+                    for (auto &data : program_obj->data) {
                         vkDestroyDescriptorPool(device, data->descriptor_pool, nullptr);
                         delete data->vertex_buffer;
                         delete data->texture.buffer;
@@ -79,8 +81,8 @@ namespace Engine
                 std::vector<VkCommandBuffer> cmd_buff = {};
                 {
                     cmd_buff.push_back(command_buffer->getCommandBuffer());
-                    for(auto& [key, program_obj]: programs) {
-                        program_obj.descriptor_layout->getUniformBuffer()->updateMVP();
+                    for(auto& program_obj: programs) {
+                        program_obj->descriptor_layout->getUniformBuffer()->updateMVP();
                     }
                 }
 
@@ -149,8 +151,6 @@ namespace Engine
             void init()
             {
                 this->initGraphicPipeline();
-
-                for (auto &program : programs) program.init(device);
 
                 command_buffer = new CommandBuffers(device, graphic_command_pool);
             }
@@ -280,8 +280,8 @@ namespace Engine
 
                 struct SwapChainParams sc_params = {};
                 sc_params.gpu 					= gpu_vector[0];
-                sc_params.width 				= static_cast<u_int32_t >(width);
-                sc_params.height 				= static_cast<u_int32_t >(height);
+                sc_params.width 				= width;
+                sc_params.height 				= height;
                 sc_params.device 				= device;
                 sc_params.queue_family_count 	= queue_family_count;
                 sc_params.queue_family_props 	= queue_family_props;
@@ -313,83 +313,51 @@ namespace Engine
                 return WindowEvent::None;
             }
 
-            void createDescriptorSet()
+            Programs::Phong* createPhongProgram()
             {
                 struct DescriptorSetParams ds_params = {};
-                ds_params.width 				    = static_cast<u_int32_t>(width);
-                ds_params.height 				    = static_cast<u_int32_t>(height);
+                ds_params.width 				    = width;
+                ds_params.height 				    = height;
                 ds_params.memory_properties		    = memory_properties;
                 ds_params.command_pool			    = graphic_command_pool;
                 ds_params.gpu					    = gpu_vector[0];
                 ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.render_pass               = render_pass->getRenderPass();
+                ds_params.device                    = device;
 
-                for(auto& program : programs) program.createDescriptorSet(ds_params);
+                auto program = new Programs::Phong(ds_params);
+                program->init();
+                program->createDescriptorSet();
+
+                programs.push_back(program);
+
+                return program;
             }
 
-            void addObj(const ProgramType program_type = ProgramType::OBJECT, const std::string& path_obj = "", const std::string& path_texture = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
+            Programs::Skybox* createSkyboxProgram()
             {
-                auto* program_obj = &programs[program_type];
-
-                auto* program_data = new ProgramData();
-
-                program_data->descriptor_pool = program_obj->descriptor_layout->createDescriptorPool();
-                program_data->descriptor_set  = program_obj->descriptor_layout->createDescriptorSet(program_data->descriptor_pool);
-
-                // Load Texture
-
                 struct DescriptorSetParams ds_params = {};
-                ds_params.width 				= static_cast<u_int32_t>(width);
-                ds_params.height 				= static_cast<u_int32_t>(height);
-                ds_params.memory_properties		= memory_properties;
-                ds_params.command_pool			= graphic_command_pool;
-                ds_params.gpu					= gpu_vector[0];
-                ds_params.graphic_queue			= render_pass->getSwapChain()->getGraphicQueue();
+                ds_params.width 				    = width;
+                ds_params.height 				    = height;
+                ds_params.memory_properties		    = memory_properties;
+                ds_params.command_pool			    = graphic_command_pool;
+                ds_params.gpu					    = gpu_vector[0];
+                ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
+                ds_params.render_pass               = render_pass->getRenderPass();
+                ds_params.device                    = device;
 
-                if (!path_texture.empty()) {
-                    ds_params.texture_path = path_texture;
-                    program_data->texture = program_obj->descriptor_layout->getTextelBuffer(ds_params);
-                }
+                auto program = new Programs::Skybox(ds_params);
+                program->init();
+                program->createDescriptorSet();
 
-                // Load Vertex
-                std::vector<VertexData> vertexData = {};
-                if(!path_obj.empty()) {
-                    vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj, obj_mtl);
-                }
+                programs.push_back(program);
 
-                for (auto v_data : complementVertexData) {
-                    vertexData.push_back(v_data);
-                }
-
-                struct BufferData vertexBufferData = {};
-                vertexBufferData.device            = device;
-                vertexBufferData.usage             = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-                vertexBufferData.physicalDevice    = gpu_vector[0];
-                vertexBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-                vertexBufferData.size              = vertexData.size() * sizeof(VertexData);
-
-                program_data->vertex_buffer = new Vertex::VertexBuffer(vertexBufferData, vertexData);
-
-                addProgramData(program_type, program_data);
-            }
-
-            void addProgramData(const ProgramType program_type, ProgramData* program_data)
-            {
-                programs[program_type].data.push_back(program_data);
-
-                auto object_id      = programs[program_type].data.size()-1;
-                auto* program_obj   = &programs[program_type];
-
-                if (object_id >= program_obj->data.size()) assert(false);
-
-                if (program_obj->data[object_id]->texture.buffer != nullptr) {
-                    program_obj->descriptor_layout->updateDescriptorSet(program_obj->data[object_id]->texture, program_obj->data[object_id]->descriptor_set);
-                }
+                return program;
             }
 
             void prepare()
             {
-                command_buffer->bindGraphicCommandBuffer(programs, render_pass, static_cast<uint32_t>(width), static_cast<uint32_t>(height), sync_primitives);
+                command_buffer->bindGraphicCommandBuffer(programs, render_pass, width, height, sync_primitives);
             }
 
         };
