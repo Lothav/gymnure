@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
         gymnure->initPhongProgram();
 		gymnure->initSkyboxProgram();
 
-        auto room2 = GymnureData{};
+        auto room2 = GymnureObjData{};
 		room2.path_texture 	= "../../assets/room2.png";
 		room2.path_obj 		= "../../assets/room2.obj";
         gymnure->addPhongData(room2);
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 		//chalet.path_obj 	= "../../assets/chalet.obj";
 		//gymnure->addObject(chalet);
 
-		auto cube = GymnureData{};
+		auto cube = GymnureObjData{};
 		cube.path_obj 		= "../../assets/cube.obj";
 		cube.path_texture 	= "../../assets/sky.jpg";
 		cube.obj_mtl 		= std::string("../../assets/cube.mtl").data();

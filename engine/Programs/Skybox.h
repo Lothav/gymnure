@@ -68,22 +68,22 @@ namespace Engine
                 graphic_pipeline->create(descriptor_layout->getPipelineLayout(), ds_params_.render_pass, VK_CULL_MODE_FRONT_BIT);
             }
 
-            void addObj(const std::string& path_obj = "", const std::string& path_texture = "", std::vector<VertexData> complementVertexData = {}, const char* obj_mtl = nullptr)
+            void addObjData(const GymnureObjData& obj_data) override
             {
                 auto* program_data = new ProgramData();
 
                 program_data->descriptor_pool = descriptor_layout->createDescriptorPool();
                 program_data->descriptor_set  = descriptor_layout->createDescriptorSet(program_data->descriptor_pool);
 
-                if(!path_texture.empty()) {
-                    ds_params_.texture_path = path_texture;
+                if(!obj_data.path_texture.empty()) {
+                    ds_params_.texture_path = obj_data.path_texture;
                     program_data->texture = descriptor_layout->getTextelBuffer(ds_params_);
                 }
 
                 // Load Vertex
                 std::vector<VertexData> vertexData = {};
-                if(!path_obj.empty()) vertexData = Vertex::VertexBuffer::loadModelVertices(path_obj, obj_mtl);
-                for(auto v_data : complementVertexData) vertexData.push_back(v_data);
+                if(!obj_data.path_obj.empty()) vertexData = Vertex::VertexBuffer::loadModelVertices(obj_data.path_obj, obj_data.obj_mtl);
+                for(auto v_data : obj_data.vertex_data) vertexData.push_back(v_data);
 
                 struct BufferData vbData = {};
                 vbData.device         = ds_params_.device;

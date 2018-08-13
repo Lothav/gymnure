@@ -5,13 +5,6 @@
 #include <Programs/Skybox.h>
 #include "GraphicPipeline/GraphicPipeline.h"
 
-struct GymnureData {
-    std::string             path_obj        ="";
-    std::string             path_texture    ="";
-    std::vector<VertexData> vertexData      = {};
-    char*                   obj_mtl         = nullptr;
-};
-
 class Gymnure
 {
 private:
@@ -38,14 +31,14 @@ public:
         phong_ = _window->createPhongProgram();
     }
 
-    void addPhongData(const GymnureData& gymnure_data)
+    void addPhongData(const GymnureObjData& gymnure_data)
     {
         if(phong_ == nullptr) {
             std::cerr << "Phong Program must be loaded first!" << std::endl;
             return;
         }
 
-        phong_->addObj(gymnure_data.path_obj, gymnure_data.path_texture, gymnure_data.vertexData, gymnure_data.obj_mtl);
+        phong_->addObjData(gymnure_data);
     }
 
     void initSkyboxProgram()
@@ -58,14 +51,14 @@ public:
         skybox_ = _window->createSkyboxProgram();
     }
 
-    void addSkyboxData(const GymnureData& gymnure_data)
+    void addSkyboxData(const GymnureObjData& gymnure_data)
     {
         if(skybox_ == nullptr) {
             std::cerr << "Skybox Program must be loaded first!" << std::endl;
             return;
         }
 
-        skybox_->addObj(gymnure_data.path_obj, gymnure_data.path_texture, gymnure_data.vertexData, gymnure_data.obj_mtl);
+        skybox_->addObjData(gymnure_data);
     }
 
 

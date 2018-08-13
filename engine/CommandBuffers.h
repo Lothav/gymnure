@@ -15,13 +15,6 @@
 
 namespace Engine
 {
-
-	enum ProgramType {
-		SKYBOX,
-		OBJECT,
-		TEXT,
-	};
-
 	class CommandBuffers
 	{
 
@@ -37,14 +30,14 @@ namespace Engine
 		CommandBuffers(VkDevice device, VkCommandPool command_pool)
 		{
 			_instance_device = device;
-			_command_pool = command_pool;
+			_command_pool    = command_pool;
 
 			VkCommandBufferAllocateInfo cmd = {};
-			cmd.sType 						= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			cmd.pNext 			 			= nullptr;
-			cmd.commandPool 	 			= command_pool;
-			cmd.level 			 			= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			cmd.commandBufferCount  		= 1;
+			cmd.sType 				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			cmd.pNext 			 	= nullptr;
+			cmd.commandPool 	 	= command_pool;
+			cmd.level 			 	= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			cmd.commandBufferCount  = 1;
 
 			assert(vkAllocateCommandBuffers(_instance_device, &cmd, &_command_buffer) == VK_SUCCESS);
 		}
@@ -89,7 +82,7 @@ namespace Engine
 			cmd_buf_info.flags 							= 0;
 			cmd_buf_info.pInheritanceInfo 				= nullptr;
 
-			auto* util = new Util::Util(width, height);
+			auto util = std::make_unique<Util::Util>(width, height);
 			res = vkBeginCommandBuffer(_command_buffer, &cmd_buf_info);
 			assert(res == VK_SUCCESS);
 
@@ -120,8 +113,6 @@ namespace Engine
 
 			res = vkEndCommandBuffer(_command_buffer);
 			assert(res == VK_SUCCESS);
-
-			delete util;
 		}
 
 		VkCommandBuffer getCommandBuffer()

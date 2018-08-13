@@ -9,6 +9,13 @@
 #include <Descriptors/DescriptorSet.h>
 #include <Vertex/VertexBuffer.h>
 
+struct GymnureObjData {
+    std::string             path_obj        = "";
+    std::string             path_texture    = "";
+    std::vector<VertexData> vertex_data     = {};
+    char*                   obj_mtl         = nullptr;
+};
+
 namespace Engine
 {
     namespace Programs
@@ -27,6 +34,7 @@ namespace Engine
 
             virtual void init()                                     = 0;
             virtual void createDescriptorSet()                      = 0;
+            virtual void addObjData(const GymnureObjData& obj_data) = 0;
 
             Descriptors::DescriptorSet*         descriptor_layout   = nullptr;
             std::vector<ProgramData*>           data                = {};
