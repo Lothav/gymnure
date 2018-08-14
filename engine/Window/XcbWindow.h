@@ -25,6 +25,8 @@ namespace Engine
 				this->width  = width;
 				this->height = height;
 
+                events = new Engine::Util::Events();
+
 			    this->createApplication();
                 this->setConnection();
                 this->createWindow();
@@ -33,7 +35,9 @@ namespace Engine
                 this->init();
 			}
 
-			~XcbWindow() {
+			~XcbWindow()
+            {
+            	delete events;
 				//xcb_destroy_window(connection, window);
 				//xcb_disconnect(connection);
 			}
@@ -43,6 +47,7 @@ namespace Engine
 			xcb_screen_t* 			screen{};
 			xcb_window_t 			window{};
 			xcb_connection_t*		connection{};
+            Engine::Util::Events*   events = nullptr;
 
 			void setConnection()
 			{
@@ -119,13 +124,9 @@ namespace Engine
 
 		public:
 
-			Engine::Util::Events* events = nullptr;
-
 			WindowEvent poolEvent() override
 			{
-				if(events == nullptr) events = new Engine::Util::Events();
-
-				xcb_generic_event_t* e = nullptr;
+			    xcb_generic_event_t* e = nullptr;
 				WindowEvent event = WindowEvent::None;
 				while ((e = xcb_poll_for_event(connection)))
 				{

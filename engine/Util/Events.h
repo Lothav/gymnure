@@ -31,8 +31,9 @@ namespace Engine
 
         public:
 
-            Events()
-            {}
+            Events() = default;
+
+            ~Events() = default;
 
             WindowEvent handleEvent(const xcb_generic_event_t *event, std::vector<Engine::Descriptors::DescriptorSet*> descSets) {
 
