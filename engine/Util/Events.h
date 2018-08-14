@@ -67,6 +67,7 @@ namespace Engine
 
                         return WindowEvent::None;
                     }
+
                     case XCB_BUTTON_PRESS: {
                         auto *press = (xcb_button_press_event_t *) event;
                         if (press->detail == XCB_BUTTON_INDEX_1)
@@ -87,56 +88,22 @@ namespace Engine
                             mouseButtons.middle = false;
                         if (press->detail == XCB_BUTTON_INDEX_3)
                             mouseButtons.right = false;
+
                         return WindowEvent::None;
                     }
 
                     case XCB_KEY_PRESS: {
-                        auto *keyEvent = (const xcb_key_release_event_t *) event;
-                        /*switch (keyEvent->detail) {
-                            case KEY_W:
-                                camera.keys.up = true;
-                                break;
-                            case KEY_S:
-                                camera.keys.down = true;
-                                break;
-                            case KEY_A:
-                                camera.keys.left = true;
-                                break;
-                            case KEY_D:
-                                camera.keys.right = true;
-                                break;
-                            case KEY_P:
-                                paused = !paused;
-                                break;
-                            case KEY_F1:
-                                if (enableTextOverlay) {
-                                    textOverlay->visible = !textOverlay->visible;
-                                }
-                                break;*/
+
+                        auto *keyEvent = (const xcb_key_press_event_t *) event;
+                        switch (keyEvent->detail) {
+                            case 9:
+                                return WindowEvent::Close;
+                            default:
+                                std::cout << "NONE pressed!" << std::endl;
+                        }
+
                         return WindowEvent::None;
                     }
-                    case XCB_KEY_RELEASE: /*
-                        const xcb_key_release_event_t *keyEvent = (const xcb_key_release_event_t *) event;
-                        /*switch (keyEvent->detail) {
-                            case KEY_W:
-                                camera.keys.up = false;
-                                break;
-                            case KEY_S:
-                                camera.keys.down = false;
-                                break;
-                            case KEY_A:
-                                camera.keys.left = false;
-                                break;
-                            case KEY_D:
-                                camera.keys.right = false;
-                                break;
-                            case KEY_ESCAPE:
-                                quit = true;
-                                break;
-                        }
-                        keyPressed(keyEvent->detail);
-                        break;*/
-                        return WindowEvent::None;
 
                     default:
                         return WindowEvent::None;
