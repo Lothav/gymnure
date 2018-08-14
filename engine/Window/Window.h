@@ -35,23 +35,13 @@ namespace Engine
             virtual ~Window()
             {
                 vkDeviceWaitIdle(device);
-
                 for(auto &program: programs) delete program;
-
                 delete sync_primitives;
-
                 delete render_pass;
-
-                if (surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
-
+                if(surface != VK_NULL_HANDLE) vkDestroySurfaceKHR(instance, surface, nullptr);
                 delete command_buffer;
-
                 vkDestroyCommandPool(device, graphic_command_pool, nullptr);
-
-                for (auto &i : Descriptors::Textures::textureImageMemory) {
-                    vkFreeMemory(device, i, nullptr);
-                }
-
+                for(auto &i : Descriptors::Textures::textureImageMemory) vkFreeMemory(device, i, nullptr);
                 vkDestroyDevice(device, nullptr);
                 vkDestroyInstance(instance, nullptr);
             }

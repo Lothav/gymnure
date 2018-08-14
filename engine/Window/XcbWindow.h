@@ -9,12 +9,17 @@
 
 #include "Window/Window.h"
 #include <unistd.h>
-#include <Util/Events.h>
 
 namespace Engine
 {
 	namespace Window
 	{
+		struct {
+			bool left = false;
+			bool right = false;
+			bool middle = false;
+		} mouseButtons;
+
 		class XcbWindow: public Window
 		{
 
@@ -25,7 +30,6 @@ namespace Engine
 				this->width  = width;
 				this->height = height;
 
-                events = new Engine::Util::Events();
 
 			    this->createApplication();
                 this->setConnection();
@@ -37,7 +41,7 @@ namespace Engine
 
 			~XcbWindow()
             {
-            	delete events;
+            	// @TODO Destroy XCB window after vkDestroyInstance()
 				//xcb_destroy_window(connection, window);
 				//xcb_disconnect(connection);
 			}
@@ -47,7 +51,7 @@ namespace Engine
 			xcb_screen_t* 			screen{};
 			xcb_window_t 			window{};
 			xcb_connection_t*		connection{};
-            Engine::Util::Events*   events = nullptr;
+			glm::vec2 				mousePos;
 
 			void setConnection()
 			{
@@ -127,17 +131,74 @@ namespace Engine
 			WindowEvent poolEvent() override
 			{
 			    xcb_generic_event_t* e = nullptr;
-				WindowEvent event = WindowEvent::None;
 				while ((e = xcb_poll_for_event(connection)))
 				{
-					std::vector<Engine::Descriptors::DescriptorSet*> descs;
-					for(auto& program_obj : programs) descs.push_back(program_obj->descriptor_layout);
+					std::vector<Engine::Descriptors::DescriptorSet*> descSets;
+					for(auto& program_obj : programs) descSets.push_back(program_obj->descriptor_layout);
 
-                    event = events->handleEvent(e, descs);
-					free(e);
+					switch (e->response_type & 0x7f)
+					{
+						case XCB_CLIENT_MESSAGE: {
+							return WindowEvent::Close;
+						}
+
+						case XCB_MOTION_NOTIFY:
+						{
+							auto *motion = (xcb_motion_notify_event_t *) e;
+							for (auto &descSet : descSets) {
+								if (mouseButtons.left) {
+									descSet->getUniformBuffer()->rotateWorld(
+											glm::vec3( (mousePos.y - (float) motion->event_y) * 0.1f,
+													   -(mousePos.x - (float) motion->event_x) * 0.1f, 0.0f)
+									);
+								}
+								if (mouseButtons.middle) descSet->getUniformBuffer()->zoomCamera(-0.1);
+								if (mouseButtons.right) descSet->getUniformBuffer()->zoomCamera(0.1);
+							}
+
+							mousePos = glm::vec2((float) motion->event_x, (float) motion->event_y);
+
+							return WindowEvent::None;
+						}
+
+						case XCB_BUTTON_PRESS: {
+							auto *press = (xcb_button_press_event_t *) e;
+							if (press->detail == XCB_BUTTON_INDEX_1) mouseButtons.left = true;
+							if (press->detail == XCB_BUTTON_INDEX_2) mouseButtons.middle = true;
+							if (press->detail == XCB_BUTTON_INDEX_3) mouseButtons.right = true;
+
+							return WindowEvent::None;
+						}
+
+						case XCB_BUTTON_RELEASE: {
+							auto *press = (xcb_button_press_event_t *) e;
+							if (press->detail == XCB_BUTTON_INDEX_1) mouseButtons.left = false;
+							if (press->detail == XCB_BUTTON_INDEX_2) mouseButtons.middle = false;
+							if (press->detail == XCB_BUTTON_INDEX_3) mouseButtons.right = false;
+
+							return WindowEvent::None;
+						}
+
+						case XCB_KEY_PRESS: {
+
+							auto *keyEvent = (const xcb_key_press_event_t *) e;
+							switch (keyEvent->detail) {
+								case 9:
+									return WindowEvent::Close;
+								default:
+									std::cout << "NONE pressed!" << std::endl;
+							}
+
+							return WindowEvent::None;
+						}
+
+						default:
+							return WindowEvent::None;
+					}
 				}
+				free(e);
 
-				return event;
+				return WindowEvent::None;
 			}
 		};
 	}
