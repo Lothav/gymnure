@@ -26,14 +26,9 @@ namespace Engine
 {
     namespace Window
     {
-
         class Window : public Engine::Util::Layers {
 
         public:
-
-            VkInstance 		                        instance{};
-            VkSurfaceKHR 	                        surface{};
-            std::vector<Engine::Programs::Program*> programs = {};
 
             Window() = default;
 
@@ -117,27 +112,62 @@ namespace Engine
 
         private:
 
-            VkQueue                                             compute_queue_{};
-            VkDevice 								            device{};
-            uint32_t 								            current_buffer = 0;
-            u_int32_t							 	            queue_family_count{};
-            u_int32_t                                           queueGraphicFamilyIndex = UINT_MAX;
-            u_int32_t                                           queueComputeFamilyIndex = UINT_MAX;
-            RenderPass::RenderPass* 							render_pass{};
-            std::vector<VkPhysicalDevice> 			            gpu_vector;
-            SyncPrimitives::SyncPrimitives* 					sync_primitives{};
-            VkPhysicalDeviceMemoryProperties 		            memory_properties{};
-            std::vector<VkQueueFamilyProperties> 	            queue_family_props;
-
-            VkCommandPool 							            graphic_command_pool{};
-            CommandBuffers*                                     command_buffer = nullptr;
+            VkQueue                                  compute_queue_{};
+            VkDevice 								 device{};
+            uint32_t 								 current_buffer = 0;
+            u_int32_t							 	 queue_family_count{};
+            u_int32_t                                queueGraphicFamilyIndex = UINT_MAX;
+            u_int32_t                                queueComputeFamilyIndex = UINT_MAX;
+            RenderPass::RenderPass* 				 render_pass{};
+            std::vector<VkPhysicalDevice> 			 gpu_vector;
+            SyncPrimitives::SyncPrimitives* 		 sync_primitives{};
+            VkPhysicalDeviceMemoryProperties 		 memory_properties{};
+            std::vector<VkQueueFamilyProperties> 	 queue_family_props;
+            VkCommandPool 							 graphic_command_pool{};
+            CommandBuffers*                          command_buffer = nullptr;
 
         protected:
 
+            VkInstance 		                        instance{};
+            VkSurfaceKHR 	                        surface{};
+            std::vector<Engine::Programs::Program*> programs = {};
+
             void init()
             {
-                this->initGraphicPipeline();
+                VkResult U_ASSERT_ONLY 	res;
 
+                // Init Render Pass
+                struct SwapChainParams sc_params = {};
+                sc_params.gpu 					= gpu_vector[0];
+                sc_params.width 				= width;
+                sc_params.height 				= height;
+                sc_params.device 				= device;
+                sc_params.queue_family_count 	= queue_family_count;
+                sc_params.queue_family_props 	= queue_family_props;
+                sc_params.surface 				= surface;
+                sc_params.memory_props 			= memory_properties;
+                render_pass = new RenderPass::RenderPass(device, sc_params);
+
+                std::vector< struct rpAttachments > rp_attachments = {};
+
+                struct rpAttachments attch = {};
+
+                attch.format = render_pass->getSwapChain()->getSwapChainFormat();
+                attch.clear  = false;
+                rp_attachments.push_back(attch);
+
+                attch.format = render_pass->getDepthBufferFormat();
+                attch.clear  = true;
+                rp_attachments.push_back(attch);
+
+                render_pass->create(rp_attachments);
+
+                // Init Sync Primitives
+                sync_primitives = new SyncPrimitives::SyncPrimitives(device);
+                sync_primitives->createSemaphore();
+                sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
+
+                // Init Command Buffers
                 auto command_buffer_data = CommandBuffersData{};
                 command_buffer_data.command_pool = graphic_command_pool;
                 command_buffer_data.device = device;
@@ -259,40 +289,6 @@ namespace Engine
                 assert(vkCreateCommandPool(device, &cmd_pool_info, nullptr, &graphic_command_pool) == VK_SUCCESS);
 
                 vkGetDeviceQueue(device, queueComputeFamilyIndex, 0, &compute_queue_);
-            }
-
-            void initGraphicPipeline ()
-            {
-                VkResult U_ASSERT_ONLY 	res;
-
-                /* Render Pass */
-
-                struct SwapChainParams sc_params = {};
-                sc_params.gpu 					= gpu_vector[0];
-                sc_params.width 				= width;
-                sc_params.height 				= height;
-                sc_params.device 				= device;
-                sc_params.queue_family_count 	= queue_family_count;
-                sc_params.queue_family_props 	= queue_family_props;
-                sc_params.surface 				= surface;
-                sc_params.memory_props 			= memory_properties;
-
-                render_pass = new RenderPass::RenderPass(device, sc_params);
-
-                std::vector< struct rpAttachments > rp_attachments = {};
-                struct rpAttachments attch = {};
-                attch.format = render_pass->getSwapChain()->getSwapChainFormat();
-                attch.clear  = false;
-                rp_attachments.push_back(attch);
-                attch.format = render_pass->getDepthBufferFormat();
-                attch.clear  = true;
-                rp_attachments.push_back(attch);
-
-                render_pass->create(rp_attachments);
-
-                sync_primitives = new SyncPrimitives::SyncPrimitives(device);
-                sync_primitives->createSemaphore();
-                sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
             }
 
         public:
