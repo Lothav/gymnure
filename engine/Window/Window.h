@@ -47,6 +47,16 @@ namespace Engine
                 vkDestroyInstance(instance, nullptr);
             }
 
+            void* operator new(std::size_t size)
+            {
+                return mem::Provider::getMemory(size);
+            }
+
+            void operator delete(void* ptr)
+            {
+                // Do not free memory here!
+            }
+
             void draw()
             {
                 VkResult res;
@@ -116,7 +126,7 @@ namespace Engine
             VkCommandPool 							 graphic_command_pool{};
             CommandBuffers*                          command_buffer = nullptr;
             std::vector<VkQueueFamilyProperties,
-                mem::Allocator<
+                mem::StdAllocator<
                     VkQueueFamilyProperties>>        queue_family_props;
 
         protected:

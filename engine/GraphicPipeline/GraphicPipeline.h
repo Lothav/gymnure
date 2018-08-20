@@ -6,6 +6,8 @@
 #define OBSIDIAN2D_GRAPHICPIPELINE_H
 
 #include <array>
+#include <memancpp/Provider.hpp>
+#include <memancpp/Allocator.hpp>
 #include "Util/Util.h"
 
 namespace Engine
@@ -24,10 +26,10 @@ namespace Engine
 
             VkPipelineCache 						            _pipeline_cache;
 			VkPipeline 								            _vk_pipeline;
-			std::vector<VkPipelineShaderStageCreateInfo> 		_shader_stages;
-
+			std::vector<VkPipelineShaderStageCreateInfo,
+					mem::StdAllocator<
+					        VkPipelineShaderStageCreateInfo>> 	_shader_stages;
             VkDevice                                            _instance_device;
-
             VkVertexInputBindingDescription                     _vi_binding;
             std::vector<VkVertexInputAttributeDescription>      _vi_attributes;
 
@@ -44,6 +46,16 @@ namespace Engine
                 vkDestroyPipeline(_instance_device, _vk_pipeline, nullptr);
                 vkDestroyPipelineCache(_instance_device, _pipeline_cache, nullptr);
             }
+
+			void* operator new(std::size_t size)
+			{
+				return mem::Provider::getMemory(size);
+			}
+
+			void operator delete(void* ptr)
+			{
+				// Do not free memory here!
+			}
 
 			VkPipeline getPipeline() const
 			{
@@ -131,7 +143,8 @@ namespace Engine
 				cb.blendConstants[2] 				    = 1.0f;
 				cb.blendConstants[3] 				    = 1.0f;
 
-				std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+				std::vector<VkDynamicState, mem::StdAllocator<VkDynamicState>>
+						dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
 				VkPipelineViewportStateCreateInfo vp = {};
 				vp.sType 								= VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

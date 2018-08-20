@@ -182,7 +182,7 @@ namespace Engine
 
 		public:
 
-			static std::vector<VkDeviceMemory> textureImageMemory ;
+			static std::vector<VkDeviceMemory, mem::StdAllocator<VkDeviceMemory>> textureImageMemory ;
 
 			static VkImage createTextureImage(
 					VkPhysicalDevice physicalDevice,
@@ -234,7 +234,7 @@ namespace Engine
 
 		};
 
-		std::vector<VkDeviceMemory> Textures::textureImageMemory;
+		std::vector<VkDeviceMemory, mem::StdAllocator<VkDeviceMemory>> Textures::textureImageMemory;
 	}
 }
 

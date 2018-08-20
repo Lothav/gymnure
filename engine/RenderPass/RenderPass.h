@@ -32,6 +32,16 @@ namespace Engine
 				vkDestroyRenderPass(_sc_params.device, _render_pass, nullptr);
 			}
 
+			void* operator new(std::size_t size)
+			{
+				return mem::Provider::getMemory(size);
+			}
+
+			void operator delete(void* ptr)
+			{
+				// Do not free memory here!
+			}
+
 			void create(std::vector<struct rpAttachments> att_vector)
 			{
 				std::array<VkAttachmentDescription, 2> attachments = {};

@@ -5,6 +5,8 @@
 #ifndef OBSIDIAN2D_DESCRIPTORSET_H
 #define OBSIDIAN2D_DESCRIPTORSET_H
 
+#include <memancpp/Provider.hpp>
+#include <memancpp/Allocator.hpp>
 #include "Descriptors/UniformBuffer.h"
 #include "Descriptors/Textures.h"
 #include "Memory/BufferImage.h"
@@ -40,10 +42,13 @@ namespace Engine
 
         private:
 
-            std::vector<VkDescriptorSetLayoutBinding>   _layout_bindings    = {};
-            std::vector<VkDescriptorSetLayout> 		    _desc_layout        = {};
+            std::vector<VkDescriptorSetLayoutBinding,
+                mem::StdAllocator<
+                    VkDescriptorSetLayoutBinding>>      _layout_bindings    = {};
+            std::vector<VkDescriptorSetLayout,
+                mem::StdAllocator<
+                    VkDescriptorSetLayout>> 		    _desc_layout        = {};
             VkPipelineLayout 						    _pipeline_layout    = nullptr;
-
             Descriptors::UniformBuffer*                 _uniform_buffer     = nullptr;
 
             VkDevice                                    _instance_device    = nullptr;
@@ -60,6 +65,16 @@ namespace Engine
                     vkDestroyDescriptorSetLayout(_instance_device, desc_layout, nullptr);
                 }
                 delete _uniform_buffer;
+            }
+
+            void* operator new(std::size_t size)
+            {
+                return mem::Provider::getMemory(size);
+            }
+
+            void operator delete(void* ptr)
+            {
+                // Do not free memory here!
             }
 
             void create(struct DescriptorSetParams ds_params)
@@ -123,7 +138,7 @@ namespace Engine
 
             void updateDescriptorSet(Texture texture, VkDescriptorSet desc_set)
             {
-                std::vector<VkWriteDescriptorSet> writes = {};
+                std::vector<VkWriteDescriptorSet, mem::StdAllocator<VkWriteDescriptorSet>> writes = {};
 
                 VkWriteDescriptorSet write = {};
                 write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

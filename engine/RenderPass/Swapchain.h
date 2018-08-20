@@ -13,7 +13,7 @@
 
 struct SwapChainParams {
 	std::vector<VkQueueFamilyProperties,
-			mem::Allocator<
+			mem::StdAllocator<
 					VkQueueFamilyProperties>>     	queue_family_props;
 	uint32_t 										queue_family_count;
 	VkSurfaceKHR 									surface;
@@ -78,6 +78,16 @@ namespace Engine
 					}
 				}
 				vkDestroySwapchainKHR(_swap_chain_params.device, _swap_chain, nullptr);
+			}
+
+			void* operator new(std::size_t size)
+			{
+				return mem::Provider::getMemory(size);
+			}
+
+			void operator delete(void* ptr)
+			{
+				// Do not free memory here!
 			}
 
 			uint32_t getImageCount() const

@@ -2,6 +2,7 @@
 #define OBSIDIAN2D_CORE_LAYERS_H
 
 #include <iostream>
+#include <memancpp/Provider.hpp>
 #include "Util/Util.h"
 
 namespace Engine
@@ -28,6 +29,16 @@ namespace Engine
             Layers()
             {
                 this->setGlobalLayerProperties();
+            }
+
+            void* operator new(std::size_t size)
+            {
+                return mem::Provider::getMemory(size);
+            }
+
+            void operator delete(void* ptr)
+            {
+                // Do not free memory here!
             }
 
             std::vector<LayerProperties> getInstanceLayerProps()

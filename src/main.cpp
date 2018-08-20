@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 		while(true) {
 
             auto start = std::chrono::high_resolution_clock::now();
-			if (!gymnure->draw()) break;
+			if(!gymnure->draw()) break;
             auto end = std::chrono::high_resolution_clock::now();
 
             frames 	 += 1;

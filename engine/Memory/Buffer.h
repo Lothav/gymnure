@@ -87,6 +87,16 @@ namespace Engine
 				this->buffer_info.offset = 0;
 				this->buffer_info.buffer = this->buf;
 			}
+
+			void* operator new(std::size_t size)
+			{
+				return mem::Provider::getMemory(size);
+			}
+
+			void operator delete(void* ptr)
+			{
+				// Do not free memory here!
+			}
         };
 	}
 }

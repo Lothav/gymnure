@@ -23,6 +23,16 @@ namespace Engine
 
 			~UniformBuffer() = default;
 
+            void* operator new(std::size_t size)
+			{
+				return mem::Provider::getMemory(size);
+			}
+
+			void operator delete(void* ptr)
+			{
+				// Do not free memory here!
+			}
+
 		private:
 
 			struct  {

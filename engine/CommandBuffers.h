@@ -27,7 +27,6 @@ namespace Engine
     private:
 
         VkCommandBuffer                     _command_buffer{};
-
         struct CommandBuffersData           data_{};
 
     public:
@@ -47,6 +46,16 @@ namespace Engine
         ~CommandBuffers()
         {
             vkFreeCommandBuffers(data_.device, data_.command_pool, 1, &_command_buffer);
+        }
+
+        void* operator new(std::size_t size)
+        {
+            return mem::Provider::getMemory(size);
+        }
+
+        void operator delete(void* ptr)
+        {
+            // Do not free memory here!
         }
 
         void bindGraphicCommandBuffer (

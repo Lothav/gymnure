@@ -46,6 +46,16 @@ namespace Engine
 				}
 			}
 
+			void* operator new(std::size_t size)
+			{
+				return mem::Provider::getMemory(size);
+			}
+
+			void operator delete(void* ptr)
+			{
+				// Do not free memory here!
+			}
+
 			void createFrameBuffer(VkRenderPass render_pass)
 			{
 				VkImageView img_attachments[2];
