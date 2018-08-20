@@ -12,14 +12,16 @@
 #include <vulkan/vulkan.h>
 
 struct SwapChainParams {
-	uint32_t 								queue_family_count;
-	VkSurfaceKHR 							surface;
-	VkPhysicalDevice 						gpu;
-	VkDevice 								device;
-	uint32_t 								width;
-	uint32_t 								height;
-	std::vector<VkQueueFamilyProperties>    queue_family_props;
-	VkPhysicalDeviceMemoryProperties 		memory_props;
+	std::vector<VkQueueFamilyProperties,
+			mem::Allocator<
+					VkQueueFamilyProperties>>     	queue_family_props;
+	uint32_t 										queue_family_count;
+	VkSurfaceKHR 									surface;
+	VkPhysicalDevice 								gpu;
+	VkDevice 										device;
+	uint32_t 										width;
+	uint32_t 										height;
+	VkPhysicalDeviceMemoryProperties 				memory_props;
 };
 
 namespace Engine
@@ -30,14 +32,14 @@ namespace Engine
 
 		private:
 
-			uint32_t 		_image_count{};
-			VkSwapchainKHR  _swap_chain = nullptr;
-			VkQueue 		_graphics_queue{}, _present_queue{};
-			VkFormat 		format;
+			uint32_t 							_image_count{};
+			VkSwapchainKHR  					_swap_chain = nullptr;
+			VkQueue 							_graphics_queue{}, _present_queue{};
+			VkFormat 							format;
 
-			struct SwapChainParams _swap_chain_params 	  = {};
+			struct SwapChainParams 				_swap_chain_params 	  = {};
 
-			std::vector<Memory::BufferImage *> _swap_chain_buffer = {};
+			std::vector<Memory::BufferImage *> 	_swap_chain_buffer = {};
 
 		public:
 
@@ -62,7 +64,7 @@ namespace Engine
 				assert(_swap_chain_images);
 
 				res = vkGetSwapchainImagesKHR(_swap_chain_params.device, _swap_chain, &_image_count, _swap_chain_images);
-				assert( res == VK_SUCCESS );
+				assert(res == VK_SUCCESS);
 
 				createSwapChainBuffer(_swap_chain_images);
 			}

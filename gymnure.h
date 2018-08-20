@@ -21,14 +21,14 @@ public:
 
     Gymnure(unsigned int windowWidth, unsigned int windowHeight) : phong_(nullptr)
     {
-        Memory::Provider::initPool(1*GB);
+        mem::Provider::initPool(1*GB);
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
     }
 
     ~Gymnure()
     {
-        Memory::Provider::destroyPool();
         delete _window;
+        mem::Provider::destroyPool();
     }
 
     void initPhongProgram()

@@ -8,6 +8,7 @@
 #include <GraphicPipeline/GraphicPipeline.h>
 #include <Descriptors/DescriptorSet.h>
 #include <Vertex/VertexBuffer.h>
+#include <memancpp/Provider.hpp>
 
 struct GymnureObjData {
     std::string             path_obj        = "";
@@ -52,7 +53,18 @@ namespace Engine
                 }
             }
 
+            void* operator new (std::size_t size)
+            {
+                return mem::Provider::getMemory(size);
+            }
+
+            void operator delete(void* ptr)
+            {
+                // Do not free memory here!
+            }
+
             virtual void init() = 0;
+
             virtual void addObjData(const GymnureObjData& obj_data) = 0;
         };
     }

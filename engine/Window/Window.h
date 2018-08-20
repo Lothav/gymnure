@@ -8,6 +8,7 @@
 #include "Util/Layers.h"
 #include <Programs/Phong.h>
 #include <Programs/Skybox.h>
+#include <memancpp/Allocator.hpp>
 #include "Descriptors/UniformBuffer.h"
 #include "Memory/Memory.h"
 #include "Descriptors/Textures.h"
@@ -112,9 +113,11 @@ namespace Engine
             std::vector<VkPhysicalDevice> 			 gpu_vector;
             SyncPrimitives::SyncPrimitives* 		 sync_primitives{};
             VkPhysicalDeviceMemoryProperties 		 memory_properties{};
-            std::vector<VkQueueFamilyProperties> 	 queue_family_props;
             VkCommandPool 							 graphic_command_pool{};
             CommandBuffers*                          command_buffer = nullptr;
+            std::vector<VkQueueFamilyProperties,
+                mem::Allocator<
+                    VkQueueFamilyProperties>>        queue_family_props;
 
         protected:
 
