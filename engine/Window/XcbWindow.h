@@ -30,7 +30,6 @@ namespace Engine
 				this->width  = width;
 				this->height = height;
 
-
 			    this->createApplication();
                 this->setConnection();
                 this->createWindow();

@@ -4,6 +4,9 @@
 #include <Window/XcbWindow.h>
 #include <Programs/Skybox.h>
 #include "GraphicPipeline/GraphicPipeline.h"
+#include <memancpp/Provider.hpp>
+
+#define GB (1024 * 1024 * 1024)
 
 class Gymnure
 {
@@ -18,11 +21,13 @@ public:
 
     Gymnure(unsigned int windowWidth, unsigned int windowHeight) : phong_(nullptr)
     {
+        Memory::Provider::initPool(1*GB);
         _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
     }
 
     ~Gymnure()
     {
+        Memory::Provider::destroyPool();
         delete _window;
     }
 

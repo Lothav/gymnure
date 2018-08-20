@@ -1,0 +1,3 @@
+[submodule "external/memancpp"]
+	path = external/memancpp
+	url = git@github.com:Luiz0tavio/memancpp.git
