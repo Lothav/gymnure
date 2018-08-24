@@ -10,7 +10,6 @@
 
 #include "stb/stb_image.h"
 #include <vector>
-#include <vulkan/vulkan.h>
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 

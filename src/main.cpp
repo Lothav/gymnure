@@ -1,3 +1,4 @@
+
 #include <memory>
 #include <chrono>
 #include "../gymnure.h"
@@ -14,8 +15,8 @@ int main(int argc, char** argv) {
 		gymnure->initSkyboxProgram();
 
         auto room2 = GymnureObjData{};
-		room2.path_texture 	= "../../assets/room2.png";
-		room2.path_obj 		= "../../assets/room2.obj";
+		room2.path_texture 	= "../assets/room2.png";
+		room2.path_obj 		= "../assets/room2.obj";
         gymnure->addPhongData(room2);
 
 		//auto chalet = GymnureData{};
@@ -24,9 +25,9 @@ int main(int argc, char** argv) {
 		//gymnure->addObject(chalet);
 
 		auto cube = GymnureObjData{};
-		cube.path_obj 		= "../../assets/cube.obj";
-		cube.path_texture 	= "../../assets/sky.jpg";
-		cube.obj_mtl 		= std::string("../../assets/cube.mtl").data();
+		cube.path_obj 		= "../assets/cube.obj";
+		cube.path_texture 	= "../assets/sky.jpg";
+		cube.obj_mtl 		= const_cast<char*>(std::string("../assets/cube.mtl").data());
 		gymnure->addSkyboxData(cube);
 
 		gymnure->prepare();

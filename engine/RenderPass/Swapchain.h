@@ -64,7 +64,7 @@ namespace Engine
 				assert(_swap_chain_images);
 
 				res = vkGetSwapchainImagesKHR(_swap_chain_params.device, _swap_chain, &_image_count, _swap_chain_images);
-				assert(res == VK_SUCCESS);
+				assert(res == VK_SUCCESS && _image_count > 0);
 
 				createSwapChainBuffer(_swap_chain_images);
 			}

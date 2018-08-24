@@ -36,11 +36,11 @@ namespace Engine
             {
                 auto vert = Engine::GraphicPipeline::Shader{};
                 vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                vert.path = "../../shaders/phong.vert.spv";
+                vert.path = "../shaders/phong.vert.spv";
 
                 auto frag = Engine::GraphicPipeline::Shader{};
                 frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                frag.path = "../../shaders/phong.frag.spv";
+                frag.path = "../shaders/phong.frag.spv";
 
                 descriptor_layout = new Descriptors::DescriptorSet(ds_params_.device, Descriptors::Type::GRAPHIC);
                 graphic_pipeline  = new GraphicPipeline::GraphicPipeline(ds_params_.device, {vert, frag});

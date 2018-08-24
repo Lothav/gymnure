@@ -120,7 +120,7 @@ namespace Engine
             u_int32_t                                queueGraphicFamilyIndex = UINT_MAX;
             u_int32_t                                queueComputeFamilyIndex = UINT_MAX;
             RenderPass::RenderPass* 				 render_pass{};
-            std::vector<VkPhysicalDevice> 			 gpu_vector;
+            VkPhysicalDevice                         gpu{};
             SyncPrimitives::SyncPrimitives* 		 sync_primitives{};
             VkPhysicalDeviceMemoryProperties 		 memory_properties{};
             VkCommandPool 							 graphic_command_pool{};
@@ -141,7 +141,7 @@ namespace Engine
 
                 // Init Render Pass
                 struct SwapChainParams sc_params = {};
-                sc_params.gpu 					= gpu_vector[0];
+                sc_params.gpu 					= gpu;
                 sc_params.width 				= width;
                 sc_params.height 				= height;
                 sc_params.device 				= device;
@@ -184,7 +184,8 @@ namespace Engine
 
                 _instance_extension_names.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
                 //@TODO extension for win32 VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-                _instance_extension_names.push_back("VK_KHR_xcb_surface");
+                _instance_extension_names.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+                _instance_extension_names.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 
                 VkApplicationInfo _app_info = {};
                 _app_info.sType 				= VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -196,6 +197,7 @@ namespace Engine
                 _app_info.apiVersion 			= VK_API_VERSION_1_0;
 
                 VkInstanceCreateInfo _inst_info = {};
+                memset(&_inst_info, 0, sizeof(VkInstanceCreateInfo));
                 _inst_info.sType 					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
                 _inst_info.pNext 					= nullptr;
                 _inst_info.flags 					= 0;
@@ -208,6 +210,7 @@ namespace Engine
                 VkResult res = vkCreateInstance(&_inst_info, nullptr, &instance);
                 assert(res == VK_SUCCESS);
 
+                std::vector<VkPhysicalDevice> gpu_vector;
                 res = vkEnumeratePhysicalDevices(instance, &queue_family_count, nullptr);
                 assert(res == VK_SUCCESS && queue_family_count);
                 gpu_vector.resize(queue_family_count);
@@ -223,12 +226,20 @@ namespace Engine
 
                 vkGetPhysicalDeviceMemoryProperties(gpu_vector[0], &memory_properties);
 
+                std::cout << "========================================================" << std::endl;
                 std::cout << "Devices found:" << std::endl;
-                for (auto &gpu_device : gpu_vector) {
+                for (uint i = 0; i < gpu_vector.size(); i++) {
                     VkPhysicalDeviceProperties device_properties;
-                    vkGetPhysicalDeviceProperties(gpu_device, &device_properties);
-                    std::cout << "\t" << device_properties.deviceName << std::endl;
+                    vkGetPhysicalDeviceProperties(gpu_vector[i], &device_properties);
+                    std::cout << "\tDevice[" << i << "]: " << device_properties.deviceName << std::endl;
+                    std::cout << "\t\tType: " << this->physicalDeviceTypeString(device_properties.deviceType) << std::endl;
+                    std::cout << "\t\tAPI: " << (device_properties.apiVersion >> 22) << "." << ((device_properties.apiVersion >> 12) & 0x3ff) << "." << (device_properties.apiVersion & 0xfff) << std::endl;
                 }
+                uint gpu_index = 0;
+                std::cout << "Using Device[" << std::to_string(gpu_index) << "]" << std::endl;
+                std::cout << "========================================================" << std::endl;
+
+                gpu = gpu_vector[gpu_index];
 
                 bool foundGraphic = false;
                 bool foundCompute = false;
@@ -280,7 +291,7 @@ namespace Engine
                 device_info.ppEnabledLayerNames 	= nullptr;
                 device_info.pEnabledFeatures 		= nullptr;
 
-                res = vkCreateDevice(gpu_vector[0], &device_info, nullptr, &device);
+                res = vkCreateDevice(gpu, &device_info, nullptr, &device);
                 assert(res == VK_SUCCESS);
 
                 VkCommandPoolCreateInfo cmd_pool_info = {};
@@ -308,7 +319,7 @@ namespace Engine
                 ds_params.height 				    = height;
                 ds_params.memory_properties		    = memory_properties;
                 ds_params.command_pool			    = graphic_command_pool;
-                ds_params.gpu					    = gpu_vector[0];
+                ds_params.gpu					    = gpu;
                 ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.render_pass               = render_pass->getRenderPass();
                 ds_params.device                    = device;
@@ -328,7 +339,7 @@ namespace Engine
                 ds_params.height 				    = height;
                 ds_params.memory_properties		    = memory_properties;
                 ds_params.command_pool			    = graphic_command_pool;
-                ds_params.gpu					    = gpu_vector[0];
+                ds_params.gpu					    = gpu;
                 ds_params.graphic_queue			    = render_pass->getSwapChain()->getGraphicQueue();
                 ds_params.render_pass               = render_pass->getRenderPass();
                 ds_params.device                    = device;

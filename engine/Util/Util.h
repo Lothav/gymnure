@@ -12,14 +12,13 @@
 #define U_ASSERT_ONLY
 #endif
 
-#include <vulkan/vulkan.h>
 #include <xcb/xcb.h>
 #include <vector>
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <fstream>
 #include <cstring>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 struct VertexData {
@@ -81,6 +80,20 @@ namespace Engine
 				viewport.x 			= 0;
 				viewport.y 			= 0;
 				vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
+			}
+
+			std::string physicalDeviceTypeString(VkPhysicalDeviceType type)
+			{
+#define CASE_STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
+				switch (type)
+				{
+					CASE_STR(OTHER);
+					CASE_STR(INTEGRATED_GPU);
+					CASE_STR(DISCRETE_GPU);
+					CASE_STR(VIRTUAL_GPU);
+					default: return "UNKNOWN_DEVICE_TYPE";
+				}
+#undef CASE_STR
 			}
 
 			void init_scissors(VkCommandBuffer cmd_buffer)
