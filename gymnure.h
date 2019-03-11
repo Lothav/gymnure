@@ -1,10 +1,10 @@
 #ifndef GYMNURE_H
 #define GYMNURE_H
 
-#include <Window/XcbWindow.h>
 #include <Programs/Skybox.h>
 #include "GraphicPipeline/GraphicPipeline.h"
-#include <memancpp/Provider.hpp>
+#include <Provider.hpp>
+#include <Window/SDLWindow.hpp>
 
 #define GB (1024 * 1024 * 1024)
 
@@ -22,7 +22,8 @@ public:
     Gymnure(unsigned int windowWidth, unsigned int windowHeight) : phong_(nullptr)
     {
         mem::Provider::initPool(1*GB);
-        _window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
+        //_window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
+        _window = new Engine::Window::SDLWindow(windowWidth, windowHeight);
     }
 
     ~Gymnure()
