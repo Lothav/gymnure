@@ -50,9 +50,28 @@ namespace Engine
 				VkResult res;
 				VkImage* _swap_chain_images = nullptr;
 
-				format = getSurfaceFormatSupported();
+                // Get supported format
+                {
+                    uint32_t formatCount;
 
-				VkSwapchainCreateInfoKHR swapChainCI = getSwapChainCI();
+                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, nullptr);
+                    assert(res == VK_SUCCESS);
+                    auto *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
+                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, surfFormats);
+                    assert(res == VK_SUCCESS);
+                    // If the format list includes just one entry of VK_FORMAT_UNDEFINED,
+                    // the surface has no preferred format.  Otherwise, at least one
+                    // supported format will be returned.
+                    if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
+                        format = VK_FORMAT_B8G8R8A8_UNORM;
+                    } else {
+                        assert(formatCount >= 1);
+                        format = surfFormats[0].format;
+                    }
+                    free(surfFormats);
+                }
+
+                VkSwapchainCreateInfoKHR swapChainCI = getSwapChainCI();
 
 				res = vkCreateSwapchainKHR(_swap_chain_params.device, &swapChainCI, nullptr, &_swap_chain);
 				assert(res == VK_SUCCESS);
@@ -135,32 +154,6 @@ namespace Engine
 
 		private:
 
-
-			VkFormat getSurfaceFormatSupported() const
-			{
-				VkResult res;
-				uint32_t formatCount;
-				VkFormat format;
-
-				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, nullptr);
-				assert(res == VK_SUCCESS);
-				auto *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-				res = vkGetPhysicalDeviceSurfaceFormatsKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &formatCount, surfFormats);
-				assert(res == VK_SUCCESS);
-				// If the format list includes just one entry of VK_FORMAT_UNDEFINED,
-				// the surface has no preferred format.  Otherwise, at least one
-				// supported format will be returned.
-				if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
-					format = VK_FORMAT_B8G8R8A8_UNORM;
-				} else {
-					assert(formatCount >= 1);
-					format = surfFormats[0].format;
-				}
-				free(surfFormats);
-
-				return format;
-			}
-
 			VkSwapchainCreateInfoKHR getSwapChainCI()
 			{
 				VkResult res;
@@ -207,13 +200,11 @@ namespace Engine
 					exit(-1);
 				}
 
-
 				VkCommandBufferBeginInfo cmd_buf_info = {};
 				cmd_buf_info.sType 							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 				cmd_buf_info.pNext 							= nullptr;
 				cmd_buf_info.flags 							= 0;
 				cmd_buf_info.pInheritanceInfo 				= nullptr;
-
 
 				vkGetDeviceQueue(_swap_chain_params.device, _graphics_queue_family_index, 0, &_graphics_queue);
 				if (_graphics_queue_family_index == _present_queue_family_index) {
@@ -223,7 +214,6 @@ namespace Engine
 				}
 
 				VkSurfaceCapabilitiesKHR surfCapabilities;
-
 				res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_swap_chain_params.gpu, _swap_chain_params.surface, &surfCapabilities);
 				assert(res == VK_SUCCESS);
 

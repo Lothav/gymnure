@@ -53,13 +53,22 @@ namespace Engine
                 this->_mem_props    = memory_pro;
                 this->format        = img_props.format;
 
-                if(images == nullptr) {
-                    createImage();
-                } else {
-                    image = *images;
-                }
+                image = images == nullptr ? createImage() : *images;
 
-                createImageView();
+                // Create Imageview
+                VkImageViewCreateInfo viewInfo = {};
+                viewInfo.sType 								= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+                viewInfo.image 								= this->image;
+                viewInfo.viewType 							= VK_IMAGE_VIEW_TYPE_2D;
+                viewInfo.format 							= this->format;
+                viewInfo.subresourceRange.aspectMask 		= this->_img_pros.aspectMask;
+                viewInfo.subresourceRange.baseMipLevel 		= 0;
+                viewInfo.subresourceRange.levelCount 		= 1;
+                viewInfo.subresourceRange.baseArrayLayer 	= 0;
+                viewInfo.subresourceRange.layerCount 		= 1;
+
+                VkResult res = vkCreateImageView(this->_mem_props.device, &viewInfo, nullptr, &this->view);
+                assert(res == VK_SUCCESS);
             }
 
             void* operator new(std::size_t size)
@@ -74,28 +83,10 @@ namespace Engine
 
         private:
 
-            void createImageView ()
+            VkImage createImage()
             {
                 VkResult res;
-
-                VkImageViewCreateInfo viewInfo = {};
-                viewInfo.sType 								= VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-                viewInfo.image 								= this->image;
-                viewInfo.viewType 							= VK_IMAGE_VIEW_TYPE_2D;
-                viewInfo.format 							= this->format;
-                viewInfo.subresourceRange.aspectMask 		= this->_img_pros.aspectMask;
-                viewInfo.subresourceRange.baseMipLevel 		= 0;
-                viewInfo.subresourceRange.levelCount 		= 1;
-                viewInfo.subresourceRange.baseArrayLayer 	= 0;
-                viewInfo.subresourceRange.layerCount 		= 1;
-
-                res = vkCreateImageView(this->_mem_props.device, &viewInfo, nullptr, &this->view);
-                assert(res == VK_SUCCESS);
-            }
-
-            void createImage()
-            {
-                VkResult res;
+                VkImage image;
 
                 // Create Image
                 VkImageCreateInfo imageInfo = {};
@@ -121,26 +112,26 @@ namespace Engine
                 vkGetImageMemoryRequirements(this->_mem_props.device, this->image, &mem_reqs);
 
                 VkMemoryAllocateInfo mem_alloc = {};
-                mem_alloc.sType				= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-                mem_alloc.pNext				= nullptr;
-                mem_alloc.allocationSize 	= 0;
-                mem_alloc.memoryTypeIndex 	= 0;
-
-                mem_alloc.allocationSize = mem_reqs.size;
+                mem_alloc.sType			    = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                mem_alloc.pNext			    = nullptr;
+                mem_alloc.allocationSize    = 0;
+                mem_alloc.memoryTypeIndex   = 0;
+                mem_alloc.allocationSize    = mem_reqs.size;
 
                 bool pass = Memory::findMemoryType(
-                        _mem_props.memory_props,
-                        mem_reqs.memoryTypeBits,
-                        _mem_props.props_flags,
-                        &mem_alloc.memoryTypeIndex
+                    _mem_props.memory_props, mem_reqs.memoryTypeBits,
+                    _mem_props.props_flags, &mem_alloc.memoryTypeIndex
                 );
                 assert(pass);
+
                 res = vkAllocateMemory(_mem_props.device, &mem_alloc, nullptr, &mem);
                 assert(res == VK_SUCCESS);
 
                 // Bind Image to Memory
                 res = vkBindImageMemory(_mem_props.device, image, mem, 0);
                 assert(res == VK_SUCCESS);
+
+                return image;
             }
         };
     }
