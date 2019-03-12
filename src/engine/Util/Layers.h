@@ -14,7 +14,7 @@ namespace Engine
             std::vector<VkExtensionProperties> extensions = {};
         } LayerProperties;
 
-        class Layers : public Util
+        class Layers
         {
 
         private:

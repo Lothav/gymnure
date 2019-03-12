@@ -55,16 +55,7 @@ namespace Engine
 		{
 		public:
 
-			u_int32_t						width;
-			u_int32_t						height;
-
-			Util(u_int32_t _width, u_int32_t _height)
-			{
-				width  = _width;
-				height = _height;
-			}
-
-			Util() {}
+			Util() = delete;
 
 			void* operator new(std::size_t size)
 			{
@@ -76,7 +67,7 @@ namespace Engine
 				// Do not free memory here!
 			}
 
-			void init_viewports(VkCommandBuffer cmd_buffer)
+			static void init_viewports(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
 			{
 				VkViewport viewport;
 				viewport.height 	= static_cast<float>(height);
@@ -102,7 +93,7 @@ namespace Engine
 				#undef CASE_STR
 			}
 
-			void init_scissors(VkCommandBuffer cmd_buffer)
+			static void init_scissors(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
 			{
 				VkRect2D scissor;
 				scissor.extent.width 	= (uint32_t)width;
@@ -112,7 +103,7 @@ namespace Engine
 				vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
 			}
 
-			VkShaderModule loadSPIRVShader(const std::string& filename, VkDevice device)
+			static VkShaderModule loadSPIRVShader(const std::string& filename, VkDevice device)
 			{
 				long shaderSize;
 				char* shaderCode = nullptr;

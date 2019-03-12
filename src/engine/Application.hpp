@@ -176,15 +176,17 @@ namespace Engine
 
             for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
 
+            auto command_buffers = command_buffer->getCommandBuffers();
+
             VkSubmitInfo submit_info = {};
             submit_info.pNext                     = nullptr;
             submit_info.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
             submit_info.waitSemaphoreCount        = 1;
             submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
             submit_info.pWaitDstStageMask         = &pipe_stage_flags;
-            submit_info.commandBufferCount        = static_cast<uint32_t>(1);
-            submit_info.pCommandBuffers           = command_buffer->getCommandBufferPtr();
-            submit_info.signalSemaphoreCount      = 1;
+            submit_info.commandBufferCount        = static_cast<uint32_t>(command_buffers.size());
+            submit_info.pCommandBuffers           = command_buffers.data();
+            submit_info.signalSemaphoreCount      = static_cast<uint32_t>(1);
             submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
 
             res = vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *sync_primitives->getFence(current_buffer_));
@@ -216,11 +218,6 @@ namespace Engine
 
             res = vkDeviceWaitIdle(ApplicationData::data.device);
             assert(res == VK_SUCCESS);
-        }
-
-        static RenderPass::RenderPass* getRenderPass()
-        {
-            return render_pass;
         }
 
         static void prepare()

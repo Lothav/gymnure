@@ -19,7 +19,7 @@ namespace Engine
 			VkShaderStageFlagBits 	type;
 		};
 
-		class GraphicPipeline: public Util::Util
+		class GraphicPipeline
 		{
 
 		private:
@@ -44,7 +44,7 @@ namespace Engine
 				for (int i = 0; i < shaders.size(); ++i) {
 					_shader_stages[i].sType 			= VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 					_shader_stages[i].stage 			= shaders[i].type;
-					_shader_stages[i].module 			= loadSPIRVShader(shaders[i].path, _instance_device);
+					_shader_stages[i].module 			= Util::Util::loadSPIRVShader(shaders[i].path, _instance_device);
 					_shader_stages[i].pName 			= "main";
 					assert(_shader_stages[0].module != VK_NULL_HANDLE);
 				}
