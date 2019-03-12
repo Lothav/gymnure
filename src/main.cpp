@@ -1,4 +1,3 @@
-
 #include <memory>
 #include <chrono>
 #include "../gymnure.h"
@@ -11,13 +10,13 @@ int main(int argc, char** argv)
 	{
 		auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
-        gymnure->initPhongProgram();
-		gymnure->initSkyboxProgram();
+        auto phong_id = gymnure->initPhongProgram();
+		auto skybox_id = gymnure->initSkyboxProgram();
 
         auto room2 = GymnureObjData{};
 		room2.path_texture 	= "../assets/room2.png";
 		room2.path_obj 		= "../assets/room2.obj";
-        gymnure->addPhongData(room2);
+        gymnure->addObjData(phong_id, room2);
 
 		//auto chalet = GymnureData{};
 		//chalet.path_texture = "../../assets/chalet.jpg";
@@ -28,7 +27,7 @@ int main(int argc, char** argv)
 		cube.path_obj 		= "../assets/cube.obj";
 		cube.path_texture 	= "../assets/sky.jpg";
 		cube.obj_mtl 		= const_cast<char*>(std::string("../assets/cube.mtl").data());
-		gymnure->addSkyboxData(cube);
+		gymnure->addObjData(skybox_id, cube);
 
 		gymnure->prepare();
 

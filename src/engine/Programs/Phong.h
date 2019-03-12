@@ -5,7 +5,6 @@
 #ifndef GYMNURE_PHONG_H
 #define GYMNURE_PHONG_H
 
-#include <utility>
 #include "Program.h"
 
 namespace Engine

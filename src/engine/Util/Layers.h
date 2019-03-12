@@ -134,7 +134,6 @@ namespace Engine
 
         };
 
-        std::vector<LayerProperties> Layers::_instanceLayerProps = {};
     }
 }
 #endif //OBSIDIAN2D_CORE_LAYERS_H

@@ -24,6 +24,8 @@
 #include <cstring>
 #include <cassert>
 #include <iostream>
+
+#include <memancpp/Provider.hpp>
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 

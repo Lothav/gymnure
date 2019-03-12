@@ -1,9 +1,6 @@
 #ifndef GYMNURE_H
 #define GYMNURE_H
 
-#include <Programs/Skybox.h>
-#include "GraphicPipeline/GraphicPipeline.h"
-#include <Provider.hpp>
 #include <Window/SDLWindow.hpp>
 #include <Application.hpp>
 #include <Util/Debug.hpp>
@@ -16,19 +13,16 @@ private:
 
     Engine::Window::SDLWindow* window_;
 
-    Engine::Programs::Phong*  phong_;
-    Engine::Programs::Skybox* skybox_{};
-
 public:
 
-    Gymnure(unsigned int windowWidth, unsigned int windowHeight) : phong_(nullptr)
+    Gymnure(unsigned int windowWidth, unsigned int windowHeight)
     {
         mem::Provider::initPool(1*GB);
         window_ = new Engine::Window::SDLWindow(windowWidth, windowHeight);
         Engine::Application::create(window_->getInstanceExtensionNames());
-        #ifdef DEBUG
+    #ifdef DEBUG
         Engine::Debug::init();
-        #endif
+    #endif
         window_->createSurface();
         Engine::Application::setupSurface(windowWidth, windowHeight);
     }
@@ -39,44 +33,19 @@ public:
         mem::Provider::destroyPool();
     }
 
-    void initPhongProgram()
+    uint initPhongProgram()
     {
-        if(phong_ != nullptr) {
-            std::cerr << "Phong Program already loaded!" << std::endl;
-            return;
-        }
-
-        phong_ = Engine::Application::createPhongProgram();
+        return Engine::Application::createPhongProgram();
     }
 
-    void addPhongData(const GymnureObjData& gymnure_data)
+    uint initSkyboxProgram()
     {
-        if(phong_ == nullptr) {
-            std::cerr << "Phong Program must be loaded first!" << std::endl;
-            return;
-        }
-
-        phong_->addObjData(gymnure_data);
+        return Engine::Application::createSkyboxProgram();
     }
 
-    void initSkyboxProgram()
+    void addObjData(uint program_id, const GymnureObjData& gymnure_data)
     {
-        if(skybox_ != nullptr) {
-            std::cerr << "Skybox Program already loaded!" << std::endl;
-            return;
-        }
-
-        skybox_ = Engine::Application::createSkyboxProgram();
-    }
-
-    void addSkyboxData(const GymnureObjData& gymnure_data)
-    {
-        if(skybox_ == nullptr) {
-            std::cerr << "Skybox Program must be loaded first!" << std::endl;
-            return;
-        }
-
-        skybox_->addObjData(gymnure_data);
+        Engine::Application::addObjData(program_id, gymnure_data);
     }
 
     void prepare()

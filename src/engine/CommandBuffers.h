@@ -13,7 +13,6 @@
 #include "Descriptors/DescriptorSet.h"
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "Vertex/VertexBuffer.h"
-#include <ApplicationData.hpp>
 #include <memory>
 
 namespace Engine
@@ -64,8 +63,7 @@ namespace Engine
                 std::vector<Programs::Program*>  programs,
                 RenderPass::RenderPass* 	     render_pass,
                 uint32_t 		                 width,
-                uint32_t 		                 height,
-                SyncPrimitives::SyncPrimitives*  sync_primitives
+                uint32_t 		                 height
         ) {
             VkResult res;
             const VkDeviceSize offsets[1] = {0};

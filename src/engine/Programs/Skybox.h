@@ -5,7 +5,6 @@
 #ifndef GYMNURE_SKYBOX_H
 #define GYMNURE_SKYBOX_H
 
-#include <utility>
 #include "Program.h"
 
 namespace Engine

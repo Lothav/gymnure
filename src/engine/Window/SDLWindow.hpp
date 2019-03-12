@@ -4,7 +4,7 @@
 
 #include <SDL.h>
 #include <SDL_vulkan.h>
-#include <Programs/Phong.h>
+#include <ApplicationData.hpp>
 
 namespace Engine
 {
@@ -65,7 +65,7 @@ namespace Engine
                 if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data.instance, &ApplicationData::data.surface) == SDL_bool::SDL_FALSE)
                 {
                     std::cerr << "Failed to create Vulkan surface." << std::endl;
-                    assert(false);
+                    //assert(false);
                 }
             }
 

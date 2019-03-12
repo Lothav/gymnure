@@ -11,7 +11,8 @@
 #include <memancpp/Provider.hpp>
 #include <ApplicationData.hpp>
 
-struct GymnureObjData {
+struct GymnureObjData
+{
     std::string             path_obj        = "";
     std::string             path_texture    = "";
     std::vector<VertexData> vertex_data     = {};
@@ -22,7 +23,8 @@ namespace Engine
 {
     namespace Programs
     {
-        struct ProgramData {
+        struct ProgramData
+        {
             Descriptors::Texture  texture         = {};
             Vertex::VertexBuffer* vertex_buffer   = nullptr;
             VkDescriptorPool      descriptor_pool = nullptr;
@@ -37,7 +39,7 @@ namespace Engine
             Descriptors::DescriptorSet*         descriptor_set   = nullptr;
             std::vector<ProgramData*>           data             = {};
             GraphicPipeline::GraphicPipeline*   graphic_pipeline = nullptr;
-            VkQueue                             queue_;
+            VkQueue                             queue_{};
 
             ~Program()
             {
