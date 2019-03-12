@@ -4,6 +4,6 @@ namespace Engine
 {
     namespace Util
     {
-        std::vector<LayerProperties> Layers::_instanceLayerProps = {};
+        std::vector<LayerProperties> Layers::instanceLayerProps_ = {};
     }
 }

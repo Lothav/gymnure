@@ -21,25 +21,7 @@ namespace Engine
 
         public:
 
-            Layers()
-            {
-                this->setGlobalLayerProperties();
-            }
-
-            void* operator new(std::size_t size)
-            {
-                return mem::Provider::getMemory(size);
-            }
-
-            void operator delete(void* ptr)
-            {
-                // Do not free memory here!
-            }
-
-            std::vector<LayerProperties> getInstanceLayerProps()
-            {
-                return _instanceLayerProps;
-            }
+            Layers() = delete;
 
             static std::vector<const char*> getLayerNames()
             {
@@ -55,9 +37,11 @@ namespace Engine
                     "VK_LAYER_LUNARG_monitor"
                 };
 
+                setGlobalLayerProperties();
+
                 std::cout << "Layers available:" << std::endl;
                 std::vector<const char *> _layer_names;
-                for(auto i : _instanceLayerProps)
+                for(auto i : instanceLayerProps_)
                 {
                     std::cout << i.properties.layerName << std::endl;
                     for(auto j : DESIRED_LAYERS)
@@ -79,9 +63,9 @@ namespace Engine
 
         private:
 
-            static std::vector<LayerProperties> _instanceLayerProps;
+            static std::vector<LayerProperties> instanceLayerProps_;
 
-            VkResult setGlobalLayerProperties()
+            static VkResult setGlobalLayerProperties()
             {
                 uint32_t instance_layer_count;
                 VkLayerProperties *vk_props = nullptr;
@@ -95,13 +79,13 @@ namespace Engine
                     res = vkEnumerateInstanceLayerProperties(&instance_layer_count, vk_props);
                 } while (res == VK_INCOMPLETE);
 
-                _instanceLayerProps.clear();
+                instanceLayerProps_.clear();
                 for (uint32_t i = 0; i < instance_layer_count; i++) {
                     LayerProperties layer_props;
                     layer_props.properties = vk_props[i];
-                    res = this->setGlobalExtensionProperties(layer_props);
+                    res = setGlobalExtensionProperties(layer_props);
                     if (res) return res;
-                    _instanceLayerProps.push_back(layer_props);
+                    instanceLayerProps_.push_back(layer_props);
                 }
 
                 free(vk_props);
@@ -111,7 +95,7 @@ namespace Engine
             }
 
 
-            VkResult setGlobalExtensionProperties(LayerProperties &layer_props)
+            static VkResult setGlobalExtensionProperties(LayerProperties &layer_props)
             {
                 VkExtensionProperties *instance_extensions;
                 uint32_t instance_extension_count;

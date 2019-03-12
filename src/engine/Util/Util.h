@@ -59,16 +59,6 @@ namespace Engine
 
 			Util() = delete;
 
-			void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
-
 			static void init_viewports(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
 			{
 				VkViewport viewport;
@@ -78,6 +68,7 @@ namespace Engine
 				viewport.maxDepth 	= 1.0f;
 				viewport.x 			= 0;
 				viewport.y 			= 0;
+
 				vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
 			}
 
@@ -129,7 +120,7 @@ namespace Engine
 					// Create a new shader module that will be used for pipeline creation
 					VkShaderModuleCreateInfo moduleCreateInfo{};
 					moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-					moduleCreateInfo.codeSize = shaderSize;
+					moduleCreateInfo.codeSize = static_cast<size_t>(shaderSize);
 					moduleCreateInfo.pCode = (uint32_t*)shaderCode;
 
 					VkShaderModule shaderModule;
