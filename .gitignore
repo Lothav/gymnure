@@ -35,7 +35,7 @@ build
 cmake-build-debug/
 .vscode
 
-shaders/*.spv
+assets/shaders/*.spv
 
 *.swp
 external/memancpp

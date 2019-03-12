@@ -6,6 +6,7 @@
 #include <Provider.hpp>
 #include <Window/SDLWindow.hpp>
 #include <Application.hpp>
+#include <Util/Debug.hpp>
 
 #define GB (1024 * 1024 * 1024)
 
@@ -25,6 +26,9 @@ public:
         mem::Provider::initPool(1*GB);
         window_ = new Engine::Window::SDLWindow(windowWidth, windowHeight);
         Engine::Application::create(window_->getInstanceExtensionNames());
+        #ifdef DEBUG
+        Engine::Debug::init();
+        #endif
         window_->createSurface();
         Engine::Application::setupSurface(windowWidth, windowHeight);
     }

@@ -37,7 +37,5 @@ namespace Engine
             static Data data;
     };
 
-    Data ApplicationData::data = {};
-
 }
 #endif //GYMNURE_APPLICATIONDATA_HPP

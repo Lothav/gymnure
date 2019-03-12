@@ -96,11 +96,13 @@ namespace Engine
             res = vkBeginCommandBuffer(_command_buffer, &cmd_buf_info);
             assert(res == VK_SUCCESS);
 
-            for(uint32_t i = 0; i < render_pass->getSwapChain()->getImageCount(); i++)
-            {
-                auto frame_buffers = render_pass->getFrameBuffers();
-                if(frame_buffers.size() <= i) assert(false);
+            auto frame_buffers = render_pass->getFrameBuffers();
+            auto image_count = render_pass->getSwapChain()->getImageCount();
 
+            if(frame_buffers.size() != image_count) assert(false);
+
+            for(uint32_t i = 0; i < image_count; i++)
+            {
                 rp_begin.framebuffer = frame_buffers[i];
                 vkCmdBeginRenderPass(_command_buffer, &rp_begin, VK_SUBPASS_CONTENTS_INLINE);
 

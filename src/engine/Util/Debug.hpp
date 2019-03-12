@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace vkn
+namespace Engine
 {
     class Debug
     {
