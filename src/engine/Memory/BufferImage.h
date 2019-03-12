@@ -5,6 +5,7 @@
 #ifndef OBSIDIAN2D_BUFFERIMAGE_H
 #define OBSIDIAN2D_BUFFERIMAGE_H
 
+#include <ApplicationData.hpp>
 #include "Memory/Memory.h"
 
 struct ImageProps {
@@ -19,7 +20,6 @@ struct ImageProps {
 struct MemoryProps {
     VkMemoryPropertyFlags props_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     VkPhysicalDeviceMemoryProperties memory_props{};
-    VkDevice device{};
 };
 
 namespace Engine
@@ -42,9 +42,11 @@ namespace Engine
 
             ~BufferImage()
             {
-                if(image != nullptr) vkDestroyImage(_mem_props.device, image, nullptr);
-                if(view  != nullptr) vkDestroyImageView(_mem_props.device, view, nullptr);
-                if(mem   != nullptr) vkFreeMemory(_mem_props.device, mem, nullptr);
+                auto device = ApplicationData::data.device;
+
+                if(image != nullptr) vkDestroyImage(device, image, nullptr);
+                if(view  != nullptr) vkDestroyImageView(device, view, nullptr);
+                if(mem   != nullptr) vkFreeMemory(device, mem, nullptr);
             }
 
             BufferImage(struct MemoryProps memory_pro, struct ImageProps img_props, VkImage* images = nullptr)
@@ -67,8 +69,13 @@ namespace Engine
                 viewInfo.subresourceRange.baseArrayLayer 	= 0;
                 viewInfo.subresourceRange.layerCount 		= 1;
 
-                VkResult res = vkCreateImageView(this->_mem_props.device, &viewInfo, nullptr, &this->view);
+                VkResult res = vkCreateImageView(ApplicationData::data.device, &viewInfo, nullptr, &this->view);
                 assert(res == VK_SUCCESS);
+            }
+
+            explicit BufferImage(struct ImageProps img_props, VkImage* images = nullptr)
+            {
+                BufferImage({}, img_props, images);
             }
 
             void* operator new(std::size_t size)
@@ -104,12 +111,14 @@ namespace Engine
                 imageInfo.samples 					 = VK_SAMPLE_COUNT_1_BIT;
                 imageInfo.sharingMode 				 = VK_SHARING_MODE_EXCLUSIVE;
 
-                res = vkCreateImage(_mem_props.device, &imageInfo, nullptr, &image);
+                auto device = ApplicationData::data.device;
+
+                res = vkCreateImage(device, &imageInfo, nullptr, &image);
                 assert(res == VK_SUCCESS);
 
                 // Allocate Image Memory
                 VkMemoryRequirements mem_reqs;
-                vkGetImageMemoryRequirements(this->_mem_props.device, this->image, &mem_reqs);
+                vkGetImageMemoryRequirements(device, image, &mem_reqs);
 
                 VkMemoryAllocateInfo mem_alloc = {};
                 mem_alloc.sType			    = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -124,11 +133,11 @@ namespace Engine
                 );
                 assert(pass);
 
-                res = vkAllocateMemory(_mem_props.device, &mem_alloc, nullptr, &mem);
+                res = vkAllocateMemory(device, &mem_alloc, nullptr, &mem);
                 assert(res == VK_SUCCESS);
 
                 // Bind Image to Memory
-                res = vkBindImageMemory(_mem_props.device, image, mem, 0);
+                res = vkBindImageMemory(device, image, mem, 0);
                 assert(res == VK_SUCCESS);
 
                 return image;

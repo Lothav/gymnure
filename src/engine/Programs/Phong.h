@@ -17,9 +17,9 @@ namespace Engine
 
         public:
 
-            explicit Phong(struct DescriptorSetParams ds_params)
+            explicit Phong(VkQueue queue)
             {
-                ds_params_ = std::move(ds_params);
+                queue_ = queue;
             }
 
             void* operator new(std::size_t size)
@@ -34,18 +34,20 @@ namespace Engine
 
             void init() override
             {
+                auto app_data = ApplicationData::data;
+
                 auto vert = Engine::GraphicPipeline::Shader{};
                 vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                vert.path = "../shaders/phong.vert.spv";
+                vert.path = "../../assets/shaders/phong.vert.spv";
 
                 auto frag = Engine::GraphicPipeline::Shader{};
                 frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                frag.path = "../shaders/phong.frag.spv";
+                frag.path = "../../assets/shaders/phong.frag.spv";
 
-                descriptor_layout = new Descriptors::DescriptorSet(ds_params_.device, Descriptors::Type::GRAPHIC);
-                graphic_pipeline  = new GraphicPipeline::GraphicPipeline(ds_params_.device, {vert, frag});
+                descriptor_set = new Descriptors::DescriptorSet(Descriptors::Type::GRAPHIC);
+                graphic_pipeline = new GraphicPipeline::GraphicPipeline(app_data.device, {vert, frag});
 
-                descriptor_layout->create(ds_params_);
+                descriptor_set->create();
 
                 VkVertexInputBindingDescription vi_binding = {};
                 vi_binding.binding 					= 0;
@@ -72,19 +74,19 @@ namespace Engine
 
                 graphic_pipeline->addViAttributes(vi_attribs);
                 graphic_pipeline->setViBinding(vi_binding);
-                graphic_pipeline->create(descriptor_layout->getPipelineLayout(), ds_params_.render_pass, VK_CULL_MODE_BACK_BIT);
+                graphic_pipeline->create(descriptor_set->getPipelineLayout(), ApplicationData::data.render_pass, VK_CULL_MODE_BACK_BIT);
             }
 
             void addObjData(const GymnureObjData& obj_data) override
             {
+                auto app_data = ApplicationData::data;
                 auto* program_data = new ProgramData();
 
-                program_data->descriptor_pool = descriptor_layout->createDescriptorPool();
-                program_data->descriptor_set  = descriptor_layout->createDescriptorSet(program_data->descriptor_pool);
+                program_data->descriptor_pool = descriptor_set->createDescriptorPool();
+                program_data->descriptor_set  = descriptor_set->createDescriptorSet(program_data->descriptor_pool);
 
                 if(!obj_data.path_texture.empty()) {
-                    ds_params_.texture_path = obj_data.path_texture;
-                    program_data->texture   = descriptor_layout->getTextelBuffer(ds_params_);
+                    program_data->texture = descriptor_set->getTextelBuffer(obj_data.path_texture, queue_);
                 }
 
                 // Load Vertex
@@ -93,16 +95,16 @@ namespace Engine
                 for(auto v_data : obj_data.vertex_data) vertexData.push_back(v_data);
 
                 struct BufferData vbData = {};
-                vbData.device         = ds_params_.device;
+                vbData.device         = app_data.device;
                 vbData.usage          = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-                vbData.physicalDevice = ds_params_.gpu;
+                vbData.physicalDevice = app_data.gpu;
                 vbData.properties     = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
                 vbData.size           = vertexData.size() * sizeof(VertexData);
 
                 program_data->vertex_buffer = new Vertex::VertexBuffer(vbData, vertexData);
 
                 if (program_data->texture.buffer != nullptr) {
-                    descriptor_layout->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
+                    descriptor_set->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
                 }
 
                 data.push_back(program_data);

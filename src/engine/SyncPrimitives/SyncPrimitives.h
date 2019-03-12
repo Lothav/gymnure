@@ -7,6 +7,8 @@
 
 #include <cassert>
 #include <vector>
+#include <zconf.h>
+#include <memancpp/Provider.hpp>
 #include "vulkan/vulkan.h"
 
 namespace Engine

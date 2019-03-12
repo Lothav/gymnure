@@ -5,6 +5,7 @@
 #include "GraphicPipeline/GraphicPipeline.h"
 #include <Provider.hpp>
 #include <Window/SDLWindow.hpp>
+#include <Application.hpp>
 
 #define GB (1024 * 1024 * 1024)
 
@@ -12,23 +13,25 @@ class Gymnure
 {
 private:
 
-    Engine::Window::Window* _window;
+    Engine::Window::SDLWindow* window_;
 
     Engine::Programs::Phong*  phong_;
-    Engine::Programs::Skybox* skybox_;
+    Engine::Programs::Skybox* skybox_{};
 
 public:
 
     Gymnure(unsigned int windowWidth, unsigned int windowHeight) : phong_(nullptr)
     {
         mem::Provider::initPool(1*GB);
-        //_window = new Engine::Window::XcbWindow(windowWidth, windowHeight);
-        _window = new Engine::Window::SDLWindow(windowWidth, windowHeight);
+        window_ = new Engine::Window::SDLWindow(windowWidth, windowHeight);
+        Engine::Application::create(window_->getInstanceExtensionNames());
+        window_->createSurface();
+        Engine::Application::setupSurface(windowWidth, windowHeight);
     }
 
     ~Gymnure()
     {
-        delete _window;
+        delete window_;
         mem::Provider::destroyPool();
     }
 
@@ -39,7 +42,7 @@ public:
             return;
         }
 
-        phong_ = _window->createPhongProgram();
+        phong_ = Engine::Application::createPhongProgram();
     }
 
     void addPhongData(const GymnureObjData& gymnure_data)
@@ -59,7 +62,7 @@ public:
             return;
         }
 
-        skybox_ = _window->createSkyboxProgram();
+        skybox_ = Engine::Application::createSkyboxProgram();
     }
 
     void addSkyboxData(const GymnureObjData& gymnure_data)
@@ -72,19 +75,17 @@ public:
         skybox_->addObjData(gymnure_data);
     }
 
-
     void prepare()
     {
-        _window->prepare();
+        Engine::Application::prepare();
     }
 
     bool draw()
     {
-        WindowEvent e = _window->poolEvent();
-        if(e == WindowEvent::Close) return false;
+        ///if(Engine::Application::poolEvent() == WindowEvent::Close)
+        ///    return false;
 
-        _window->draw();
-
+        Engine::Application::draw();
         return true;
     }
 

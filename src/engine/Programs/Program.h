@@ -9,6 +9,7 @@
 #include <Descriptors/DescriptorSet.h>
 #include <Vertex/VertexBuffer.h>
 #include <memancpp/Provider.hpp>
+#include <ApplicationData.hpp>
 
 struct GymnureObjData {
     std::string             path_obj        = "";
@@ -31,25 +32,24 @@ namespace Engine
         class Program
         {
 
-        protected:
-
-            struct DescriptorSetParams ds_params_ = {};
-
         public:
 
-            Descriptors::DescriptorSet*         descriptor_layout   = nullptr;
-            std::vector<ProgramData*>           data                = {};
-            GraphicPipeline::GraphicPipeline*   graphic_pipeline    = nullptr;
+            Descriptors::DescriptorSet*         descriptor_set   = nullptr;
+            std::vector<ProgramData*>           data             = {};
+            GraphicPipeline::GraphicPipeline*   graphic_pipeline = nullptr;
+            VkQueue                             queue_;
 
             ~Program()
             {
+                auto device = Engine::ApplicationData::data.device;
+
                 delete graphic_pipeline;
-                delete descriptor_layout;
+                delete descriptor_set;
                 for(auto &d : data) {
-                    vkDestroyDescriptorPool(ds_params_.device, d->descriptor_pool, nullptr);
+                    vkDestroyDescriptorPool(device, d->descriptor_pool, nullptr);
                     delete d->vertex_buffer;
                     delete d->texture.buffer;
-                    vkDestroySampler(ds_params_.device, d->texture.sampler, nullptr);
+                    vkDestroySampler(device, d->texture.sampler, nullptr);
                 }
             }
 

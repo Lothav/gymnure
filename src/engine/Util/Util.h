@@ -82,9 +82,9 @@ namespace Engine
 				vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
 			}
 
-			std::string physicalDeviceTypeString(VkPhysicalDeviceType type)
+			static std::string physicalDeviceTypeString(VkPhysicalDeviceType type)
 			{
-#define CASE_STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
+				#define CASE_STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
 				switch (type)
 				{
 					CASE_STR(OTHER);
@@ -93,7 +93,7 @@ namespace Engine
 					CASE_STR(VIRTUAL_GPU);
 					default: return "UNKNOWN_DEVICE_TYPE";
 				}
-#undef CASE_STR
+				#undef CASE_STR
 			}
 
 			void init_scissors(VkCommandBuffer cmd_buffer)

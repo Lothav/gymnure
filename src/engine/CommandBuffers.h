@@ -13,39 +13,38 @@
 #include "Descriptors/DescriptorSet.h"
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "Vertex/VertexBuffer.h"
+#include <ApplicationData.hpp>
+#include <memory>
 
 namespace Engine
 {
-    struct CommandBuffersData {
-        VkDevice device;
-        VkCommandPool command_pool;
-    };
-
     class CommandBuffers
     {
 
     private:
 
         VkCommandBuffer                     _command_buffer{};
-        struct CommandBuffersData           data_{};
 
     public:
 
-        CommandBuffers(const CommandBuffersData& data) : data_(data)
+        explicit CommandBuffers()
         {
+            auto app_data = ApplicationData::data;
+
             VkCommandBufferAllocateInfo cmd = {};
             cmd.sType 				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmd.pNext 			 	= nullptr;
-            cmd.commandPool 	 	= data_.command_pool;
+            cmd.commandPool 	 	= app_data.graphic_command_pool;
             cmd.level 			 	= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             cmd.commandBufferCount  = 1;
 
-            assert(vkAllocateCommandBuffers(data_.device, &cmd, &_command_buffer) == VK_SUCCESS);
+            assert(vkAllocateCommandBuffers(app_data.device, &cmd, &_command_buffer) == VK_SUCCESS);
         }
 
         ~CommandBuffers()
         {
-            vkFreeCommandBuffers(data_.device, data_.command_pool, 1, &_command_buffer);
+            auto app_data = ApplicationData::data;
+            vkFreeCommandBuffers(app_data.device, app_data.graphic_command_pool, 1, &_command_buffer);
         }
 
         void* operator new(std::size_t size)
@@ -111,7 +110,7 @@ namespace Engine
 
                         vkCmdBindPipeline(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj->graphic_pipeline->getPipeline());
                         vkCmdBindDescriptorSets(_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                                program_obj->descriptor_layout->getPipelineLayout(), 0,
+                                                program_obj->descriptor_set->getPipelineLayout(), 0,
                                                 1, &data->descriptor_set, 0, nullptr);
                         vkCmdBindVertexBuffers(_command_buffer, 0, 1, &data->vertex_buffer->buf, offsets);
 
@@ -127,11 +126,6 @@ namespace Engine
 
             res = vkEndCommandBuffer(_command_buffer);
             assert(res == VK_SUCCESS);
-        }
-
-        VkCommandBuffer getCommandBuffer()
-        {
-            return _command_buffer;
         }
 
         VkCommandBuffer* getCommandBufferPtr()

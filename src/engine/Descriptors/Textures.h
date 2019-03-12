@@ -10,6 +10,7 @@
 #include "stb/stb_image.h"
 
 #include <vector>
+#include <memancpp/Allocator.hpp>
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 

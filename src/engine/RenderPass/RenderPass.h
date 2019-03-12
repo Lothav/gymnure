@@ -6,6 +6,7 @@
 #define OBSIDIAN2D_RENDERPASS_H
 
 #include <array>
+#include <Application.hpp>
 #include "RenderPass/FrameBuffer.h"
 
 struct rpAttachments {
@@ -21,15 +22,15 @@ namespace Engine
 
 		private:
 
-			VkRenderPass _render_pass;
+			VkRenderPass _render_pass{};
 
 		public:
 
-			RenderPass(VkDevice device, struct SwapChainParams&& sc_params) : FrameBuffer(device, std::move(sc_params)) {}
+			RenderPass() : FrameBuffer() {}
 
 			~RenderPass()
 			{
-				vkDestroyRenderPass(_sc_params.device, _render_pass, nullptr);
+				vkDestroyRenderPass(ApplicationData::data.device, _render_pass, nullptr);
 			}
 
 			void* operator new(std::size_t size)
@@ -95,7 +96,7 @@ namespace Engine
 				rp_info.dependencyCount 					= 0;
 				rp_info.pDependencies 						= nullptr;
 
-				assert(vkCreateRenderPass(instance_device, &rp_info, nullptr, &_render_pass) == VK_SUCCESS);
+				assert(vkCreateRenderPass(ApplicationData::data.device, &rp_info, nullptr, &_render_pass) == VK_SUCCESS);
 				this->createFrameBuffer(_render_pass);
 			}
 

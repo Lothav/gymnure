@@ -4,18 +4,19 @@
 
 #include <SDL.h>
 #include <SDL_vulkan.h>
-#include "Window.h"
+#include <Programs/Phong.h>
 
 namespace Engine
 {
     namespace Window
     {
-        class SDLWindow : public Window
+        class SDLWindow
         {
 
         private:
 
-            SDL_Window* window_;
+            SDL_Window* window_ = nullptr;
+            std::vector<const char *> instance_extension_names_ = {};
 
         public:
 
@@ -35,23 +36,17 @@ namespace Engine
 
                 window_ = SDL_CreateWindow("Hell Yeah!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
 
-
                 uint32_t extensions_count = 0;
                 SDL_Vulkan_GetInstanceExtensions(window_, &extensions_count, nullptr);
                 auto extensions = std::make_shared<std::array<const char*, 2>>();
                 SDL_Vulkan_GetInstanceExtensions(window_, &extensions_count, &extensions.get()->front());
 
-                for(auto extension_name: *extensions.get())
-                    instance_extension_names.emplace_back(extension_name);
+                for(auto extension_name : *extensions.get())
+                    instance_extension_names_.emplace_back(extension_name);
 
                 #ifdef DEBUG
-                instance_extension_names.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+                instance_extension_names_.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
                 #endif
-                this->createApplication();
-
-                this->createSurface();
-
-                this->init();
             }
 
             ~SDLWindow()
@@ -60,14 +55,20 @@ namespace Engine
                 SDL_Quit();
             }
 
+            std::vector<const char *> getInstanceExtensionNames()
+            {
+                return instance_extension_names_;
+            }
+
             void createSurface()
             {
-                if (SDL_Vulkan_CreateSurface(window_, instance, &surface) == SDL_bool::SDL_FALSE)
+                if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data.instance, &ApplicationData::data.surface) == SDL_bool::SDL_FALSE)
                 {
                     std::cerr << "Failed to create Vulkan surface." << std::endl;
                     assert(false);
                 }
             }
+
         };
     }
 }

@@ -19,18 +19,6 @@ namespace Engine
 
         private:
 
-            const std::vector<const char *> DESIRED_LAYERS = {
-                    "VK_LAYER_LUNARG_object_tracker",
-                    "VK_LAYER_GOOGLE_unique_objects",
-                    "VK_LAYER_LUNARG_assistant_layer",
-                    "VK_LAYER_LUNARG_core_validation",
-                    "VK_LAYER_LUNARG_parameter_validation",
-                    "VK_LAYER_LUNARG_screenshot",
-                    "VK_LAYER_LUNARG_standard_validation",
-                    "VK_LAYER_GOOGLE_threading",
-                    "VK_LAYER_LUNARG_monitor"
-            };
-
         public:
 
             Layers()
@@ -53,11 +41,23 @@ namespace Engine
                 return _instanceLayerProps;
             }
 
-            std::vector<const char*> getLayerNames()
+            static std::vector<const char*> getLayerNames()
             {
+                auto DESIRED_LAYERS = {
+                    "VK_LAYER_LUNARG_object_tracker",
+                    "VK_LAYER_GOOGLE_unique_objects",
+                    "VK_LAYER_LUNARG_assistant_layer",
+                    "VK_LAYER_LUNARG_core_validation",
+                    "VK_LAYER_LUNARG_parameter_validation",
+                    "VK_LAYER_LUNARG_screenshot",
+                    "VK_LAYER_LUNARG_standard_validation",
+                    "VK_LAYER_GOOGLE_threading",
+                    "VK_LAYER_LUNARG_monitor"
+                };
+
                 std::cout << "Layers available:" << std::endl;
                 std::vector<const char *> _layer_names;
-                for(auto i : this->_instanceLayerProps)
+                for(auto i : _instanceLayerProps)
                 {
                     std::cout << i.properties.layerName << std::endl;
                     for(auto j : DESIRED_LAYERS)
@@ -79,7 +79,7 @@ namespace Engine
 
         private:
 
-            std::vector<LayerProperties> _instanceLayerProps;
+            static std::vector<LayerProperties> _instanceLayerProps;
 
             VkResult setGlobalLayerProperties()
             {
@@ -95,13 +95,15 @@ namespace Engine
                     res = vkEnumerateInstanceLayerProperties(&instance_layer_count, vk_props);
                 } while (res == VK_INCOMPLETE);
 
+                _instanceLayerProps.clear();
                 for (uint32_t i = 0; i < instance_layer_count; i++) {
                     LayerProperties layer_props;
                     layer_props.properties = vk_props[i];
                     res = this->setGlobalExtensionProperties(layer_props);
                     if (res) return res;
-                    this->_instanceLayerProps.push_back(layer_props);
+                    _instanceLayerProps.push_back(layer_props);
                 }
+
                 free(vk_props);
                 assert(res == VK_SUCCESS);
 
@@ -131,6 +133,8 @@ namespace Engine
             }
 
         };
+
+        std::vector<LayerProperties> Layers::_instanceLayerProps = {};
     }
 }
 #endif //OBSIDIAN2D_CORE_LAYERS_H
