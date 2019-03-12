@@ -13,6 +13,8 @@ namespace Engine
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
+        auto app_data = ApplicationData::data;
+        
         std::vector<const char *> _layer_names = Util::Layers::getLayerNames();
 
         VkApplicationInfo _app_info = {};
@@ -35,24 +37,15 @@ namespace Engine
         _inst_info.enabledExtensionCount 	= (uint32_t) instance_extension_names.size();
         _inst_info.ppEnabledExtensionNames 	= instance_extension_names.data();
 
-        VkResult res = vkCreateInstance(&_inst_info, nullptr, &ApplicationData::data.instance);
+        VkResult res = vkCreateInstance(&_inst_info, nullptr, &app_data->instance);
         assert(res == VK_SUCCESS);
 
         std::vector<VkPhysicalDevice> gpu_vector = {};
-        res = vkEnumeratePhysicalDevices(ApplicationData::data.instance, &ApplicationData::data.queue_family_count, nullptr);
-        assert(res == VK_SUCCESS && ApplicationData::data.queue_family_count);
-        gpu_vector.resize(ApplicationData::data.queue_family_count);
-        res = vkEnumeratePhysicalDevices(ApplicationData::data.instance, &ApplicationData::data.queue_family_count, gpu_vector.data());
+        res = vkEnumeratePhysicalDevices(app_data->instance, &app_data->queue_family_count, nullptr);
+        assert(res == VK_SUCCESS && app_data->queue_family_count);
+        gpu_vector.resize(app_data->queue_family_count);
+        res = vkEnumeratePhysicalDevices(app_data->instance, &app_data->queue_family_count, gpu_vector.data());
         assert(res == VK_SUCCESS);
-
-        vkGetPhysicalDeviceQueueFamilyProperties(gpu_vector[0], &ApplicationData::data.queue_family_count, nullptr);
-        assert(ApplicationData::data.queue_family_count >= 1);
-
-        ApplicationData::data.queue_family_props.resize(ApplicationData::data.queue_family_count);
-        vkGetPhysicalDeviceQueueFamilyProperties(gpu_vector[0], &ApplicationData::data.queue_family_count, ApplicationData::data.queue_family_props.data());
-        assert(ApplicationData::data.queue_family_count >= 1);
-
-        vkGetPhysicalDeviceMemoryProperties(gpu_vector[0], &ApplicationData::data.memory_properties);
 
         std::cout << "========================================================" << std::endl;
         std::cout << "Devices found:" << std::endl;
@@ -67,37 +60,46 @@ namespace Engine
         std::cout << "Using Device[" << std::to_string(gpu_index) << "]" << std::endl;
         std::cout << "========================================================" << std::endl;
 
-        ApplicationData::data.gpu = gpu_vector[gpu_index];
+        app_data->gpu = gpu_vector[gpu_index];
 
-        ApplicationData::data.queueGraphicFamilyIndex = UINT_MAX;
-        ApplicationData::data.queueComputeFamilyIndex = UINT_MAX;
+        vkGetPhysicalDeviceQueueFamilyProperties(app_data->gpu, &app_data->queue_family_count, nullptr);
+        assert(app_data->queue_family_count >= 1);
+
+        app_data->queue_family_props.resize(app_data->queue_family_count);
+        vkGetPhysicalDeviceQueueFamilyProperties(app_data->gpu, &app_data->queue_family_count, app_data->queue_family_props.data());
+        assert(app_data->queue_family_count >= 1);
+
+        vkGetPhysicalDeviceMemoryProperties(app_data->gpu, &app_data->memory_properties);
+
+        auto queueGraphicFamilyIndex = UINT_MAX;
+        auto queueComputeFamilyIndex = UINT_MAX;
 
         bool foundGraphic = false;
         bool foundCompute = false;
-        for (unsigned int i = 0; i < ApplicationData::data.queue_family_count; i++) {
-            if (ApplicationData::data.queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-                ApplicationData::data.queueGraphicFamilyIndex = i;
+        for (unsigned int i = 0; i < app_data->queue_family_count; i++) {
+            if (app_data->queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                queueGraphicFamilyIndex = i;
                 foundGraphic = true;
             }
 
             // Some GPU's have a dedicate compute queue. Try to find it.
-            if ((ApplicationData::data.queue_family_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) && ((ApplicationData::data.queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
-                ApplicationData::data.queueComputeFamilyIndex = i;
+            if ((app_data->queue_family_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) && ((app_data->queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0)) {
+                queueComputeFamilyIndex = i;
                 foundCompute = true;
             }
         }
 
         // If no able to find a compute queue dedicated one, find a generic that support compute.
         if (!foundCompute) {
-            for (unsigned int i = 0; i < ApplicationData::data.queue_family_count; i++) {
-                if (ApplicationData::data.queue_family_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
-                    ApplicationData::data.queueComputeFamilyIndex = i;
+            for (unsigned int i = 0; i < app_data->queue_family_count; i++) {
+                if (app_data->queue_family_props[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                    queueComputeFamilyIndex = i;
                     foundCompute = true;
                 }
             }
         }
 
-        assert(foundGraphic && foundCompute && ApplicationData::data.queueComputeFamilyIndex != UINT_MAX && ApplicationData::data.queueGraphicFamilyIndex != UINT_MAX);
+        assert(foundGraphic && foundCompute && queueComputeFamilyIndex != UINT_MAX && queueGraphicFamilyIndex != UINT_MAX);
 
         float queue_priorities[1] = {0.0};
 
@@ -106,7 +108,7 @@ namespace Engine
         queue_info.pNext 			= nullptr;
         queue_info.queueCount 		= 1;
         queue_info.pQueuePriorities = queue_priorities;
-        queue_info.queueFamilyIndex = ApplicationData::data.queueGraphicFamilyIndex;
+        queue_info.queueFamilyIndex = queueGraphicFamilyIndex;
 
         std::vector<const char *> device_extension_names;
         device_extension_names.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -122,16 +124,16 @@ namespace Engine
         device_info.ppEnabledLayerNames 	= nullptr;
         device_info.pEnabledFeatures 		= nullptr;
 
-        res = vkCreateDevice(ApplicationData::data.gpu, &device_info, nullptr, &ApplicationData::data.device);
+        res = vkCreateDevice(app_data->gpu, &device_info, nullptr, &app_data->device);
         assert(res == VK_SUCCESS);
 
         VkCommandPoolCreateInfo cmd_pool_info = {};
         cmd_pool_info.sType 			= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         cmd_pool_info.pNext 			= nullptr;
-        cmd_pool_info.queueFamilyIndex  = ApplicationData::data.queueGraphicFamilyIndex;
+        cmd_pool_info.queueFamilyIndex  = queueGraphicFamilyIndex;
         cmd_pool_info.flags 			= 0;
 
-        res = vkCreateCommandPool(ApplicationData::data.device, &cmd_pool_info, nullptr, &ApplicationData::data.graphic_command_pool);
+        res = vkCreateCommandPool(app_data->device, &cmd_pool_info, nullptr, &app_data->graphic_command_pool);
         assert(res == VK_SUCCESS);
         //vkGetDeviceQueue(device, queueComputeFamilyIndex, 0, &compute_queue_);
     }
@@ -140,17 +142,17 @@ namespace Engine
     {
         auto app_data = ApplicationData::data;
 
-        vkDeviceWaitIdle(app_data.device);
+        vkDeviceWaitIdle(app_data->device);
         for(auto &program: programs) delete program;
         delete sync_primitives;
         delete render_pass;
-        if(app_data.surface != VK_NULL_HANDLE)
-            vkDestroySurfaceKHR(app_data.instance, app_data.surface, nullptr);
+        if(app_data->surface != VK_NULL_HANDLE)
+            vkDestroySurfaceKHR(app_data->instance, app_data->surface, nullptr);
         delete command_buffer;
-        vkDestroyCommandPool(app_data.device, app_data.graphic_command_pool, nullptr);
-        for(auto &i : Descriptors::Textures::textureImageMemory) vkFreeMemory(app_data.device, i, nullptr);
-        vkDestroyDevice(app_data.device, nullptr);
-        vkDestroyInstance(app_data.instance, nullptr);
+        vkDestroyCommandPool(app_data->device, app_data->graphic_command_pool, nullptr);
+        for(auto &i : Descriptors::Textures::textureImageMemory) vkFreeMemory(app_data->device, i, nullptr);
+        vkDestroyDevice(app_data->device, nullptr);
+        vkDestroyInstance(app_data->instance, nullptr);
     }
 
     void Application::draw()
@@ -158,7 +160,7 @@ namespace Engine
         VkResult res;
         VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-        res = vkAcquireNextImageKHR(ApplicationData::data.device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_NULL_HANDLE, &current_buffer_);
+        res = vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_NULL_HANDLE, &current_buffer_);
         assert(res == VK_SUCCESS);
 
         VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -182,10 +184,10 @@ namespace Engine
         assert(res == VK_SUCCESS);
 
         do {
-            res = vkWaitForFences(ApplicationData::data.device, 1, sync_primitives->getFence(current_buffer_), VK_TRUE, VK_SAMPLE_COUNT_1_BIT);
+            res = vkWaitForFences(ApplicationData::data->device, 1, sync_primitives->getFence(current_buffer_), VK_TRUE, VK_SAMPLE_COUNT_1_BIT);
         } while (res == VK_TIMEOUT);
         assert(res == VK_SUCCESS);
-        vkResetFences(ApplicationData::data.device, 1, sync_primitives->getFence(current_buffer_));
+        vkResetFences(ApplicationData::data->device, 1, sync_primitives->getFence(current_buffer_));
 
         VkPresentInfoKHR present = {};
         present.sType 				  = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -205,21 +207,23 @@ namespace Engine
         res = vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present);
         assert(res == VK_SUCCESS);
 
-        res = vkDeviceWaitIdle(ApplicationData::data.device);
+        res = vkDeviceWaitIdle(ApplicationData::data->device);
         assert(res == VK_SUCCESS);
     }
 
     void Application::prepare()
     {
-        command_buffer->bindGraphicCommandBuffer(programs, render_pass, ApplicationData::data.view_width, ApplicationData::data.view_height);
+        command_buffer->bindGraphicCommandBuffer(programs, render_pass, ApplicationData::data->view_width, ApplicationData::data->view_height);
     }
 
     void Application::setupSurface(const uint32_t width, const uint32_t height)
     {
         VkResult U_ASSERT_ONLY 	res;
 
-        ApplicationData::data.view_width  = width;
-        ApplicationData::data.view_height = height;
+        auto app_data = ApplicationData::data;
+
+        app_data->view_width  = width;
+        app_data->view_height = height;
 
         // Init Render Pass
         render_pass = new RenderPass::RenderPass();
@@ -237,10 +241,10 @@ namespace Engine
         rp_attachments.push_back(attch);
 
         render_pass->create(rp_attachments);
-        ApplicationData::data.render_pass = render_pass->getRenderPass();
+        app_data->render_pass = render_pass->getRenderPass();
 
         // Init Sync Primitives
-        sync_primitives = new SyncPrimitives::SyncPrimitives(ApplicationData::data.device);
+        sync_primitives = new SyncPrimitives::SyncPrimitives(app_data->device);
         sync_primitives->createSemaphore();
         sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
 

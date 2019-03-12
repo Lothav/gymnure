@@ -11,7 +11,7 @@ VkDebugUtilsMessengerEXT            Engine::Debug::dbg_messenger;
 
 void Engine::Debug::init()
 {
-    auto instance = ApplicationData::data.instance;
+    auto instance = ApplicationData::data->instance;
 
     // Setup our pointers to the VK_EXT_debug_utils commands
     CreateDebugUtilsMessengerEXT  = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -54,5 +54,5 @@ void Engine::Debug::init()
 
 void Engine::Debug::destroy()
 {
-    DestroyDebugUtilsMessengerEXT(ApplicationData::data.instance, dbg_messenger, nullptr);
+    DestroyDebugUtilsMessengerEXT(ApplicationData::data->instance, dbg_messenger, nullptr);
 }

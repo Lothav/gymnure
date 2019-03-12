@@ -44,7 +44,7 @@ namespace Engine
                 frag.path = "skybox.frag.spv";
 
                 descriptor_set = new Descriptors::DescriptorSet(Descriptors::Type::GRAPHIC);
-                graphic_pipeline  = new GraphicPipeline::GraphicPipeline(app_data.device, {vert, frag});
+                graphic_pipeline  = new GraphicPipeline::GraphicPipeline(app_data->device, {vert, frag});
 
                 descriptor_set->create();
 
@@ -73,7 +73,7 @@ namespace Engine
 
                 graphic_pipeline->addViAttributes(vi_attribs);
                 graphic_pipeline->setViBinding(vi_binding);
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), app_data.render_pass, VK_CULL_MODE_FRONT_BIT);
+                graphic_pipeline->create(descriptor_set->getPipelineLayout(), app_data->render_pass, VK_CULL_MODE_FRONT_BIT);
             }
 
             void addObjData(const GymnureObjData& obj_data) override
@@ -94,9 +94,7 @@ namespace Engine
                 for(auto v_data : obj_data.vertex_data) vertexData.push_back(v_data);
 
                 struct BufferData vbData = {};
-                vbData.device         = app_data.device;
                 vbData.usage          = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-                vbData.physicalDevice = app_data.gpu;
                 vbData.properties     = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
                 vbData.size           = vertexData.size() * sizeof(VertexData);
 

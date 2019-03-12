@@ -62,7 +62,7 @@ namespace Engine
 
             void createSurface()
             {
-                if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data.instance, &ApplicationData::data.surface) == SDL_bool::SDL_FALSE)
+                if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data->instance, &ApplicationData::data->surface) == SDL_bool::SDL_FALSE)
                 {
                     std::cerr << "Failed to create Vulkan surface." << std::endl;
                     //assert(false);

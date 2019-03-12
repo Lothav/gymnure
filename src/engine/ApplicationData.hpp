@@ -23,8 +23,6 @@ namespace Engine
         VkCommandPool                           graphic_command_pool;
 
         u_int32_t							 	queue_family_count;
-        u_int32_t                               queueGraphicFamilyIndex;
-        u_int32_t                               queueComputeFamilyIndex;
         VkPhysicalDeviceMemoryProperties 		memory_properties;
         std::vector<VkQueueFamilyProperties,
             mem::StdAllocator<
@@ -34,7 +32,7 @@ namespace Engine
     class ApplicationData
     {
         public:
-            static Data data;
+            static Data* data;
     };
 
 }

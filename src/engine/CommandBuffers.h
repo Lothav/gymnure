@@ -33,19 +33,19 @@ namespace Engine
             VkCommandBufferAllocateInfo cmd = {};
             cmd.sType 				= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
             cmd.pNext 			 	= nullptr;
-            cmd.commandPool 	 	= app_data.graphic_command_pool;
+            cmd.commandPool 	 	= app_data->graphic_command_pool;
             cmd.level 			 	= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             cmd.commandBufferCount  = 3;
 
             command_buffers_.resize(3);
-            auto res = vkAllocateCommandBuffers(app_data.device, &cmd, command_buffers_.data());
+            auto res = vkAllocateCommandBuffers(app_data->device, &cmd, command_buffers_.data());
             assert(res == VK_SUCCESS);
         }
 
         ~CommandBuffers()
         {
             auto app_data = ApplicationData::data;
-            vkFreeCommandBuffers(app_data.device, app_data.graphic_command_pool,
+            vkFreeCommandBuffers(app_data->device, app_data->graphic_command_pool,
                                  static_cast<uint32_t>(command_buffers_.size()), command_buffers_.data());
         }
 
@@ -79,7 +79,7 @@ namespace Engine
             cmd_buf_info.pInheritanceInfo 				= nullptr;
 
             VkClearValue clear_values[2];
-            clear_values[0] = {0.0f, 0.0f, 0.0f, 1.0f};
+            clear_values[0]                             = {0.0f, 0.0f, 0.0f, 1.0f};
             clear_values[1].depthStencil.depth 			= 1.f;
             clear_values[1].depthStencil.stencil 		= 0;
 

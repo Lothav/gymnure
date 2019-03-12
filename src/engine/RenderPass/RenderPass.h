@@ -9,7 +9,8 @@
 #include <Application.hpp>
 #include "RenderPass/FrameBuffer.h"
 
-struct rpAttachments {
+struct rpAttachments
+{
 	VkFormat format;
 	bool clear;
 };
@@ -30,7 +31,7 @@ namespace Engine
 
 			~RenderPass()
 			{
-				vkDestroyRenderPass(ApplicationData::data.device, _render_pass, nullptr);
+				vkDestroyRenderPass(ApplicationData::data->device, _render_pass, nullptr);
 			}
 
 			void* operator new(std::size_t size)
@@ -96,7 +97,7 @@ namespace Engine
 				rp_info.dependencyCount 					= 0;
 				rp_info.pDependencies 						= nullptr;
 
-				assert(vkCreateRenderPass(ApplicationData::data.device, &rp_info, nullptr, &_render_pass) == VK_SUCCESS);
+				assert(vkCreateRenderPass(ApplicationData::data->device, &rp_info, nullptr, &_render_pass) == VK_SUCCESS);
 				this->createFrameBuffer(_render_pass);
 			}
 

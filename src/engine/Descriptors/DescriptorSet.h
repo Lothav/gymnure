@@ -50,9 +50,9 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
-                vkDestroyPipelineLayout(app_data.device, _pipeline_layout, nullptr);
+                vkDestroyPipelineLayout(app_data->device, _pipeline_layout, nullptr);
                 for (auto &desc_layout : _desc_layout) {
-                    vkDestroyDescriptorSetLayout(app_data.device, desc_layout, nullptr);
+                    vkDestroyDescriptorSetLayout(app_data->device, desc_layout, nullptr);
                 }
                 delete _uniform_buffer;
             }
@@ -78,14 +78,12 @@ namespace Engine
                 auto app_data = ApplicationData::data;
                 struct BufferData uniformBufferData = {};
 
-                uniformBufferData.device            = app_data.device;
-                uniformBufferData.usage             = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-                uniformBufferData.physicalDevice    = app_data.gpu;
-                uniformBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-                uniformBufferData.size              = sizeof(glm::mat4)*3;
+                uniformBufferData.usage      = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+                uniformBufferData.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+                uniformBufferData.size       = sizeof(glm::mat4)*3;
 
                 _uniform_buffer = new UniformBuffer(uniformBufferData);
-                _uniform_buffer->initModelView(app_data.view_width, app_data.view_height);
+                _uniform_buffer->initModelView(app_data->view_width, app_data->view_height);
             }
 
             Texture getTextelBuffer(const std::string& texture_path, VkQueue queue)
@@ -99,14 +97,7 @@ namespace Engine
                 if(_type == Type::GRAPHIC) {
                     VkImage texture_image = nullptr;
                     if(!texture_path.empty()) {
-                        texture_image = Textures::createTextureImage (
-                            app_data.gpu,
-                            app_data.device,
-                            texture_path,
-                            app_data.graphic_command_pool,
-                            queue,
-                            app_data.memory_properties
-                        );
+                        texture_image = Textures::createTextureImage(texture_path, queue);
 
                         if(texture_image != nullptr) {
                             return Texture{
@@ -157,7 +148,7 @@ namespace Engine
                 write.dstBinding 							  = 1;
                 writes.push_back(write);
 
-                vkUpdateDescriptorSets(ApplicationData::data.device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
+                vkUpdateDescriptorSets(ApplicationData::data->device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }
 
             VkDescriptorPool createDescriptorPool()
@@ -179,7 +170,7 @@ namespace Engine
                     descriptor_pool.poolSizeCount 					 = 2;
                     descriptor_pool.pPoolSizes 						 = type_count;
 
-                    assert(vkCreateDescriptorPool(ApplicationData::data.device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
+                    assert(vkCreateDescriptorPool(ApplicationData::data->device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
 
                     return desc_pool;
                 }
@@ -202,7 +193,7 @@ namespace Engine
                     descriptor_pool.poolSizeCount 					 = 3;
                     descriptor_pool.pPoolSizes 						 = type_count;
 
-                    assert(vkCreateDescriptorPool(ApplicationData::data.device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
+                    assert(vkCreateDescriptorPool(ApplicationData::data->device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
 
                     return desc_pool;
                 }
@@ -221,7 +212,7 @@ namespace Engine
                 _alloc_info[0].descriptorSetCount 				  = 1;
                 _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
 
-                assert(vkAllocateDescriptorSets(ApplicationData::data.device, _alloc_info, &_desc_set) == VK_SUCCESS);
+                assert(vkAllocateDescriptorSets(ApplicationData::data->device, _alloc_info, &_desc_set) == VK_SUCCESS);
 
                 return _desc_set;
             }
@@ -284,7 +275,7 @@ namespace Engine
 
                 _desc_layout.resize(1);
 
-                assert(vkCreateDescriptorSetLayout(ApplicationData::data.device, &_descriptor_layout, nullptr, _desc_layout.data()) == VK_SUCCESS);
+                assert(vkCreateDescriptorSetLayout(ApplicationData::data->device, &_descriptor_layout, nullptr, _desc_layout.data()) == VK_SUCCESS);
             }
 
             void setPipelineLayout()
@@ -297,7 +288,7 @@ namespace Engine
                 pPipelineLayoutCreateInfo.setLayoutCount         = 1;
                 pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
 
-                assert(vkCreatePipelineLayout(ApplicationData::data.device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout) == VK_SUCCESS);
+                assert(vkCreatePipelineLayout(ApplicationData::data->device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout) == VK_SUCCESS);
             }
 
             VkSampler createSampler()
@@ -321,7 +312,7 @@ namespace Engine
 
                 VkSampler sampler_obj = {};
 
-                assert(vkCreateSampler(ApplicationData::data.device, &sampler, nullptr, &sampler_obj) == VK_SUCCESS);
+                assert(vkCreateSampler(ApplicationData::data->device, &sampler, nullptr, &sampler_obj) == VK_SUCCESS);
 
                 return sampler_obj;
             }

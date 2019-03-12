@@ -43,7 +43,7 @@ namespace Engine
 
             ~Program()
             {
-                auto device = Engine::ApplicationData::data.device;
+                auto device = Engine::ApplicationData::data->device;
 
                 delete graphic_pipeline;
                 delete descriptor_set;

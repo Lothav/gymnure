@@ -1,3 +1,3 @@
 #include "ApplicationData.hpp"
 
-Engine::Data Engine::ApplicationData::data = {};
+Engine::Data* Engine::ApplicationData::data = new Data();

@@ -85,7 +85,7 @@ namespace Engine
 
 			void updateMVP()
 			{
-				Memory::Memory::copyMemory(buffer_data_.device, this->mem, &this->mvp, sizeof(this->mvp));
+				Memory::Memory::copyMemory(this->mem, &this->mvp, sizeof(this->mvp));
 			}
 
 		};

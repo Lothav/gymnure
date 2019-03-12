@@ -22,7 +22,7 @@ namespace Engine
 
             void updateMemoryWithData()
             {
-                Memory::Memory::copyMemory(buffer_data_.device, mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
+                Memory::Memory::copyMemory(mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
             }
 
         public:

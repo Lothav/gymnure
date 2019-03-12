@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.h>
 #include <cassert>
 #include <cstring>
+#include <ApplicationData.hpp>
 
 namespace Engine
 {
@@ -17,23 +18,27 @@ namespace Engine
 		{
 		public:
 
-			static void copyMemory(VkDevice device, VkDeviceMemory device_memory, const void * object, size_t object_size)
+			static void copyMemory(VkDeviceMemory device_memory, const void * object, size_t object_size)
 			{
 				void* _buffer_address = nullptr;
 
-				VkResult res = vkMapMemory(device, device_memory, 0, object_size, 0, &_buffer_address);
+				auto app_data = ApplicationData::data;
+
+				VkResult res = vkMapMemory(app_data->device, device_memory, 0, object_size, 0, &_buffer_address);
 				assert(res == VK_SUCCESS);
 				memcpy(_buffer_address, object, object_size);
-				vkUnmapMemory(device, device_memory);
+				vkUnmapMemory(app_data->device, device_memory);
 			}
 
-			static bool findMemoryType(VkPhysicalDeviceMemoryProperties memory_properties, uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex)
+			static bool findMemoryType(uint32_t typeBits, VkFlags requirements_mask, uint32_t *typeIndex)
 			{
+				auto app_data = ApplicationData::data;
+
 				// Search memtypes to find first index with those properties
-				for (uint32_t i = 0; i < memory_properties.memoryTypeCount; i++) {
+				for (uint32_t i = 0; i < app_data->memory_properties.memoryTypeCount; i++) {
 					if ((typeBits & 1) == 1) {
 						// Type is available, does it match user properties?
-						if ((memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
+						if ((app_data->memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
 							*typeIndex = i;
 							return true;
 						}

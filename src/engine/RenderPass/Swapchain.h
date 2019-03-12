@@ -53,10 +53,10 @@ namespace Engine
                 {
                     uint32_t formatCount;
 
-                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data.gpu, app_data.surface, &formatCount, nullptr);
+                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data->gpu, app_data->surface, &formatCount, nullptr);
                     assert(res == VK_SUCCESS);
                     auto *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data.gpu, app_data.surface, &formatCount, surfFormats);
+                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data->gpu, app_data->surface, &formatCount, surfFormats);
                     assert(res == VK_SUCCESS);
                     // If the format list includes just one entry of VK_FORMAT_UNDEFINED,
                     // the surface has no preferred format.  Otherwise, at least one
@@ -72,16 +72,16 @@ namespace Engine
 
                 VkSwapchainCreateInfoKHR swapChainCI = buildSwapChainCI();
 
-				res = vkCreateSwapchainKHR(app_data.device, &swapChainCI, nullptr, &_swap_chain);
+				res = vkCreateSwapchainKHR(app_data->device, &swapChainCI, nullptr, &_swap_chain);
 				assert(res == VK_SUCCESS);
 
-				res = vkGetSwapchainImagesKHR(app_data.device, _swap_chain, &_image_count, nullptr);
+				res = vkGetSwapchainImagesKHR(app_data->device, _swap_chain, &_image_count, nullptr);
 				assert(res == VK_SUCCESS);
 
 				_swap_chain_images = (VkImage *)malloc(_image_count * sizeof(VkImage));
 				assert(_swap_chain_images);
 
-				res = vkGetSwapchainImagesKHR(app_data.device, _swap_chain, &_image_count, _swap_chain_images);
+				res = vkGetSwapchainImagesKHR(app_data->device, _swap_chain, &_image_count, _swap_chain_images);
 				assert(res == VK_SUCCESS && _image_count > 0);
 
 				// Create Swapchain Buffer
@@ -105,7 +105,7 @@ namespace Engine
 						delete _swap_chain_buffer[i];
 					}
 				}
-                vkDestroySwapchainKHR(ApplicationData::data.device, _swap_chain, nullptr);
+                vkDestroySwapchainKHR(ApplicationData::data->device, _swap_chain, nullptr);
 			}
 
 			void* operator new(std::size_t size)
@@ -159,17 +159,17 @@ namespace Engine
 				uint32_t _present_queue_family_index  = UINT32_MAX;
 
 				VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-				auto *pSupportsPresent = (VkBool32 *)malloc(app_data.queue_family_count * sizeof(VkBool32));
+				auto *pSupportsPresent = (VkBool32 *)malloc(app_data->queue_family_count * sizeof(VkBool32));
 
-				for (uint32_t i = 0; i < app_data.queue_family_count; i++) {
-					vkGetPhysicalDeviceSurfaceSupportKHR(app_data.gpu, i, app_data.surface, &pSupportsPresent[i]);
+				for (uint32_t i = 0; i < app_data->queue_family_count; i++) {
+					vkGetPhysicalDeviceSurfaceSupportKHR(app_data->gpu, i, app_data->surface, &pSupportsPresent[i]);
 				}
 
 				// Search for a graphics and a present queue in the array of queue
 				// families, try to find one that supports both
 
-				for (uint32_t i = 0; i < app_data.queue_family_count; ++i) {
-					if ((app_data.queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
+				for (uint32_t i = 0; i < app_data->queue_family_count; ++i) {
+					if ((app_data->queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
 						if (_graphics_queue_family_index == UINT32_MAX) _graphics_queue_family_index = i;
 
 						if (pSupportsPresent[i] == VK_TRUE) {
@@ -183,7 +183,7 @@ namespace Engine
 				if (_present_queue_family_index == UINT32_MAX) {
 					// If didn't find a queue that supports both graphics and present, then
 					// find a separate present queue.
-					for (size_t i = 0; i < app_data.queue_family_count; ++i)
+					for (size_t i = 0; i < app_data->queue_family_count; ++i)
 						if (pSupportsPresent[i] == VK_TRUE) {
 							_present_queue_family_index = (u_int32_t)i;
 							break;
@@ -204,24 +204,24 @@ namespace Engine
 				cmd_buf_info.flags 							= 0;
 				cmd_buf_info.pInheritanceInfo 				= nullptr;
 
-				vkGetDeviceQueue(app_data.device, _graphics_queue_family_index, 0, &_graphics_queue);
+				vkGetDeviceQueue(app_data->device, _graphics_queue_family_index, 0, &_graphics_queue);
 				if (_graphics_queue_family_index == _present_queue_family_index) {
 					_present_queue = _graphics_queue;
 				} else {
-					vkGetDeviceQueue(app_data.device, _present_queue_family_index, 0, &_present_queue);
+					vkGetDeviceQueue(app_data->device, _present_queue_family_index, 0, &_present_queue);
 				}
 
 				VkSurfaceCapabilitiesKHR surfCapabilities;
-				res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(app_data.gpu, app_data.surface, &surfCapabilities);
+				res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(app_data->gpu, app_data->surface, &surfCapabilities);
 				assert(res == VK_SUCCESS);
 
 				uint32_t presentation_modes_count = 0;
 
-				res = vkGetPhysicalDeviceSurfacePresentModesKHR(app_data.gpu, app_data.surface, &presentation_modes_count, nullptr);
+				res = vkGetPhysicalDeviceSurfacePresentModesKHR(app_data->gpu, app_data->surface, &presentation_modes_count, nullptr);
 				assert(res == VK_SUCCESS);
 				auto *presentModes = (VkPresentModeKHR *)malloc(presentation_modes_count * sizeof(VkPresentModeKHR));
 				assert(presentModes);
-				res = vkGetPhysicalDeviceSurfacePresentModesKHR(app_data.gpu, app_data.surface, &presentation_modes_count, presentModes);
+				res = vkGetPhysicalDeviceSurfacePresentModesKHR(app_data->gpu, app_data->surface, &presentation_modes_count, presentModes);
 				assert(res == VK_SUCCESS);
 
 				VkExtent2D swapchainExtent;
@@ -229,8 +229,8 @@ namespace Engine
 				if (surfCapabilities.currentExtent.width == 0xFFFFFFFF) {
 					// If the surface size is undefined, the size is set to
 					// the size of the images requested.
-					swapchainExtent.width  = app_data.view_width;
-					swapchainExtent.height = app_data.view_height;
+					swapchainExtent.width  = app_data->view_width;
+					swapchainExtent.height = app_data->view_height;
 					if (swapchainExtent.width < surfCapabilities.minImageExtent.width) {
 						swapchainExtent.width = surfCapabilities.minImageExtent.width;
 					} else if (swapchainExtent.width > surfCapabilities.maxImageExtent.width) {
@@ -287,7 +287,7 @@ namespace Engine
 				VkSwapchainCreateInfoKHR swapchain_ci = {};
 				swapchain_ci.sType 					= VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 				swapchain_ci.pNext 					= nullptr;
-				swapchain_ci.surface 				= app_data.surface;
+				swapchain_ci.surface 				= app_data->surface;
 				swapchain_ci.minImageCount 			= _image_count;
 				swapchain_ci.imageFormat 			= format;
 				swapchain_ci.imageExtent.width 		= swapchainExtent.width;

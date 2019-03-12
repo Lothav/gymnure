@@ -7,9 +7,8 @@
 
 #include "Memory/Memory.h"
 
-struct BufferData {
-    VkPhysicalDevice    physicalDevice;
-    VkDevice            device;
+struct BufferData
+{
     VkDeviceSize        size;
     VkBufferUsageFlags  usage;
     VkFlags             properties;
@@ -34,13 +33,14 @@ namespace Engine
 
 			virtual ~Buffer()
 			{
-                vkDestroyBuffer(buffer_data_.device, this->buf, nullptr);
-				vkFreeMemory(buffer_data_.device, this->mem, nullptr);
+				auto app_data = ApplicationData::data;
+                vkDestroyBuffer(app_data->device, this->buf, nullptr);
+				vkFreeMemory(app_data->device, this->mem, nullptr);
             }
 
             explicit Buffer(const struct BufferData& buffer_data)
 			{
-                buffer_data_.device = buffer_data.device;
+				auto app_data = ApplicationData::data;
 
 				VkResult res;
 				bool pass;
@@ -56,32 +56,27 @@ namespace Engine
 				bufferInfo.flags 				 = 0;
 				bufferInfo.pNext 				 = nullptr;
 
-				res = vkCreateBuffer(buffer_data.device, &bufferInfo, nullptr, &this->buf);
+				res = vkCreateBuffer(app_data->device, &bufferInfo, nullptr, &this->buf);
 				assert(res == VK_SUCCESS);
 
 				VkMemoryRequirements memRequirements;
-				vkGetBufferMemoryRequirements(buffer_data.device, this->buf, &memRequirements);
+				vkGetBufferMemoryRequirements(app_data->device, this->buf, &memRequirements);
 
 				VkPhysicalDeviceMemoryProperties memProperties;
-				vkGetPhysicalDeviceMemoryProperties(buffer_data.physicalDevice, &memProperties);
+				vkGetPhysicalDeviceMemoryProperties(app_data->gpu, &memProperties);
 
 				VkMemoryAllocateInfo allocInfo = {};
 				allocInfo.sType 						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 				allocInfo.allocationSize 				= memRequirements.size;
 				allocInfo.pNext 						= nullptr;
 
-				pass = Memory::findMemoryType(
-					memProperties,
-					memRequirements.memoryTypeBits,
-                    buffer_data.properties,
-					&allocInfo.memoryTypeIndex);
-
+				pass = Memory::findMemoryType(memRequirements.memoryTypeBits, buffer_data.properties, &allocInfo.memoryTypeIndex);
 				assert(pass);
 
-				res = vkAllocateMemory(buffer_data.device, &allocInfo, nullptr, &this->mem);
+				res = vkAllocateMemory(app_data->device, &allocInfo, nullptr, &this->mem);
 				assert(res == VK_SUCCESS);
 
-				vkBindBufferMemory(buffer_data.device, this->buf, this->mem, 0);
+				vkBindBufferMemory(app_data->device, this->buf, this->mem, 0);
 
 				this->buffer_info.range  = buffer_data.size;
 				this->buffer_info.offset = 0;

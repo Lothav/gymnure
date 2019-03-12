@@ -22,21 +22,16 @@ namespace Engine
 
 			static std::vector<VkDeviceMemory, mem::StdAllocator<VkDeviceMemory>> textureImageMemory ;
 
-			static VkImage createTextureImage(
-					VkPhysicalDevice physicalDevice,
-					VkDevice device,
-					const std::string &texture_path,
-					VkCommandPool commandPool,
-					VkQueue graphicQueue,
-					VkPhysicalDeviceMemoryProperties memory_properties);
+			static VkImage createTextureImage(const std::string &texture_path, VkQueue graphicQueue);
 
 		private:
 
-			static void createImage(VkDevice device, uint32_t width, uint32_t height, VkFormat format,
+			static void createImage(uint32_t width, uint32_t height, VkFormat format,
 								  	VkImageTiling tiling, VkImageUsageFlags usage,
-									VkMemoryPropertyFlags properties, VkImage& image,
-                                    VkPhysicalDeviceMemoryProperties memory_properties)
+									VkMemoryPropertyFlags properties, VkImage& image)
 			{
+				auto app_data = ApplicationData::data;
+
 				VkResult res;
 
 				VkImageCreateInfo imageInfo = {};
@@ -54,40 +49,41 @@ namespace Engine
 				imageInfo.samples 					 = VK_SAMPLE_COUNT_1_BIT;
 				imageInfo.sharingMode 				 = VK_SHARING_MODE_EXCLUSIVE;
 
-				res = vkCreateImage(device, &imageInfo, nullptr, &image);
+				res = vkCreateImage(app_data->device, &imageInfo, nullptr, &image);
 				assert(res == VK_SUCCESS);
 
 				VkMemoryRequirements memRequirements;
-				vkGetImageMemoryRequirements(device, image, &memRequirements);
+				vkGetImageMemoryRequirements(app_data->device, image, &memRequirements);
 
 				VkMemoryAllocateInfo allocInfo = {};
 				allocInfo.sType 					= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 				allocInfo.allocationSize 			= memRequirements.size;
 
 				Memory::Memory::findMemoryType(
-						memory_properties,
 						memRequirements.memoryTypeBits,
 						properties,
 						&allocInfo.memoryTypeIndex
 				);
 
                 textureImageMemory.resize(textureImageMemory.size() + 1);
-				res = vkAllocateMemory(device, &allocInfo, nullptr, &textureImageMemory[ textureImageMemory.size()-1 ]);
+				res = vkAllocateMemory(app_data->device, &allocInfo, nullptr, &textureImageMemory[ textureImageMemory.size()-1 ]);
 				assert(res == VK_SUCCESS);
 
-				vkBindImageMemory(device, image, textureImageMemory[ textureImageMemory.size()-1 ], 0);
+				vkBindImageMemory(app_data->device, image, textureImageMemory[ textureImageMemory.size()-1 ], 0);
 			}
 
-			static VkCommandBuffer beginSingleTimeCommands(VkCommandPool commandPool, VkDevice device)
+			static VkCommandBuffer beginSingleTimeCommands()
 			{
+				auto app_data = ApplicationData::data;
+
 				VkCommandBufferAllocateInfo allocInfo = {};
 				allocInfo.sType 							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 				allocInfo.level 							= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocInfo.commandPool 						= commandPool;
+				allocInfo.commandPool 						= app_data->graphic_command_pool;
 				allocInfo.commandBufferCount 				= 1;
 
 				VkCommandBuffer commandBuffer;
-				vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+				vkAllocateCommandBuffers(app_data->device, &allocInfo, &commandBuffer);
 
 				VkCommandBufferBeginInfo beginInfo = {};
 				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -98,12 +94,10 @@ namespace Engine
 				return commandBuffer;
 			}
 
-			static void endSingleTimeCommands(
-					VkCommandBuffer commandBuffer,
-					VkCommandPool commandPool,
-					VkQueue graphicsQueue,
-					VkDevice device)
+			static void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue graphicsQueue)
 			{
+				auto app_data = ApplicationData::data;
+
 				vkEndCommandBuffer(commandBuffer);
 
 				VkSubmitInfo submitInfo = {};
@@ -114,19 +108,12 @@ namespace Engine
 				vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
 				vkQueueWaitIdle(graphicsQueue);
 
-				vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+				vkFreeCommandBuffers(app_data->device, app_data->graphic_command_pool, 1, &commandBuffer);
 			}
 
-			static void transitionImageLayout(
-					VkImage image,
-					VkFormat format,
-					VkImageLayout oldLayout,
-					VkImageLayout newLayout,
-					VkCommandPool commandPool,
-					VkQueue graphicsQueue,
-					VkDevice device)
+			static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkQueue graphicsQueue)
 			{
-				VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool, device);
+				VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 				VkImageMemoryBarrier barrier = {};
 				barrier.sType 								= VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -159,20 +146,15 @@ namespace Engine
 					return;
 				}
 
-				vkCmdPipelineBarrier ( commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
-				endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
+				vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+				endSingleTimeCommands(commandBuffer, graphicsQueue);
 			}
 
-			static void copyBufferToImage (
-					VkBuffer buffer,
-					VkImage image,
-					uint32_t width,
-					uint32_t height,
-					VkCommandPool commandPool,
-					VkQueue graphicsQueue,
-					VkDevice device)
+			static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkQueue graphicsQueue)
 			{
-				VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool, device);
+				auto app_data = ApplicationData::data;
+
+				VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
 				VkBufferImageCopy region = {};
 				region.bufferOffset 						= 0;
@@ -186,7 +168,7 @@ namespace Engine
 				region.imageExtent 							= {width, height, 1};
 
 				vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-				endSingleTimeCommands(commandBuffer, commandPool, graphicsQueue, device);
+				endSingleTimeCommands(commandBuffer, graphicsQueue);
 			}
 		};
 	}

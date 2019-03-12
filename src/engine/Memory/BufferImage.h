@@ -42,7 +42,7 @@ namespace Engine
 
             ~BufferImage()
             {
-                auto device = ApplicationData::data.device;
+                auto device = ApplicationData::data->device;
 
                 if(image != nullptr) vkDestroyImage(device, image, nullptr);
                 if(view  != nullptr) vkDestroyImageView(device, view, nullptr);
@@ -69,7 +69,7 @@ namespace Engine
                 viewInfo.subresourceRange.baseArrayLayer 	= 0;
                 viewInfo.subresourceRange.layerCount 		= 1;
 
-                VkResult res = vkCreateImageView(ApplicationData::data.device, &viewInfo, nullptr, &this->view);
+                VkResult res = vkCreateImageView(ApplicationData::data->device, &viewInfo, nullptr, &this->view);
                 assert(res == VK_SUCCESS);
             }
 
@@ -111,7 +111,7 @@ namespace Engine
                 imageInfo.samples 					 = VK_SAMPLE_COUNT_1_BIT;
                 imageInfo.sharingMode 				 = VK_SHARING_MODE_EXCLUSIVE;
 
-                auto device = ApplicationData::data.device;
+                auto device = ApplicationData::data->device;
 
                 res = vkCreateImage(device, &imageInfo, nullptr, &image);
                 assert(res == VK_SUCCESS);
@@ -127,10 +127,7 @@ namespace Engine
                 mem_alloc.memoryTypeIndex   = 0;
                 mem_alloc.allocationSize    = mem_reqs.size;
 
-                bool pass = Memory::findMemoryType(
-                    _mem_props.memory_props, mem_reqs.memoryTypeBits,
-                    _mem_props.props_flags, &mem_alloc.memoryTypeIndex
-                );
+                bool pass = Memory::findMemoryType(mem_reqs.memoryTypeBits, _mem_props.props_flags, &mem_alloc.memoryTypeIndex);
                 assert(pass);
 
                 res = vkAllocateMemory(device, &mem_alloc, nullptr, &mem);
