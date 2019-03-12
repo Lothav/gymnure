@@ -38,11 +38,11 @@ namespace Engine
 
                 auto vert = Engine::GraphicPipeline::Shader{};
                 vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                vert.path = "../shaders/skybox.vert.spv";
+                vert.path = "skybox.vert.spv";
 
                 auto frag = Engine::GraphicPipeline::Shader{};
                 frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                frag.path = "../shaders/skybox.frag.spv";
+                frag.path = "skybox.frag.spv";
 
                 descriptor_set = new Descriptors::DescriptorSet(Descriptors::Type::GRAPHIC);
                 graphic_pipeline  = new GraphicPipeline::GraphicPipeline(app_data.device, {vert, frag});

@@ -12,16 +12,23 @@
 #define U_ASSERT_ONLY
 #endif
 
+#ifdef ASSETS_FOLDER_PATH
+#define ASSETS_FOLDER_PATH_STR ASSETS_FOLDER_PATH
+#else
+#define ASSETS_FOLDER_PATH_STR "."
+#endif
+
 #include <xcb/xcb.h>
 #include <vector>
-#include "glm/glm.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 #include <fstream>
 #include <cstring>
 #include <cassert>
 #include <iostream>
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
 
-struct VertexData {
+struct VertexData
+{
     float pos[3];
     float uv[2];
     float normal[3];
@@ -39,7 +46,6 @@ enum WindowEvent
 	ButtonUp   = 7,
 	Unknow     = 8,
 };
-
 
 namespace Engine
 {
@@ -111,7 +117,8 @@ namespace Engine
 				long shaderSize;
 				char* shaderCode = nullptr;
 
-				std::ifstream is(filename, std::ios::binary | std::ios::in | std::ios::ate);
+				std::string shader_file_path = std::string(ASSETS_FOLDER_PATH_STR) + "/shaders/" + filename;
+				std::ifstream is(shader_file_path, std::ios::binary | std::ios::in | std::ios::ate);
 
 				if (is.is_open())
 				{

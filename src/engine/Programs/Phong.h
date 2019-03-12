@@ -38,11 +38,11 @@ namespace Engine
 
                 auto vert = Engine::GraphicPipeline::Shader{};
                 vert.type = VK_SHADER_STAGE_VERTEX_BIT;
-                vert.path = "../../assets/shaders/phong.vert.spv";
+                vert.path = "phong.vert.spv";
 
                 auto frag = Engine::GraphicPipeline::Shader{};
                 frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
-                frag.path = "../../assets/shaders/phong.frag.spv";
+                frag.path = "phong.frag.spv";
 
                 descriptor_set = new Descriptors::DescriptorSet(Descriptors::Type::GRAPHIC);
                 graphic_pipeline = new GraphicPipeline::GraphicPipeline(app_data.device, {vert, frag});

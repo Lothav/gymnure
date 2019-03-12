@@ -6,6 +6,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake-modules")
 # ENABLE DEBUG
 add_definitions(-DDEBUG)
 
+# SET ASSETS FOLDER PATH
+add_definitions(-DASSETS_FOLDER_PATH="${CMAKE_SOURCE_DIR}/assets")
+
 # FIND VULKAN
 find_package(Vulkan REQUIRED)
 IF (NOT Vulkan_FOUND)
