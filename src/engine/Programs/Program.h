@@ -65,7 +65,7 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            virtual void init() = 0;
+            virtual void init(VkRenderPass render_pass) = 0;
 
             virtual void addObjData(const GymnureObjData& obj_data) = 0;
         };

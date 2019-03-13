@@ -61,7 +61,7 @@ namespace Engine
 				VkFramebufferCreateInfo fb_info = {};
 				fb_info.sType 					= VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 				fb_info.pNext 					= nullptr;
-				fb_info.renderPass 				= app_data->render_pass;
+				fb_info.renderPass 				= render_pass;
 				fb_info.attachmentCount 		= 2;
 				fb_info.pAttachments 			= img_attachments;
 				fb_info.width 					= app_data->view_width;

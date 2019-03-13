@@ -241,7 +241,6 @@ namespace Engine
         rp_attachments.push_back(attch);
 
         render_pass->create(rp_attachments);
-        app_data->render_pass = render_pass->getRenderPass();
 
         // Init Sync Primitives
         sync_primitives = new SyncPrimitives::SyncPrimitives(app_data->device);
@@ -262,7 +261,7 @@ namespace Engine
     uint Application::createPhongProgram()
     {
         auto program = new Programs::Phong(render_pass->getSwapChain()->getGraphicQueue());
-        program->init();
+        program->init(render_pass->getRenderPass());
 
         programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);
@@ -271,7 +270,7 @@ namespace Engine
     uint Application::createSkyboxProgram()
     {
         auto program = new Programs::Skybox(render_pass->getSwapChain()->getGraphicQueue());
-        program->init();
+        program->init(render_pass->getRenderPass());
 
         programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);

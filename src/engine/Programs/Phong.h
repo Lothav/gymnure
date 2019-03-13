@@ -31,7 +31,7 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            void init() override
+            void init(VkRenderPass render_pass) override
             {
                 auto app_data = ApplicationData::data;
 
@@ -73,7 +73,7 @@ namespace Engine
 
                 graphic_pipeline->addViAttributes(vi_attribs);
                 graphic_pipeline->setViBinding(vi_binding);
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), ApplicationData::data->render_pass, VK_CULL_MODE_BACK_BIT);
+                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, VK_CULL_MODE_BACK_BIT);
             }
 
             void addObjData(const GymnureObjData& obj_data) override

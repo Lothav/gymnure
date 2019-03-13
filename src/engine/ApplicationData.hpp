@@ -19,7 +19,6 @@ namespace Engine
         VkSurfaceKHR                            surface;
         VkDevice 								device;
         VkPhysicalDevice                        gpu;
-        VkRenderPass                            render_pass;
         VkCommandPool                           graphic_command_pool;
 
         u_int32_t							 	queue_family_count;
