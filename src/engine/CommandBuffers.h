@@ -106,13 +106,15 @@ namespace Engine
                     for(auto &data : program_obj->data) {
 
                         vkCmdBindPipeline(command_buffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj->graphic_pipeline->getPipeline());
+
                         vkCmdBindDescriptorSets(command_buffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                                 program_obj->descriptor_set->getPipelineLayout(), 0,
                                                 1, &data->descriptor_set, 0, nullptr);
+
                         vkCmdBindVertexBuffers(command_buffers_[i], 0, 1, &data->vertex_buffer->buf, offsets);
 
-                        Util::Util::init_viewports(command_buffers_[i], width, height);
-                        Util::Util::init_scissors(command_buffers_[i], width, height);
+                        Util::Util::initViewports(command_buffers_[i], width, height);
+                        Util::Util::initScissors(command_buffers_[i], width, height);
 
                         vkCmdDraw(command_buffers_[i], static_cast<uint32_t>(data->vertex_buffer->getVertexSize()), 1, 0, 0);
                     }
