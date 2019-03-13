@@ -73,10 +73,7 @@ namespace Engine
                 assert(res == VK_SUCCESS);
             }
 
-            explicit BufferImage(struct ImageProps img_props, VkImage* images = nullptr)
-            {
-                BufferImage({}, img_props, images);
-            }
+            explicit BufferImage(struct ImageProps img_props, VkImage* images = nullptr) : BufferImage({}, img_props, images) {}
 
             void* operator new(std::size_t size)
             {

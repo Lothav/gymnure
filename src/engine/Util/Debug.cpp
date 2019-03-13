@@ -23,13 +23,16 @@ void Engine::Debug::init()
             const VkDebugUtilsMessengerCallbackDataEXT*  pCallbackData,
             void*                                        pUserData) -> VkBool32
     {
-        if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)      Debug::logInfo("VERBOSE: ");
-        else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)    Debug::logInfo("INFO: ");
-        else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) Debug::logInfo("WARNING: ");
-        else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)   Debug::logInfo("ERROR: ");
-        else Debug::logInfo("UNKNOWN: ");
+        std::string message;
 
-        Debug::logInfo(pCallbackData->pMessage);
+        if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)      message = "VERBOSE: ";
+        else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)    message = "INFO: ";
+        else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) message = "WARNING: ";
+        else if(messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)   message = "ERROR: ";
+        else message = "UNKNOWN: ";
+        message += pCallbackData->pMessage;
+
+        Debug::logInfo(message);
 
         return VK_FALSE;
     };
