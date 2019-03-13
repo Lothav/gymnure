@@ -2,6 +2,8 @@
 
 #include <Programs/Phong.h>
 #include <Programs/Skybox.h>
+#include <Programs/Default.hpp>
+#include <Util/Debug.hpp>
 
 namespace Engine
 {
@@ -24,7 +26,7 @@ namespace Engine
         _app_info.applicationVersion 	= 1;
         _app_info.pEngineName 			= APP_NAME;
         _app_info.engineVersion 		= 1;
-        _app_info.apiVersion 			= VK_API_VERSION_1_0;
+        _app_info.apiVersion 			= VK_API_VERSION_1_1;
 
         VkInstanceCreateInfo _inst_info = {};
         memset(&_inst_info, 0, sizeof(VkInstanceCreateInfo));
@@ -152,6 +154,7 @@ namespace Engine
         vkDestroyCommandPool(app_data->device, app_data->graphic_command_pool, nullptr);
         for(auto &i : Descriptors::Textures::textureImageMemory) vkFreeMemory(app_data->device, i, nullptr);
         vkDestroyDevice(app_data->device, nullptr);
+        Debug::destroy();
         vkDestroyInstance(app_data->instance, nullptr);
     }
 
@@ -270,6 +273,15 @@ namespace Engine
     uint Application::createSkyboxProgram()
     {
         auto program = new Programs::Skybox(render_pass->getSwapChain()->getGraphicQueue());
+        program->init(render_pass->getRenderPass());
+
+        programs.push_back(program);
+        return static_cast<uint>(programs.size() - 1);
+    }
+
+    uint Application::createDefaultProgram()
+    {
+        auto program = new Programs::Default(render_pass->getSwapChain()->getGraphicQueue());
         program->init(render_pass->getRenderPass());
 
         programs.push_back(program);

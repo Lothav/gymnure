@@ -95,7 +95,7 @@ namespace Engine
 				vi.flags 								= 0;
 				vi.vertexBindingDescriptionCount 		= 1;
 				vi.pVertexBindingDescriptions 			= &_vi_binding;
-				vi.vertexAttributeDescriptionCount 		= 3;
+				vi.vertexAttributeDescriptionCount 		= static_cast<uint32_t>(_vi_attributes.size());
 				vi.pVertexAttributeDescriptions 		= _vi_attributes.data();
 
 				VkPipelineCacheCreateInfo pipelineCache = {};

@@ -69,15 +69,63 @@ namespace Engine
 
             void create()
             {
-                setLayoutBindings();
-                setDescriptorLayouts();
-                setPipelineLayout();
+                // Set Layout Bindings
+                if(_type == Type::GRAPHIC) {
+                    _layout_bindings.resize(2);
 
-                /*  create Uniform Buffer  */
+                    _layout_bindings[0].binding 					 = 0;
+                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    _layout_bindings[0].descriptorCount 			 = 1;
+                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
+                    _layout_bindings[0].pImmutableSamplers			 = nullptr;
 
+                    _layout_bindings[1].binding 					 = 1;
+                    _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    _layout_bindings[1].descriptorCount 			 = 1;
+                    _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
+                    _layout_bindings[1].pImmutableSamplers 			 = nullptr;
+                }
+                else if(_type == Type::COMPUTE) {
+                    _layout_bindings.resize(1);
+
+                    _layout_bindings[0].binding 					 = 1;
+                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+                    _layout_bindings[0].descriptorCount 			 = 1;
+                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_COMPUTE_BIT;
+                    _layout_bindings[0].pImmutableSamplers 			 = nullptr;
+                } else {
+                    assert(false);
+                }
+
+                // Set Descriptor Layouts
+                VkResult res;
+
+                _desc_layout.resize(1);
+
+                VkDescriptorSetLayoutCreateInfo  _descriptor_layout = {};
+                _descriptor_layout.sType 						 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+                _descriptor_layout.pNext 						 = nullptr;
+                _descriptor_layout.bindingCount 				 = static_cast<uint32_t>(_layout_bindings.size());
+                _descriptor_layout.pBindings 					 = _layout_bindings.data();
+
+                res = vkCreateDescriptorSetLayout(ApplicationData::data->device, &_descriptor_layout, nullptr, _desc_layout.data());
+                assert(res == VK_SUCCESS);
+
+                // Set Pipeline Layout
+                VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
+                pPipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+                pPipelineLayoutCreateInfo.pNext                  = nullptr;
+                pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
+                pPipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
+                pPipelineLayoutCreateInfo.setLayoutCount         = 1;
+                pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
+
+                res = vkCreatePipelineLayout(ApplicationData::data->device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout);
+                assert(res == VK_SUCCESS);
+
+                //  Create Uniform Buffer
                 auto app_data = ApplicationData::data;
                 struct BufferData uniformBufferData = {};
-
                 uniformBufferData.usage      = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
                 uniformBufferData.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
                 uniformBufferData.size       = sizeof(glm::mat4)*3;
@@ -156,21 +204,22 @@ namespace Engine
                 VkDescriptorPool desc_pool;
 
                 if(_type == Type::GRAPHIC) {
-                    VkDescriptorPoolSize type_count[2];
-                    type_count[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    type_count[0].descriptorCount 					 = 1;
+                    VkDescriptorPoolSize poolSizes[2];
+                    poolSizes[0].type 								 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                    poolSizes[0].descriptorCount 					 = 1;
 
-                    type_count[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    type_count[1].descriptorCount 					 = 1;
+                    poolSizes[1].type 								 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    poolSizes[1].descriptorCount 					 = 1;
 
                     VkDescriptorPoolCreateInfo descriptor_pool = {};
                     descriptor_pool.sType 							 = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
                     descriptor_pool.pNext 							 = nullptr;
                     descriptor_pool.maxSets 						 = 1;
                     descriptor_pool.poolSizeCount 					 = 2;
-                    descriptor_pool.pPoolSizes 						 = type_count;
+                    descriptor_pool.pPoolSizes 						 = poolSizes;
 
-                    assert(vkCreateDescriptorPool(ApplicationData::data->device, &descriptor_pool, nullptr, &desc_pool) == VK_SUCCESS);
+                    VkResult res = vkCreateDescriptorPool(ApplicationData::data->device, &descriptor_pool, nullptr, &desc_pool);
+                    assert(res == VK_SUCCESS);
 
                     return desc_pool;
                 }
@@ -228,68 +277,6 @@ namespace Engine
             }
 
         private:
-
-            void setLayoutBindings()
-            {
-                if(_type == Type::GRAPHIC) {
-                    _layout_bindings.resize(2);
-
-                    _layout_bindings[0].binding 					 = 0;
-                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    _layout_bindings[0].descriptorCount 			 = 1;
-                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
-                    _layout_bindings[0].pImmutableSamplers			 = nullptr;
-
-                    _layout_bindings[1].binding 					 = 1;
-                    _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    _layout_bindings[1].descriptorCount 			 = 1;
-                    _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
-                    _layout_bindings[1].pImmutableSamplers 			 = nullptr;
-
-                    return;
-                }
-
-                if(_type == Type::COMPUTE) {
-                    _layout_bindings.resize(1);
-
-                    _layout_bindings[0].binding 					 = 1;
-                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-                    _layout_bindings[0].descriptorCount 			 = 1;
-                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_COMPUTE_BIT;
-                    _layout_bindings[0].pImmutableSamplers 			 = nullptr;
-
-                    return;
-                }
-
-                assert(false);
-            }
-
-            void setDescriptorLayouts()
-            {
-                VkResult res;
-                VkDescriptorSetLayoutCreateInfo  _descriptor_layout = {};
-                _descriptor_layout.sType 						 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-                _descriptor_layout.pNext 						 = nullptr;
-                _descriptor_layout.bindingCount 				 = static_cast<uint32_t>(_layout_bindings.size());
-                _descriptor_layout.pBindings 					 = _layout_bindings.data();
-
-                _desc_layout.resize(1);
-
-                assert(vkCreateDescriptorSetLayout(ApplicationData::data->device, &_descriptor_layout, nullptr, _desc_layout.data()) == VK_SUCCESS);
-            }
-
-            void setPipelineLayout()
-            {
-                VkPipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
-                pPipelineLayoutCreateInfo.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-                pPipelineLayoutCreateInfo.pNext                  = nullptr;
-                pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-                pPipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
-                pPipelineLayoutCreateInfo.setLayoutCount         = 1;
-                pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
-
-                assert(vkCreatePipelineLayout(ApplicationData::data->device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout) == VK_SUCCESS);
-            }
 
             VkSampler createSampler()
             {

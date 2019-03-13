@@ -29,6 +29,7 @@ public:
 
     ~Gymnure()
     {
+        Engine::Application::destroy();
         delete window_;
         mem::Provider::destroyPool();
     }
@@ -41,6 +42,11 @@ public:
     uint initSkyboxProgram()
     {
         return Engine::Application::createSkyboxProgram();
+    }
+
+    uint initDefaultProgram()
+    {
+        return Engine::Application::createDefaultProgram();
     }
 
     void addObjData(uint program_id, const GymnureObjData& gymnure_data)

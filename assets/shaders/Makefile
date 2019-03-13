@@ -1,10 +1,11 @@
-SHADER_FILES=phong			\
-		 	 path_tracing 	\
-		 	 freetype		\
-		 	 skybox	        \
+SHADER_FILES=default        \
+             #phong			\
+		 	 #path_tracing 	\
+		 	 #freetype		\
+		 	 #skybox        \
 
 all: clear_old 	\
-	 build 		\
+	 build
 
 clear_old:
 	$(info Clearing old files:)

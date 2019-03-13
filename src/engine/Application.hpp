@@ -31,6 +31,7 @@ namespace Engine
 
         static uint createPhongProgram();
         static uint createSkyboxProgram();
+        static uint createDefaultProgram();
         static void addObjData(uint, const GymnureObjData&);
     };
 

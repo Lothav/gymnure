@@ -59,14 +59,11 @@ namespace Engine
             // Do not free memory here!
         }
 
-        void bindGraphicCommandBuffer (
-                std::vector<Programs::Program*>  programs,
-                RenderPass::RenderPass* 	     render_pass,
-                uint32_t 		                 width,
-                uint32_t 		                 height
-        ) {
+        void bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::RenderPass* render_pass, uint32_t width, uint32_t height)
+        {
             VkResult res;
             const VkDeviceSize offsets[1] = {0};
+
             auto frame_buffers = render_pass->getFrameBuffers();
             auto image_count = render_pass->getSwapChain()->getImageCount();
 
@@ -79,7 +76,7 @@ namespace Engine
             cmd_buf_info.pInheritanceInfo 				= nullptr;
 
             VkClearValue clear_values[2];
-            clear_values[0]                             = {0.0f, 0.0f, 0.0f, 1.0f};
+            clear_values[0]                             = {0.0f, 1.0f, 0.0f, 1.0f};
             clear_values[1].depthStencil.depth 			= 1.f;
             clear_values[1].depthStencil.stencil 		= 0;
 

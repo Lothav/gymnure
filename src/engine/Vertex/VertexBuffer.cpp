@@ -11,16 +11,15 @@ namespace Engine
         {
             std::vector <VertexData> vertexData = {};
 
+            auto assets_model_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + model_path;
+            auto assets_obj_mtl    = std::string(ASSETS_FOLDER_PATH_STR) + "/" + obj_mtl;
+
+            auto* obj_mtl_ptr = obj_mtl.empty() ? nullptr : assets_obj_mtl.c_str();
+
             tinyobj::attrib_t attrib;
             std::vector <tinyobj::shape_t> shapes;
             std::vector <tinyobj::material_t> materials;
             std::string err;
-            std::map<std::string, int> map;
-
-            auto assets_model_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + model_path;
-            auto assets_obj_mtl = std::string(ASSETS_FOLDER_PATH_STR) + "/" + obj_mtl;
-
-            auto* obj_mtl_ptr = obj_mtl.empty() ? nullptr : assets_obj_mtl.c_str();
 
             if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, assets_model_path.c_str(), obj_mtl_ptr)) {
                 throw std::runtime_error(err);

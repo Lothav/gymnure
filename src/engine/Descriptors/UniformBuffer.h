@@ -21,8 +21,6 @@ namespace Engine
 				cameraPos 	= { 0.0f,  0.0f, 0.0f };
 			}
 
-			~UniformBuffer() = default;
-
             void* operator new(std::size_t size)
 			{
 				return mem::Provider::getMemory(size);
@@ -35,11 +33,11 @@ namespace Engine
 
 		private:
 
-			struct  {
+			struct {
 				glm::mat4 model;
-				glm::vec4 view;
+				glm::mat4 view;
 				glm::mat4 projection;
-			} mvp;
+			} mvp{};
 
 			glm::vec3 cameraPos = glm::vec3();
 			glm::vec3 rotation  = glm::vec3();
@@ -71,14 +69,8 @@ namespace Engine
 
 			void updateUniform()
 			{
-				glm::mat4 viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
-
-				this->mvp.model = viewMatrix * glm::translate(glm::mat4(1.0), cameraPos);
-				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-				this->mvp.model = glm::rotate(this->mvp.model, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-				this->mvp.view = glm::vec4(0.0f, 0.0f, -zoom, 0.0f);
+				this->mvp.model = glm::mat4x4();
+				this->mvp.view  = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
 
 				this->updateMVP();
 			}

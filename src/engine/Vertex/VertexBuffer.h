@@ -20,17 +20,13 @@ namespace Engine
 
             std::vector<VertexData> _vertexData = {};
 
-            void updateMemoryWithData()
-            {
-                Memory::Memory::copyMemory(mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
-            }
-
         public:
 
             VertexBuffer(struct BufferData buffer_data, const std::vector<VertexData>& vertexData) : Buffer(buffer_data)
             {
                 _vertexData = vertexData;
-                updateMemoryWithData();
+
+                Memory::Memory::copyMemory(mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
             }
 
             ~VertexBuffer() = default;
