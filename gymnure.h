@@ -55,8 +55,8 @@ public:
 
     bool draw()
     {
-        ///if(Engine::Application::poolEvent() == WindowEvent::Close)
-        ///    return false;
+        if(!window_->poolEvent())
+            return false;
 
         Engine::Application::draw();
         return true;
