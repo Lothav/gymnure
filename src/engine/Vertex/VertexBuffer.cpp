@@ -7,7 +7,7 @@ namespace Engine
 {
     namespace Vertex
     {
-        std::vector<VertexData> VertexBuffer::loadModelVertices(const std::string &model_path, const char *obj_mtl)
+        std::vector<VertexData> VertexBuffer::loadModelVertices(const std::string &model_path, const std::string& obj_mtl)
         {
             std::vector <VertexData> vertexData = {};
 
@@ -17,7 +17,12 @@ namespace Engine
             std::string err;
             std::map<std::string, int> map;
 
-            if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, model_path.c_str(), obj_mtl)) {
+            auto assets_model_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + model_path;
+            auto assets_obj_mtl = std::string(ASSETS_FOLDER_PATH_STR) + "/" + obj_mtl;
+
+            auto* obj_mtl_ptr = obj_mtl.empty() ? nullptr : assets_obj_mtl.c_str();
+
+            if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &err, assets_model_path.c_str(), obj_mtl_ptr)) {
                 throw std::runtime_error(err);
             }
 

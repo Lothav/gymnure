@@ -14,8 +14,8 @@ int main(int argc, char** argv)
 		auto skybox_id = gymnure->initSkyboxProgram();
 
         auto room2 = GymnureObjData{};
-		room2.path_texture 	= "../assets/room2.png";
-		room2.path_obj 		= "../assets/room2.obj";
+		room2.path_texture 	= "room2.png";
+		room2.path_obj 		= "room2.obj";
         gymnure->addObjData(phong_id, room2);
 
 		//auto chalet = GymnureData{};
@@ -24,9 +24,9 @@ int main(int argc, char** argv)
 		//gymnure->addObject(chalet);
 
 		auto cube = GymnureObjData{};
-		cube.path_obj 		= "../assets/cube.obj";
-		cube.path_texture 	= "../assets/sky.jpg";
-		cube.obj_mtl 		= const_cast<char*>(std::string("../assets/cube.mtl").data());
+		cube.path_obj 		= "cube.obj";
+		cube.path_texture 	= "sky.jpg";
+		cube.obj_mtl 		= "cube.mtl";
 		gymnure->addObjData(skybox_id, cube);
 
 		gymnure->prepare();
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
             if (duration >= 3e3) {
 				auto fps = std::abs((float)frames * (1.e3 / duration));
 
-				std::cout << fps << std::endl;
+				Engine::Debug::logInfo("FPS: " + std::to_string(fps));
 
 				frames 	 = 0;
 				duration = 0.f;

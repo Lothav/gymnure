@@ -1,4 +1,5 @@
 #include <ApplicationData.hpp>
+#include <Util/Util.h>
 #include "Textures.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -16,8 +17,10 @@ namespace Engine
 
             VkImage textureImage;
 
+            auto assets_texture_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + texture_path;
+
             int texWidth, texHeight, texChannels;
-            stbi_uc *pixels = stbi_load(texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            stbi_uc *pixels = stbi_load(assets_texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
             auto imageSize = static_cast<VkDeviceSize>(texWidth * texHeight * 4);
 
             assert(pixels);

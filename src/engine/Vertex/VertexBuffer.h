@@ -50,7 +50,7 @@ namespace Engine
                 return _vertexData.size();
             }
 
-            static std::vector<VertexData> loadModelVertices(const std::string& model_path, const char * obj_mtl = nullptr);
+            static std::vector<VertexData> loadModelVertices(const std::string& model_path, const std::string& obj_mtl);
 
         };
     }
