@@ -11,16 +11,22 @@ int main(int argc, char** argv)
 		auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
         auto default_id = gymnure->initDefaultProgram();
+		//auto phong_id = gymnure->initPhongProgram();
 
         auto room2 = GymnureObjData{};
 		room2.path_texture 	= "room2.png";
 		room2.path_obj 		= "room2.obj";
         gymnure->addObjData(default_id, room2);
 
-		//auto chalet = GymnureData{};
+		auto room3 = GymnureObjData{};
+		room3.path_texture 	= "chalet.jpg";
+		room3.path_obj 		= "chalet.obj";
+		gymnure->addObjData(default_id, room3);
+
+		//auto chalet = GymnureObjData{};
 		//chalet.path_texture = "chalet.jpg";
-		//chalet.path_obj 	  = "chalet.obj";
-		//gymnure->addObject(chalet);
+		//chalet.path_obj 	= "chalet.obj";
+		//gymnure->addObjData(phong_id, chalet);
 
 		//auto cube = GymnureObjData{};
 		//cube.path_obj 		= "cube.obj";

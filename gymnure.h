@@ -29,7 +29,9 @@ public:
 
     ~Gymnure()
     {
+    #ifdef DEBUG
         Engine::Application::destroy();
+    #endif
         delete window_;
         mem::Provider::destroyPool();
     }
