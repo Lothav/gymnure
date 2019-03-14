@@ -12,14 +12,13 @@ struct ImageProps {
     uint32_t              width{};
     uint32_t              height{};
     VkFormat              format = VK_FORMAT_UNDEFINED;
-    VkImageTiling         tiling;
+    VkImageTiling         tiling{};
     VkImageUsageFlags     usage{};
     VkImageAspectFlags    aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 };
 
 struct MemoryProps {
     VkMemoryPropertyFlags props_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    VkPhysicalDeviceMemoryProperties memory_props{};
 };
 
 namespace Engine

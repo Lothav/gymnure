@@ -175,7 +175,7 @@ namespace Engine
 				ds.pNext 								= nullptr;
 				ds.flags 								= 0;
 
-				ds.depthTestEnable 						= VK_TRUE;
+				ds.depthTestEnable 						= VK_FALSE;
 				ds.depthWriteEnable 					= VK_TRUE;
 				ds.depthCompareOp 						= VK_COMPARE_OP_LESS;
 				ds.depthBoundsTestEnable 				= VK_FALSE;

@@ -1,3 +1,5 @@
+#include <utility>
+
 //
 // Created by tracksale on 8/31/17.
 //
@@ -18,15 +20,14 @@ namespace Engine
 
         private:
 
-            std::vector<VertexData> _vertexData = {};
+            uint32_t vertex_count;
 
         public:
 
-            VertexBuffer(struct BufferData buffer_data, const std::vector<VertexData>& vertexData) : Buffer(buffer_data)
+            VertexBuffer(struct BufferData buffer_data, std::vector<VertexData> vertexData) : Buffer(buffer_data)
             {
-                _vertexData = vertexData;
-
-                Memory::Memory::copyMemory(mem, _vertexData.data(), (_vertexData.size() * sizeof(VertexData)));
+                vertex_count = static_cast<uint32_t>(vertexData.size());
+                Memory::Memory::copyMemory(mem, vertexData.data(), (vertex_count * sizeof(VertexData)));
             }
 
             ~VertexBuffer() = default;
@@ -41,12 +42,13 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            unsigned long getVertexSize() const
+            uint32_t getVertexSize() const
             {
-                return _vertexData.size();
+                return vertex_count;
             }
 
-            static std::vector<VertexData> loadModelVertices(const std::string& model_path, const std::string& obj_mtl);
+            static std::vector<VertexData> loadObjModelVertices(const std::string& model_path, const std::string& obj_mtl);
+            static std::vector<VertexData> createPrimitiveTriangle();
 
         };
     }

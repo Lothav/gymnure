@@ -76,7 +76,7 @@ namespace Engine
             cmd_buf_info.pInheritanceInfo 				= nullptr;
 
             VkClearValue clear_values[2];
-            clear_values[0].color = { { 0.0f, 0.0f, 0.2f, 1.0f } };
+            clear_values[0].color = { { 0.2f, 0.2f, 0.2f, 1.0f } };
             clear_values[1].depthStencil = { 1.0f, 0 };
 
             VkRenderPassBeginInfo rp_begin = {};
@@ -112,7 +112,7 @@ namespace Engine
                         Util::Util::initViewports(command_buffers_[i], width, height);
                         Util::Util::initScissors(command_buffers_[i], width, height);
 
-                        vkCmdDraw(command_buffers_[i], static_cast<uint32_t>(data->vertex_buffer->getVertexSize()), 1, 0, 0);
+                        vkCmdDraw(command_buffers_[i], data->vertex_buffer->getVertexSize(), 1, 0, 0);
                     }
                 }
 

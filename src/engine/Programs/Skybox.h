@@ -90,7 +90,7 @@ namespace Engine
 
                 // Load Vertex
                 std::vector<VertexData> vertexData = {};
-                if(!obj_data.path_obj.empty()) vertexData = Vertex::VertexBuffer::loadModelVertices(obj_data.path_obj, obj_data.obj_mtl);
+                if(!obj_data.path_obj.empty()) vertexData = Vertex::VertexBuffer::loadObjModelVertices(obj_data.path_obj, obj_data.obj_mtl);
                 for(auto v_data : obj_data.vertex_data) vertexData.push_back(v_data);
 
                 struct BufferData vbData = {};

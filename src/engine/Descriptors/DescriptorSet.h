@@ -8,6 +8,7 @@
 #include <Provider.hpp>
 #include <Allocator.hpp>
 #include <ApplicationData.hpp>
+#include <Util/Debug.hpp>
 #include "Descriptors/UniformBuffer.h"
 #include "Descriptors/Textures.h"
 #include "Memory/BufferImage.h"
@@ -94,6 +95,7 @@ namespace Engine
                     _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_COMPUTE_BIT;
                     _layout_bindings[0].pImmutableSamplers 			 = nullptr;
                 } else {
+                    Debug::logError("Descriptor Type " + std::to_string(_type) + "not supported!");
                     assert(false);
                 }
 

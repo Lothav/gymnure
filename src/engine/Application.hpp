@@ -33,6 +33,10 @@ namespace Engine
         static uint createSkyboxProgram();
         static uint createDefaultProgram();
         static void addObjData(uint, const GymnureObjData&);
+        static std::vector<Programs::Program*> getPrograms()
+        {
+            return programs;
+        }
     };
 
 }

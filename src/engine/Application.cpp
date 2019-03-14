@@ -215,9 +215,6 @@ namespace Engine
 
         res = vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present);
         assert(res == VK_SUCCESS);
-
-        res = vkDeviceWaitIdle(ApplicationData::data->device);
-        assert(res == VK_SUCCESS);
     }
 
     void Application::prepare()
@@ -240,7 +237,7 @@ namespace Engine
         struct rpAttachments attch = {};
 
         attch.format = render_pass->getSwapChain()->getSwapChainFormat();
-        attch.clear  = false;
+        attch.clear  = true;
         rp_attachments.push_back(attch);
 
         attch.format = render_pass->getDepthBufferFormat();

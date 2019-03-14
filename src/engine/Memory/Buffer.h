@@ -62,9 +62,6 @@ namespace Engine
 				VkMemoryRequirements memRequirements;
 				vkGetBufferMemoryRequirements(app_data->device, this->buf, &memRequirements);
 
-				VkPhysicalDeviceMemoryProperties memProperties;
-				vkGetPhysicalDeviceMemoryProperties(app_data->gpu, &memProperties);
-
 				VkMemoryAllocateInfo allocInfo = {};
 				allocInfo.sType 						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 				allocInfo.allocationSize 				= memRequirements.size;

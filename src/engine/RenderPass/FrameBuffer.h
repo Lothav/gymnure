@@ -123,7 +123,6 @@ namespace Engine
 				img_props.height 		= app_data->view_height;
 
 				struct MemoryProps mem_props = {};
-				mem_props.memory_props 	= app_data->memory_properties;
 
 				_depth_buffer = new Memory::BufferImage(mem_props, img_props);
 			}

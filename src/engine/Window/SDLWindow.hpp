@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <ApplicationData.hpp>
+#include <Application.hpp>
 
 namespace Engine
 {
@@ -66,11 +67,35 @@ namespace Engine
                 while (SDL_PollEvent(&event))
                 {
                     //ImGui_ImplSDL2_ProcessEvent(&event);
-                    if (event.type == SDL_QUIT)
-                        return false;
+                    switch( event.type ) {
+                        case SDL_QUIT:
+                            return false;
+
+                        case SDL_KEYDOWN:
+
+                            auto programs = Application::getPrograms();
+
+                            auto zoom = 0.0f;
+                            switch (event.key.keysym.sym) {
+                                case SDLK_UP:
+                                    zoom = 0.1f;
+                                    break;
+                                case SDLK_DOWN:
+                                    zoom = -0.1f;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            for (auto program : programs) {
+                                auto uniform_buffer = program->descriptor_set->getUniformBuffer();
+                                uniform_buffer->zoomCamera(zoom);
+                            }
+                            break;
+                        }
                     //if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(window_))
                     //    ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(g_PhysicalDevice, g_Device, &g_WindowData, g_Allocator, (int)event.window.data1, (int)event.window.data2);
-                }
+                    }
 
                 return true;
             }

@@ -18,7 +18,6 @@ namespace Engine
 			{
 				zoom 		= -7.0f;
 				rotation 	= { 0.0f,  0.0f, 0.0f };
-				cameraPos 	= { 0.0f,  0.0f, 0.0f };
 			}
 
             void* operator new(std::size_t size)
@@ -39,7 +38,6 @@ namespace Engine
 				glm::mat4 projection;
 			} mvp{};
 
-			glm::vec3 cameraPos = glm::vec3();
 			glm::vec3 rotation  = glm::vec3();
 			float zoom = 0;
 
@@ -56,7 +54,7 @@ namespace Engine
 				this->zoom += _zoom;
 				if (this->zoom > -2) this->zoom = -2;
 
-				std::cout << "zoom: " << this->zoom << std::endl;
+				std::cout << "Camera Zoom: " << this->zoom << std::endl;
 				this->updateUniform();
 			}
 

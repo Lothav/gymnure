@@ -9,7 +9,19 @@ namespace Engine
 {
     namespace Vertex
     {
-        std::vector<VertexData> VertexBuffer::loadModelVertices(const std::string &model_path, const std::string& obj_mtl)
+        std::vector<VertexData> VertexBuffer::createPrimitiveTriangle()
+        {
+            std::vector<VertexData> vertexBuffer =
+                {
+                    { {  1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
+                    { { -1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
+                    { {  0.0f, -1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }
+                };
+
+            return vertexBuffer;
+        }
+
+        std::vector<VertexData> VertexBuffer::loadObjModelVertices(const std::string &model_path, const std::string& obj_mtl)
         {
             std::vector <VertexData> vertex_data = {};
 
