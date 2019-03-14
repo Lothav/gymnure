@@ -1,4 +1,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
+
+#include <Util/Debug.hpp>
 #include "tinyobjloader/tiny_obj_loader.h"
 
 #include "VertexBuffer.h"
@@ -9,7 +11,7 @@ namespace Engine
     {
         std::vector<VertexData> VertexBuffer::loadModelVertices(const std::string &model_path, const std::string& obj_mtl)
         {
-            std::vector <VertexData> vertexData = {};
+            std::vector <VertexData> vertex_data = {};
 
             auto assets_model_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + model_path;
             auto assets_obj_mtl    = std::string(ASSETS_FOLDER_PATH_STR) + "/" + obj_mtl;
@@ -46,11 +48,13 @@ namespace Engine
 
                         };
 
-                    vertexData.push_back(vertex);
+                    vertex_data.push_back(vertex);
                 }
             }
 
-            return vertexData;
+            Debug::logInfo(assets_model_path + " object loaded! Vertex count: " +  std::to_string(vertex_data.size()));
+
+            return vertex_data;
         }
     }
 }
