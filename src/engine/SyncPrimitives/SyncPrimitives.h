@@ -72,7 +72,7 @@ namespace Engine
 				VkFenceCreateInfo fenceInfo = {};
 				fenceInfo.sType 			= VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 				fenceInfo.pNext 			= nullptr;
-				fenceInfo.flags 			= 0;
+				fenceInfo.flags 			= VK_FENCE_CREATE_SIGNALED_BIT;
 
 				for(u_int32_t i = 0; i< size; i++)
 				{

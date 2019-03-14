@@ -49,18 +49,23 @@ namespace Engine
         res = vkEnumeratePhysicalDevices(app_data->instance, &app_data->queue_family_count, gpu_vector.data());
         assert(res == VK_SUCCESS);
 
-        std::cout << "========================================================" << std::endl;
-        std::cout << "Devices found:" << std::endl;
+        std::string device_log = "========================================================\n";
+        device_log += "Devices found:\n";
         for (uint i = 0; i < gpu_vector.size(); i++) {
             VkPhysicalDeviceProperties device_properties;
             vkGetPhysicalDeviceProperties(gpu_vector[i], &device_properties);
-            std::cout << "\tDevice[" << i << "]: " << device_properties.deviceName << std::endl;
-            std::cout << "\t\tType: " << Util::Util::physicalDeviceTypeString(device_properties.deviceType) << std::endl;
-            std::cout << "\t\tAPI: " << (device_properties.apiVersion >> 22) << "." << ((device_properties.apiVersion >> 12) & 0x3ff) << "." << (device_properties.apiVersion & 0xfff) << std::endl;
+            device_log += "\tDevice[" + std::to_string(i) + "]: " + device_properties.deviceName + "\n";
+            device_log += "\t\tType: " + Util::Util::physicalDeviceTypeString(device_properties.deviceType) + "\n";
+            device_log += "\t\tAPI: " +
+                std::to_string(device_properties.apiVersion >> 22) + "." +
+                std::to_string((device_properties.apiVersion >> 12) & 0x3ff) + "." +
+                std::to_string(device_properties.apiVersion & 0xfff) + "\n";
         }
         uint gpu_index = 0;
-        std::cout << "Using Device[" << std::to_string(gpu_index) << "]" << std::endl;
-        std::cout << "========================================================" << std::endl;
+        device_log += "Using Device[" + std::to_string(gpu_index) + "]\n";
+        device_log += "========================================================";
+
+        Debug::logInfo(device_log);
 
         app_data->gpu = gpu_vector[gpu_index];
 
@@ -137,7 +142,6 @@ namespace Engine
 
         res = vkCreateCommandPool(app_data->device, &cmd_pool_info, nullptr, &app_data->graphic_command_pool);
         assert(res == VK_SUCCESS);
-        //vkGetDeviceQueue(device, queueComputeFamilyIndex, 0, &compute_queue_);
     }
 
     void Application::destroy()
@@ -163,34 +167,36 @@ namespace Engine
         VkResult res;
         VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-        res = vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, VK_NULL_HANDLE, &current_buffer_);
+        res = vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_);
         assert(res == VK_SUCCESS);
 
         VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
         for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
 
-        auto command_buffers = command_buffer->getCommandBuffers();
+        auto current_command_buffer = command_buffer->getCommandBuffers()[current_buffer_];
 
         VkSubmitInfo submit_info = {};
         submit_info.pNext                     = nullptr;
         submit_info.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submit_info.waitSemaphoreCount        = 1;
-        submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
         submit_info.pWaitDstStageMask         = &pipe_stage_flags;
-        submit_info.commandBufferCount        = static_cast<uint32_t>(command_buffers.size());
-        submit_info.pCommandBuffers           = command_buffers.data();
-        submit_info.signalSemaphoreCount      = static_cast<uint32_t>(1);
+        submit_info.commandBufferCount        = 1;
+        submit_info.pCommandBuffers           = &current_command_buffer;
+        submit_info.signalSemaphoreCount      = 1;
+        submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
         submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
 
-        res = vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *sync_primitives->getFence(current_buffer_));
-        assert(res == VK_SUCCESS);
-
+        auto* current_buffer_fence = sync_primitives->getFence(current_buffer_);
         do {
-            res = vkWaitForFences(ApplicationData::data->device, 1, sync_primitives->getFence(current_buffer_), VK_TRUE, VK_SAMPLE_COUNT_1_BIT);
+            // Fences are created already signaled, so, we can wait for it before queue submit.
+            res = vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX);
         } while (res == VK_TIMEOUT);
         assert(res == VK_SUCCESS);
-        vkResetFences(ApplicationData::data->device, 1, sync_primitives->getFence(current_buffer_));
+        vkResetFences(ApplicationData::data->device, 1, current_buffer_fence);
+
+        res = vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *current_buffer_fence);
+        assert(res == VK_SUCCESS);
 
         VkPresentInfoKHR present = {};
         present.sType 				  = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -249,7 +255,7 @@ namespace Engine
         sync_primitives->createFence(render_pass->getSwapChain()->getImageCount());
 
         // Init Command Buffers
-        command_buffer = new CommandBuffers();
+        command_buffer = new CommandBuffers(render_pass->getSwapChain()->getImageCount());
     }
 
     void Application::addObjData(uint program_id, const GymnureObjData& data)

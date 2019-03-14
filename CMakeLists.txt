@@ -49,5 +49,5 @@ target_link_libraries(gymnure ${SDL2_LIBRARY} ${Vulkan_LIBRARY})
 # BUILD SDL2 DEPENDENCY
 add_dependencies(gymnure ${SDL2_BUILD_COMMAND})
 # COMPILE SHADERS BEFORE RUN
-add_custom_target(buildShaders COMMAND make WORKING_DIRECTORY ${ASSETS_FOLDER_PATH}/shaders)
+add_custom_target(buildShaders COMMAND make all WORKING_DIRECTORY ${ASSETS_FOLDER_PATH}/shaders)
 add_dependencies(gymnure buildShaders)

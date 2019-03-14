@@ -26,7 +26,7 @@ namespace Engine
 
     public:
 
-        explicit CommandBuffers()
+        explicit CommandBuffers(uint swapchain_images_count)
         {
             auto app_data = ApplicationData::data;
 
@@ -35,9 +35,9 @@ namespace Engine
             cmd.pNext 			 	= nullptr;
             cmd.commandPool 	 	= app_data->graphic_command_pool;
             cmd.level 			 	= VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            cmd.commandBufferCount  = 3;
+            cmd.commandBufferCount  = swapchain_images_count;
 
-            command_buffers_.resize(3);
+            command_buffers_.resize(swapchain_images_count);
             auto res = vkAllocateCommandBuffers(app_data->device, &cmd, command_buffers_.data());
             assert(res == VK_SUCCESS);
         }
@@ -76,9 +76,8 @@ namespace Engine
             cmd_buf_info.pInheritanceInfo 				= nullptr;
 
             VkClearValue clear_values[2];
-            clear_values[0]                             = {0.0f, 1.0f, 0.0f, 1.0f};
-            clear_values[1].depthStencil.depth 			= 1.f;
-            clear_values[1].depthStencil.stencil 		= 0;
+            clear_values[0].color = { { 0.0f, 0.0f, 0.2f, 1.0f } };
+            clear_values[1].depthStencil = { 1.0f, 0 };
 
             VkRenderPassBeginInfo rp_begin = {};
             rp_begin.sType 								= VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

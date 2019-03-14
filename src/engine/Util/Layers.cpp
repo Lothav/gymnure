@@ -8,6 +8,9 @@ namespace Engine
 
         std::vector<const char*> Layers::getLayerNames()
         {
+            std::vector<const char *> layer_names_ = {};
+            #ifdef DEBUG
+
             auto DESIRED_LAYERS = {
                 "VK_LAYER_LUNARG_object_tracker",
                 "VK_LAYER_GOOGLE_unique_objects",
@@ -23,7 +26,6 @@ namespace Engine
             setGlobalLayerProperties();
 
             std::cout << "Layers available:" << std::endl;
-            std::vector<const char *> _layer_names = {};
             for(auto i : instanceLayerProps_)
             {
                 std::cout << i.properties.layerName << std::endl;
@@ -31,17 +33,18 @@ namespace Engine
                 {
                     if(0 == strcmp(j, i.properties.layerName))
                     {
-                        _layer_names.push_back(j);
+                        layer_names_.push_back(j);
                     }
                 }
             }
 
             std::cout << "Using Layers:" << std::endl;
-            for(auto i : _layer_names) {
+            for(auto i : layer_names_) {
                 std::cout << i << std::endl;
             }
+            #endif
 
-            return _layer_names;
+            return layer_names_;
         }
 
         VkResult Layers::setGlobalLayerProperties()
