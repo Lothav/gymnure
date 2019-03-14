@@ -221,8 +221,6 @@ namespace Engine
 
     void Application::setupSurface(const uint32_t width, const uint32_t height)
     {
-        VkResult U_ASSERT_ONLY 	res;
-
         auto app_data = ApplicationData::data;
 
         app_data->view_width  = width;
@@ -231,7 +229,7 @@ namespace Engine
         // Init Render Pass
         render_pass = new RenderPass::RenderPass();
 
-        std::vector< struct rpAttachments > rp_attachments = {};
+        std::vector<struct rpAttachments> rp_attachments = {};
 
         struct rpAttachments attch = {};
 

@@ -20,7 +20,7 @@ namespace Engine
 
         std::string Util::physicalDeviceTypeString(VkPhysicalDeviceType type)
         {
-        #define CASE_STR(r) case VK_PHYSICAL_DEVICE_TYPE_ ##r: return #r
+        #define CASE_STR(r) case VK_PHYSICAL_DEVICE_TYPE_##r: return #r
             switch (type)
             {
                 CASE_STR(OTHER);

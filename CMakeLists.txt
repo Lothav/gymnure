@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake-modules")
 add_definitions(-DDEBUG)
 
 # SET ASSETS FOLDER PATH
+set(ASSETS_FOLDER_PATH ${CMAKE_SOURCE_DIR}/assets)
 add_definitions(-DASSETS_FOLDER_PATH="${CMAKE_SOURCE_DIR}/assets")
 
 # FIND VULKAN
@@ -47,3 +48,6 @@ add_executable(gymnure src/external/tinyobjloader/tiny_obj_loader.h src/external
 target_link_libraries(gymnure ${SDL2_LIBRARY} ${Vulkan_LIBRARY})
 # BUILD SDL2 DEPENDENCY
 add_dependencies(gymnure ${SDL2_BUILD_COMMAND})
+# COMPILE SHADERS BEFORE RUN
+add_custom_target(buildShaders COMMAND make WORKING_DIRECTORY ${ASSETS_FOLDER_PATH}/shaders)
+add_dependencies(gymnure buildShaders)
