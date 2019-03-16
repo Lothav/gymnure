@@ -13,6 +13,7 @@ namespace Engine
         {
             std::vector<VertexData> vertexBuffer =
                 {
+                    //       POSITION              UV              NORMAL
                     { {  1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
                     { { -1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
                     { {  0.0f, -1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }

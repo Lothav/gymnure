@@ -47,6 +47,7 @@ namespace Engine
 
                 #ifdef DEBUG
                 instance_extension_names_.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+                instance_extension_names_.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
                 #endif
             }
 

@@ -14,8 +14,6 @@ int main(int argc, char** argv)
 		//auto phong_id = gymnure->initPhongProgram();
 
         auto room2 = GymnureObjData{};
-		room2.path_texture 	= "room.png";
-		room2.path_obj 		= "";
         gymnure->addObjData(default_id, room2);
 
 		//auto room3 = GymnureObjData{};

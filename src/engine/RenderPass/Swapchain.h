@@ -12,19 +12,6 @@
 #include <vulkan/vulkan.h>
 #include <Application.hpp>
 
-struct SwapChainParams {
-	std::vector<VkQueueFamilyProperties,
-			mem::StdAllocator<
-					VkQueueFamilyProperties>>     	queue_family_props;
-	uint32_t 										queue_family_count;
-	VkSurfaceKHR 									surface;
-	VkPhysicalDevice 								gpu;
-	VkDevice 										device;
-	uint32_t 										width;
-	uint32_t 										height;
-	VkPhysicalDeviceMemoryProperties 				memory_props;
-};
-
 namespace Engine
 {
 	namespace RenderPass
@@ -36,7 +23,8 @@ namespace Engine
 			uint32_t 							_image_count{};
 			VkSwapchainKHR  					_swap_chain = nullptr;
 			VkQueue 							_graphics_queue{}, _present_queue{};
-			VkFormat 							format;
+			VkFormat 							format_;
+			VkColorSpaceKHR						colorSpace_;
 
 			std::vector<Memory::BufferImage *> 	_swap_chain_buffer = {};
 
@@ -55,19 +43,39 @@ namespace Engine
 
                     res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data->gpu, app_data->surface, &formatCount, nullptr);
                     assert(res == VK_SUCCESS);
-                    auto *surfFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data->gpu, app_data->surface, &formatCount, surfFormats);
+
+					std::vector<VkSurfaceFormatKHR> surfFormats(formatCount);
+                    res = vkGetPhysicalDeviceSurfaceFormatsKHR(app_data->gpu, app_data->surface, &formatCount, surfFormats.data());
                     assert(res == VK_SUCCESS);
                     // If the format list includes just one entry of VK_FORMAT_UNDEFINED,
                     // the surface has no preferred format.  Otherwise, at least one
                     // supported format will be returned.
                     if (formatCount == 1 && surfFormats[0].format == VK_FORMAT_UNDEFINED) {
-                        format = VK_FORMAT_B8G8R8A8_UNORM;
+                        format_ = VK_FORMAT_B8G8R8A8_UNORM;
                     } else {
-                        assert(formatCount >= 1);
-                        format = surfFormats[0].format;
+
+						// iterate over the list of available surface format and
+						// check for the presence of VK_FORMAT_B8G8R8A8_UNORM
+						bool found_B8G8R8A8_UNORM = false;
+						for (auto&& surfaceFormat : surfFormats)
+						{
+							if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
+							{
+								format_ = surfaceFormat.format;
+								colorSpace_ = surfaceFormat.colorSpace;
+								found_B8G8R8A8_UNORM = true;
+								break;
+							}
+						}
+
+						// in case VK_FORMAT_B8G8R8A8_UNORM is not available
+						// select the first available color format
+						if (!found_B8G8R8A8_UNORM)
+						{
+							format_ = surfFormats[0].format;
+							colorSpace_ = surfFormats[0].colorSpace;
+						}
                     }
-                    free(surfFormats);
                 }
 
                 VkSwapchainCreateInfoKHR swapChainCI = buildSwapChainCI();
@@ -88,8 +96,12 @@ namespace Engine
 				for (uint32_t i = 0; i < _image_count; i++)
 				{
 					ImageProps img_props = {};
-					img_props.format = format;
+					img_props.format = format_;
 					img_props.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+					img_props.component.r = VK_COMPONENT_SWIZZLE_R;
+					img_props.component.g = VK_COMPONENT_SWIZZLE_G;
+					img_props.component.b = VK_COMPONENT_SWIZZLE_B;
+					img_props.component.a = VK_COMPONENT_SWIZZLE_A;
 
 					auto* sc_buffer = new Memory::BufferImage(img_props, &_swap_chain_images[i]);
 
@@ -130,7 +142,7 @@ namespace Engine
 
 			VkFormat getSwapChainFormat() const
 			{
-				return format;
+				return format_;
 			}
 
 			VkSwapchainKHR getSwapChainKHR() const
@@ -158,7 +170,6 @@ namespace Engine
 				uint32_t _graphics_queue_family_index = UINT32_MAX;
 				uint32_t _present_queue_family_index  = UINT32_MAX;
 
-				VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 				auto *pSupportsPresent = (VkBool32 *)malloc(app_data->queue_family_count * sizeof(VkBool32));
 
 				for (uint32_t i = 0; i < app_data->queue_family_count; i++) {
@@ -289,7 +300,10 @@ namespace Engine
 				swapchain_ci.pNext 					= nullptr;
 				swapchain_ci.surface 				= app_data->surface;
 				swapchain_ci.minImageCount 			= _image_count;
-				swapchain_ci.imageFormat 			= format;
+				swapchain_ci.imageFormat 			= format_;
+				swapchain_ci.imageColorSpace		= colorSpace_;
+				swapchain_ci.imageUsage 			= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+				swapchain_ci.imageSharingMode 		= VK_SHARING_MODE_EXCLUSIVE;
 				swapchain_ci.imageExtent.width 		= swapchainExtent.width;
 				swapchain_ci.imageExtent.height 	= swapchainExtent.height;
 				swapchain_ci.preTransform 			= preTransform;
@@ -298,9 +312,6 @@ namespace Engine
 				swapchain_ci.presentMode 			= swapchainPresentMode;
 				swapchain_ci.oldSwapchain 			= VK_NULL_HANDLE;
 				swapchain_ci.clipped 				= (VkBool32)true;
-				swapchain_ci.imageColorSpace 		= VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-				swapchain_ci.imageUsage 			= usageFlags;
-				swapchain_ci.imageSharingMode 		= VK_SHARING_MODE_EXCLUSIVE;
 				swapchain_ci.queueFamilyIndexCount  = 0;
 				swapchain_ci.pQueueFamilyIndices 	= nullptr;
 

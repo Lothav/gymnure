@@ -92,9 +92,7 @@ namespace Engine
 
                 program_data->vertex_buffer = new Vertex::VertexBuffer(vbData, vertexData);
 
-                if (program_data->texture.buffer != nullptr) {
-                    descriptor_set->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
-                }
+                descriptor_set->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
 
                 data.push_back(program_data);
             }

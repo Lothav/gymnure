@@ -182,21 +182,23 @@ namespace Engine
                 write.dstBinding 							  = 0;
                 writes.push_back(write);
 
-                VkDescriptorImageInfo texture_info = {};
-                texture_info.imageLayout 					  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-                texture_info.imageView 						  = texture.buffer->view;
-                texture_info.sampler 						  = texture.sampler;
+                if(texture.buffer != nullptr){
+                    VkDescriptorImageInfo texture_info = {};
+                    texture_info.imageLayout 					  = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    texture_info.imageView 						  = texture.buffer->view;
+                    texture_info.sampler 						  = texture.sampler;
 
-                write = {};
-                write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-                write.pNext 								  = nullptr;
-                write.dstSet 								  = desc_set;
-                write.descriptorCount 						  = 1;
-                write.descriptorType 						  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                write.pImageInfo 							  = &texture_info;
-                write.dstArrayElement 						  = 0;
-                write.dstBinding 							  = 1;
-                writes.push_back(write);
+                    write = {};
+                    write.sType 								  = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+                    write.pNext 								  = nullptr;
+                    write.dstSet 								  = desc_set;
+                    write.descriptorCount 						  = 1;
+                    write.descriptorType 						  = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    write.pImageInfo 							  = &texture_info;
+                    write.dstArrayElement 						  = 0;
+                    write.dstBinding 							  = 1;
+                    writes.push_back(write);
+                }
 
                 vkUpdateDescriptorSets(ApplicationData::data->device, static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
             }

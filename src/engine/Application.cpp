@@ -26,7 +26,7 @@ namespace Engine
         _app_info.applicationVersion 	= 1;
         _app_info.pEngineName 			= APP_NAME;
         _app_info.engineVersion 		= 1;
-        _app_info.apiVersion 			= VK_API_VERSION_1_1;
+        _app_info.apiVersion 			= VK_API_VERSION_1_0;
 
         VkInstanceCreateInfo _inst_info = {};
         memset(&_inst_info, 0, sizeof(VkInstanceCreateInfo));
@@ -41,6 +41,9 @@ namespace Engine
 
         VkResult res = vkCreateInstance(&_inst_info, nullptr, &app_data->instance);
         assert(res == VK_SUCCESS);
+    #ifdef DEBUG
+        Engine::Debug::init();
+    #endif
 
         std::vector<VkPhysicalDevice> gpu_vector = {};
         res = vkEnumeratePhysicalDevices(app_data->instance, &app_data->queue_family_count, nullptr);
@@ -130,6 +133,38 @@ namespace Engine
         device_info.enabledLayerCount 		= 0;
         device_info.ppEnabledLayerNames 	= nullptr;
         device_info.pEnabledFeatures 		= nullptr;
+
+        std::vector<std::string> supportedExtensions;
+
+        // Get list of supported extensions
+        uint32_t extCount = 0;
+        vkEnumerateDeviceExtensionProperties(app_data->gpu, nullptr, &extCount, nullptr);
+        if (extCount > 0)
+        {
+            std::vector<VkExtensionProperties> extensions(extCount);
+            if (vkEnumerateDeviceExtensionProperties(app_data->gpu, nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
+            {
+                for (auto ext : extensions)
+                {
+                    supportedExtensions.push_back(ext.extensionName);
+                }
+            }
+        }
+
+        std::vector<std::string> supportedExtensions2;
+
+        vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
+        if (extCount > 0)
+        {
+            std::vector<VkExtensionProperties> extensions(extCount);
+            if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
+            {
+                for (auto ext : extensions)
+                {
+                    supportedExtensions2.push_back(ext.extensionName);
+                }
+            }
+        }
 
         res = vkCreateDevice(app_data->gpu, &device_info, nullptr, &app_data->device);
         assert(res == VK_SUCCESS);

@@ -15,6 +15,7 @@ struct ImageProps {
     VkImageTiling         tiling{};
     VkImageUsageFlags     usage{};
     VkImageAspectFlags    aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    VkComponentMapping    component;
 };
 
 struct MemoryProps {
@@ -62,13 +63,14 @@ namespace Engine
                 viewInfo.image 								= this->image;
                 viewInfo.viewType 							= VK_IMAGE_VIEW_TYPE_2D;
                 viewInfo.format 							= this->format;
+                viewInfo.components                         = this->_img_pros.component;
                 viewInfo.subresourceRange.aspectMask 		= this->_img_pros.aspectMask;
                 viewInfo.subresourceRange.baseMipLevel 		= 0;
                 viewInfo.subresourceRange.levelCount 		= 1;
                 viewInfo.subresourceRange.baseArrayLayer 	= 0;
                 viewInfo.subresourceRange.layerCount 		= 1;
 
-                VkResult res = vkCreateImageView(ApplicationData::data->device, &viewInfo, nullptr, &this->view);
+                auto res = vkCreateImageView(ApplicationData::data->device, &viewInfo, nullptr, &this->view);
                 assert(res == VK_SUCCESS);
             }
 

@@ -97,7 +97,7 @@ namespace Engine
 			{
 				auto app_data = ApplicationData::data;
 
-				_depth_format = VK_FORMAT_D16_UNORM;
+				_depth_format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 
 				VkFormatProperties props;
 				VkImageTiling depth_tiling;
@@ -117,12 +117,13 @@ namespace Engine
 				struct ImageProps img_props = {};
 				img_props.format 		= _depth_format;
 				img_props.tiling 		= depth_tiling;
-				img_props.aspectMask 	= VK_IMAGE_ASPECT_DEPTH_BIT;
-				img_props.usage 		= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+				img_props.aspectMask 	= VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				img_props.usage 		= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 				img_props.width 		= app_data->view_width;
 				img_props.height 		= app_data->view_height;
 
 				struct MemoryProps mem_props = {};
+				mem_props.props_flags   = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
 				_depth_buffer = new Memory::BufferImage(mem_props, img_props);
 			}
