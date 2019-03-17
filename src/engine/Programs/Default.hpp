@@ -76,21 +76,16 @@ namespace Engine
                 program_data->descriptor_pool = descriptor_set->createDescriptorPool();
                 program_data->descriptor_set  = descriptor_set->createDescriptorSet(program_data->descriptor_pool);
 
-                if(!obj_data.path_texture.empty()) {
+                if(!obj_data.path_texture.empty())
                     program_data->texture = descriptor_set->getTextelBuffer(obj_data.path_texture, queue_);
-                }
 
                 // Load Vertex
-                std::vector<VertexData> vertexData = Vertex::VertexBuffer::createPrimitiveTriangle();
-                if(!obj_data.path_obj.empty()) vertexData = Vertex::VertexBuffer::loadObjModelVertices(obj_data.path_obj, obj_data.obj_mtl);
-                for(auto v_data : obj_data.vertex_data) vertexData.push_back(v_data);
+                program_data->vertex_buffer = new Vertex::VertexBuffer();
 
-                struct BufferData vbData = {};
-                vbData.usage          = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-                vbData.properties     = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-                vbData.size           = vertexData.size() * sizeof(VertexData);
-
-                program_data->vertex_buffer = new Vertex::VertexBuffer(vbData, vertexData);
+                if(!obj_data.path_obj.empty())
+                    program_data->vertex_buffer->loadObjModelVertices(obj_data.path_obj, obj_data.obj_mtl);
+                else
+                    program_data->vertex_buffer->createPrimitiveTriangle();
 
                 descriptor_set->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
 

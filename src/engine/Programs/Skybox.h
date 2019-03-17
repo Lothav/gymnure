@@ -78,7 +78,7 @@ namespace Engine
 
             void addObjData(const GymnureObjData& obj_data) override
             {
-                auto app_data = ApplicationData::data;
+               /* auto app_data = ApplicationData::data;
                 auto* program_data = new ProgramData();
 
                 program_data->descriptor_pool = descriptor_set->createDescriptorPool();
@@ -104,7 +104,7 @@ namespace Engine
                     descriptor_set->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
                 }
 
-                data.push_back(program_data);
+                data.push_back(program_data);*/
             }
 
         };

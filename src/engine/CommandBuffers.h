@@ -110,8 +110,7 @@ namespace Engine
                                                 program_obj->descriptor_set->getPipelineLayout(), 0,
                                                 1, &data->descriptor_set, 0, nullptr);
 
-                        vkCmdBindVertexBuffers(command_buffers_[i], 0, 1, &data->vertex_buffer->buf, offsets);
-
+                        vkCmdBindVertexBuffers(command_buffers_[i], 0, 1, &data->vertex_buffer->getBuffer()->buf, offsets);
 
                         vkCmdDraw(command_buffers_[i], data->vertex_buffer->getVertexSize(), 1, 0, 0);
                     }

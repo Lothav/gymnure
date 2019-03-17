@@ -8,17 +8,19 @@
 #include <ApplicationData.hpp>
 #include "Memory/Memory.h"
 
-struct ImageProps {
+struct ImageProps
+{
     uint32_t              width{};
     uint32_t              height{};
     VkFormat              format = VK_FORMAT_UNDEFINED;
     VkImageTiling         tiling{};
     VkImageUsageFlags     usage{};
     VkImageAspectFlags    aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    VkComponentMapping    component;
+    VkComponentMapping    component{};
 };
 
-struct MemoryProps {
+struct MemoryProps
+{
     VkMemoryPropertyFlags props_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 };
 
@@ -30,8 +32,9 @@ namespace Engine
         {
 
         private:
-            MemoryProps _mem_props;
-            ImageProps _img_pros;
+
+            MemoryProps mem_props_;
+            ImageProps img_pros_;
 
         public:
 
@@ -40,20 +43,11 @@ namespace Engine
             VkImageView 	view    = nullptr;
             VkFormat        format;
 
-            ~BufferImage()
-            {
-                auto device = ApplicationData::data->device;
-
-                if(image != nullptr) vkDestroyImage(device, image, nullptr);
-                if(view  != nullptr) vkDestroyImageView(device, view, nullptr);
-                if(mem   != nullptr) vkFreeMemory(device, mem, nullptr);
-            }
-
             BufferImage(struct MemoryProps memory_pro, struct ImageProps img_props, VkImage* images = nullptr)
             {
-                this->_img_pros     = img_props;
-                this->_mem_props    = memory_pro;
-                this->format        = img_props.format;
+                this->img_pros_  = img_props;
+                this->mem_props_ = memory_pro;
+                this->format     = img_props.format;
 
                 image = images == nullptr ? createImage() : *images;
 
@@ -63,8 +57,8 @@ namespace Engine
                 viewInfo.image 								= this->image;
                 viewInfo.viewType 							= VK_IMAGE_VIEW_TYPE_2D;
                 viewInfo.format 							= this->format;
-                viewInfo.components                         = this->_img_pros.component;
-                viewInfo.subresourceRange.aspectMask 		= this->_img_pros.aspectMask;
+                viewInfo.components                         = this->img_pros_.component;
+                viewInfo.subresourceRange.aspectMask 		= this->img_pros_.aspectMask;
                 viewInfo.subresourceRange.baseMipLevel 		= 0;
                 viewInfo.subresourceRange.levelCount 		= 1;
                 viewInfo.subresourceRange.baseArrayLayer 	= 0;
@@ -75,6 +69,15 @@ namespace Engine
             }
 
             explicit BufferImage(struct ImageProps img_props, VkImage* images = nullptr) : BufferImage({}, img_props, images) {}
+
+            ~BufferImage()
+            {
+                auto device = ApplicationData::data->device;
+
+                if(image != nullptr) vkDestroyImage(device, image, nullptr);
+                if(view  != nullptr) vkDestroyImageView(device, view, nullptr);
+                if(mem   != nullptr) vkFreeMemory(device, mem, nullptr);
+            }
 
             void* operator new(std::size_t size)
             {
@@ -95,19 +98,19 @@ namespace Engine
 
                 // Create Image
                 VkImageCreateInfo imageInfo = {};
-                imageInfo.sType 					 = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-                imageInfo.imageType 				 = VK_IMAGE_TYPE_2D;
-                imageInfo.extent.width 				 = _img_pros.width;
-                imageInfo.extent.height 			 = _img_pros.height;
-                imageInfo.extent.depth 				 = 1;
-                imageInfo.mipLevels 				 = 1;
-                imageInfo.arrayLayers 				 = 1;
-                imageInfo.format 					 = _img_pros.format;
-                imageInfo.tiling 					 = _img_pros.tiling;
-                imageInfo.initialLayout 			 = VK_IMAGE_LAYOUT_UNDEFINED;
-                imageInfo.usage 					 = _img_pros.usage;
-                imageInfo.samples 					 = VK_SAMPLE_COUNT_1_BIT;
-                imageInfo.sharingMode 				 = VK_SHARING_MODE_EXCLUSIVE;
+                imageInfo.sType 		= VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+                imageInfo.imageType 	= VK_IMAGE_TYPE_2D;
+                imageInfo.extent.width 	= img_pros_.width;
+                imageInfo.extent.height = img_pros_.height;
+                imageInfo.extent.depth 	= 1;
+                imageInfo.mipLevels 	= 1;
+                imageInfo.arrayLayers 	= 1;
+                imageInfo.format 		= img_pros_.format;
+                imageInfo.tiling 		= img_pros_.tiling;
+                imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+                imageInfo.usage 		= img_pros_.usage;
+                imageInfo.samples 		= VK_SAMPLE_COUNT_1_BIT;
+                imageInfo.sharingMode 	= VK_SHARING_MODE_EXCLUSIVE;
 
                 auto device = ApplicationData::data->device;
 
@@ -119,13 +122,13 @@ namespace Engine
                 vkGetImageMemoryRequirements(device, image, &mem_reqs);
 
                 VkMemoryAllocateInfo mem_alloc = {};
-                mem_alloc.sType			    = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-                mem_alloc.pNext			    = nullptr;
-                mem_alloc.allocationSize    = 0;
-                mem_alloc.memoryTypeIndex   = 0;
-                mem_alloc.allocationSize    = mem_reqs.size;
+                mem_alloc.sType			  = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+                mem_alloc.pNext			  = nullptr;
+                mem_alloc.allocationSize  = 0;
+                mem_alloc.memoryTypeIndex = 0;
+                mem_alloc.allocationSize  = mem_reqs.size;
 
-                bool pass = Memory::findMemoryType(mem_reqs.memoryTypeBits, _mem_props.props_flags, &mem_alloc.memoryTypeIndex);
+                bool pass = Memory::findMemoryType(mem_reqs.memoryTypeBits, mem_props_.props_flags, &mem_alloc.memoryTypeIndex);
                 assert(pass);
 
                 res = vkAllocateMemory(device, &mem_alloc, nullptr, &mem);

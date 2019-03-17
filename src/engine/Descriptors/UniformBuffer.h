@@ -16,8 +16,8 @@ namespace Engine
 
             explicit UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
 			{
-				zoom 		= -7.0f;
-				rotation 	= { 0.0f,  0.0f, 0.0f };
+				zoom 	 = -7.0f;
+				rotation = { 0.0f,  0.0f, 0.0f };
 			}
 
             void* operator new(std::size_t size)
@@ -55,13 +55,6 @@ namespace Engine
 				if (this->zoom > -2) this->zoom = -2;
 
 				std::cout << "Camera Zoom: " << this->zoom << std::endl;
-				this->updateUniform();
-			}
-
-			void rotateWorld(const glm::vec3& _rotation)
-			{
-				this->rotation.x += _rotation.x;
-				this->rotation.y += _rotation.y;
 				this->updateUniform();
 			}
 

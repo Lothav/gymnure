@@ -9,6 +9,16 @@ namespace Engine
 {
     namespace Vertex
     {
+        uint32_t VertexBuffer::getVertexSize() const
+        {
+            return vertex_count;
+        }
+
+        std::shared_ptr<Memory::Buffer> VertexBuffer::getBuffer() const
+        {
+            return buffer_;
+        }
+
         std::vector<VertexData> VertexBuffer::createPrimitiveTriangle()
         {
             std::vector<VertexData> vertexBuffer =
@@ -18,6 +28,8 @@ namespace Engine
                     { { -1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
                     { {  0.0f, -1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }
                 };
+
+            initBuffer(vertexBuffer);
 
             return vertexBuffer;
         }

@@ -21,32 +21,18 @@ namespace Engine
 		class Buffer
 		{
 
-        protected:
-
-            BufferData buffer_data_{};
-
 		public:
 
 			VkBuffer 				buf{};
 			VkDeviceMemory 			mem{};
 			VkDescriptorBufferInfo 	buffer_info{};
 
-			virtual ~Buffer()
-			{
-				auto app_data = ApplicationData::data;
-                vkDestroyBuffer(app_data->device, this->buf, nullptr);
-				vkFreeMemory(app_data->device, this->mem, nullptr);
-            }
-
             explicit Buffer(const struct BufferData& buffer_data)
 			{
 				auto app_data = ApplicationData::data;
-
 				VkResult res;
-				bool pass;
 
 				VkBufferCreateInfo bufferInfo = {};
-
 				bufferInfo.sType 				 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 				bufferInfo.size 				 = buffer_data.size;
 				bufferInfo.usage 				 = buffer_data.usage;
@@ -63,11 +49,11 @@ namespace Engine
 				vkGetBufferMemoryRequirements(app_data->device, this->buf, &memRequirements);
 
 				VkMemoryAllocateInfo allocInfo = {};
-				allocInfo.sType 						= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-				allocInfo.allocationSize 				= memRequirements.size;
-				allocInfo.pNext 						= nullptr;
+				allocInfo.sType 				 = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+				allocInfo.allocationSize 		 = memRequirements.size;
+				allocInfo.pNext 				 = nullptr;
 
-				pass = Memory::findMemoryType(memRequirements.memoryTypeBits, buffer_data.properties, &allocInfo.memoryTypeIndex);
+				auto pass = Memory::findMemoryType(memRequirements.memoryTypeBits, buffer_data.properties, &allocInfo.memoryTypeIndex);
 				assert(pass);
 
 				res = vkAllocateMemory(app_data->device, &allocInfo, nullptr, &this->mem);
@@ -78,6 +64,13 @@ namespace Engine
 				this->buffer_info.range  = buffer_data.size;
 				this->buffer_info.offset = 0;
 				this->buffer_info.buffer = this->buf;
+			}
+
+			virtual ~Buffer()
+			{
+				auto device = ApplicationData::data->device;
+				vkDestroyBuffer(device, this->buf, nullptr);
+				vkFreeMemory(device, this->mem, nullptr);
 			}
 
 			void* operator new(std::size_t size)
