@@ -10,23 +10,28 @@ add_definitions(-DDEBUG)
 set(ASSETS_FOLDER_PATH ${CMAKE_SOURCE_DIR}/assets)
 add_definitions(-DASSETS_FOLDER_PATH="${CMAKE_SOURCE_DIR}/assets")
 
+find_package(Threads REQUIRED)
+IF (NOT Threads_FOUND)
+    message(FATAL_ERROR "Threads not found!")
+ENDIF()
+
 # FIND VULKAN
 find_package(Vulkan REQUIRED)
 IF (NOT Vulkan_FOUND)
-    message(FATAL_ERROR "Vulkan not find!")
+    message(FATAL_ERROR "Vulkan not found!")
 ENDIF()
 message(STATUS "Vulkan lib path: " ${Vulkan_LIBRARY})
 
 # FIND SDL2
 find_package(SDL2 REQUIRED)
 IF (NOT SDL2_FOUND)
-    message(FATAL_ERROR "SDL2 not find!")
+    message(FATAL_ERROR "SDL2 not found!")
 ENDIF()
 
 # FIND IMGUI
 find_package(IMGUI REQUIRED)
 IF (NOT IMGUI_FOUND)
-    message(FATAL_ERROR "IMGUI not find!")
+    message(FATAL_ERROR "IMGUI not found!")
 ENDIF()
 
 # FIND IMGUI

@@ -24,8 +24,8 @@ namespace Engine
 
         static void create(const std::vector<const char *>& instance_extension_names);
         static void setupSurface(const uint32_t width, const uint32_t height);
-        static void draw();
         static void prepare();
+        static void draw();
 
         static void destroy();
 

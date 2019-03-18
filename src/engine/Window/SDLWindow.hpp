@@ -45,6 +45,9 @@ namespace Engine
                 for(auto extension_name : *extensions.get())
                     instance_extension_names_.emplace_back(extension_name);
 
+                //@TODO remove this (test for think pad)
+                instance_extension_names_.emplace_back("VK_KHR_xcb_surface");
+
                 #ifdef DEBUG
                 instance_extension_names_.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
                 instance_extension_names_.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);

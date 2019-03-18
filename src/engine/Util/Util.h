@@ -24,6 +24,7 @@
 #include <cstring>
 #include <cassert>
 #include <iostream>
+#include <chrono>
 
 #include <memancpp/Provider.hpp>
 #include "glm/glm.hpp"
@@ -51,6 +52,19 @@ enum WindowEvent
 
 namespace Engine
 {
+	#ifdef DEBUG
+	#define BENCHMARK_FUNCTION(fn, ret)                                                             		 \
+	{                                                                                               		 \
+	    auto start_cf = std::chrono::high_resolution_clock::now();                                  		 \
+	    ret = fn;                                                                                   		 \
+	    auto end_cf = std::chrono::high_resolution_clock::now();                                    		 \
+	    auto duration_cf = std::chrono::duration<double, std::milli>(end_cf - start_cf).count();    		 \
+	    Engine::Debug::logInfo("Took " + std::to_string(duration_cf) + "ms to execute " + std::string(#fn)); \
+	}
+	#else
+	#define BENCHMARK_FUNCTION(fn) fn;
+	#endif
+
 	namespace Util
 	{
 		class Util

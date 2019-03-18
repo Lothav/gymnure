@@ -202,7 +202,7 @@ namespace Engine
         VkResult res;
         VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-        res = vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_);
+        BENCHMARK_FUNCTION(vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_), res);
         assert(res == VK_SUCCESS);
 
         VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -225,12 +225,12 @@ namespace Engine
         auto* current_buffer_fence = sync_primitives->getFence(current_buffer_);
         do {
             // Fences are created already signaled, so, we can wait for it before queue submit.
-            res = vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX);
+            BENCHMARK_FUNCTION(vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX), res);
         } while (res == VK_TIMEOUT);
         assert(res == VK_SUCCESS);
-        vkResetFences(ApplicationData::data->device, 1, current_buffer_fence);
+        BENCHMARK_FUNCTION(vkResetFences(ApplicationData::data->device, 1, current_buffer_fence), res);
 
-        res = vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *current_buffer_fence);
+        BENCHMARK_FUNCTION(vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *current_buffer_fence), res);
         assert(res == VK_SUCCESS);
 
         VkPresentInfoKHR present = {};
@@ -248,7 +248,7 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        res = vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present);
+        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present), res);
         assert(res == VK_SUCCESS);
     }
 

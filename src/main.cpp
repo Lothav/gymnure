@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 		//cube.obj_mtl 		= "cube.mtl";
 		//gymnure->addObjData(skybox_id, cube);
 
-		gymnure->prepare();
+        gymnure->prepare();
 
 		uint frames		= 0;
 		float duration  = 0.f;

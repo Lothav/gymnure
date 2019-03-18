@@ -127,4 +127,5 @@ namespace Engine
 		};
 	}
 }
+
 #endif //OBSIDIAN2D_RENDERPASS_H
