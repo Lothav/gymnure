@@ -11,7 +11,7 @@ namespace Engine
     {
         uint32_t VertexBuffer::getVertexSize() const
         {
-            return vertex_count;
+            return vertex_count_;
         }
 
         std::shared_ptr<Memory::Buffer> VertexBuffer::getVertexBuffer() const
@@ -21,7 +21,7 @@ namespace Engine
 
         uint32_t VertexBuffer::getIndexSize() const
         {
-            return index_count;
+            return index_count_;
         }
 
         std::shared_ptr<Memory::Buffer> VertexBuffer::getIndexBuffer() const
@@ -29,7 +29,31 @@ namespace Engine
             return indexBuffer_;
         }
 
-        std::vector<VertexData> VertexBuffer::createPrimitiveTriangle()
+        void VertexBuffer::initBuffers(const std::vector<VertexData>& vertexData, const std::vector<uint32_t>& indexBuffer)
+        {
+            vertex_count_ = static_cast<uint32_t>(vertexData.size());
+
+            struct BufferData vbData = {};
+            vbData.usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            vbData.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            vbData.size       = vertex_count_ * sizeof(VertexData);
+
+            vertexBuffer_ = std::make_unique<Memory::Buffer>(vbData);
+            Memory::Memory::copyMemory(vertexBuffer_->mem, vertexData.data(), vbData.size);
+
+            if (!indexBuffer.empty()) {
+
+                index_count_ = static_cast<uint32_t>(indexBuffer.size());
+
+                vbData.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+                vbData.size = index_count_ * sizeof(uint32_t);
+
+                indexBuffer_ = std::make_unique<Memory::Buffer>(vbData);
+                Memory::Memory::copyMemory(indexBuffer_->mem, vertexData.data(), vbData.size);
+            }
+        }
+
+        void VertexBuffer::createPrimitiveTriangle()
         {
             std::vector<VertexData> vertexBuffer =
                 {
@@ -43,11 +67,9 @@ namespace Engine
             std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
 
             this->initBuffers(vertexBuffer, indexBuffer);
-
-            return vertexBuffer;
         }
 
-        std::vector<VertexData> VertexBuffer::loadObjModelVertices(const std::string &model_path, const std::string& obj_mtl)
+        void VertexBuffer::loadObjModelVertices(const std::string &model_path, const std::string& obj_mtl)
         {
             std::vector <VertexData> vertex_data = {};
 
@@ -90,9 +112,9 @@ namespace Engine
                 }
             }
 
-            Debug::logInfo(assets_model_path + " object loaded! Vertex count: " +  std::to_string(vertex_data.size()));
+            //@TODO INIT BUFFERS
 
-            return vertex_data;
+            Debug::logInfo(assets_model_path + " object loaded! Vertex count: " +  std::to_string(vertex_data.size()));
         }
     }
 }
