@@ -63,17 +63,30 @@ namespace Engine
 
     void Application::draw()
     {
+        auto app_data = ApplicationData::data;
+
         VkResult res;
         VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-        BENCHMARK_FUNCTION(vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_), res);
+        BENCHMARK_FUNCTION(vkDeviceWaitIdle(app_data->device), res);
+        assert(res == VK_SUCCESS);
+
+        BENCHMARK_FUNCTION(vkAcquireNextImageKHR(app_data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_), res);
         assert(res == VK_SUCCESS);
 
         VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 
-        for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
+        //for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
 
         auto current_command_buffer = command_buffer->getCommandBuffers()[current_buffer_];
+
+        auto* current_buffer_fence = sync_primitives->getFence(current_buffer_);
+        do {
+            // Fences are created already signaled, so, we can wait for it before queue submit.
+            BENCHMARK_FUNCTION(vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX), res);
+        } while (res == VK_TIMEOUT);
+        assert(res == VK_SUCCESS);
+        BENCHMARK_FUNCTION(vkResetFences(ApplicationData::data->device, 1, current_buffer_fence), res);
 
         VkSubmitInfo submit_info = {};
         submit_info.pNext                     = nullptr;
@@ -85,14 +98,6 @@ namespace Engine
         submit_info.signalSemaphoreCount      = 1;
         submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
         submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
-
-        auto* current_buffer_fence = sync_primitives->getFence(current_buffer_);
-        do {
-            // Fences are created already signaled, so, we can wait for it before queue submit.
-            BENCHMARK_FUNCTION(vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX), res);
-        } while (res == VK_TIMEOUT);
-        assert(res == VK_SUCCESS);
-        BENCHMARK_FUNCTION(vkResetFences(ApplicationData::data->device, 1, current_buffer_fence), res);
 
         BENCHMARK_FUNCTION(vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *current_buffer_fence), res);
         assert(res == VK_SUCCESS);
@@ -112,7 +117,10 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present), res);
+        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getGraphicQueue(), &present), res);
+        assert(res == VK_SUCCESS);
+
+        BENCHMARK_FUNCTION(vkDeviceWaitIdle(app_data->device), res);
         assert(res == VK_SUCCESS);
     }
 

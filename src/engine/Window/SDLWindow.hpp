@@ -2,9 +2,6 @@
 #ifndef GYMNURE_SDLWINDOW_HPP
 #define GYMNURE_SDLWINDOW_HPP
 
-#define VK_USE_PLATFORM_XCB_KHR
-#define SDL_VIDEO_DRIVER_X11
-
 #include <SDL.h>
 #include <SDL_vulkan.h>
 
@@ -32,9 +29,9 @@ namespace Engine
             SDLWindow(u_int32_t width, u_int32_t height)
             {
                 // Setup SDL
-                if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
+                if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
                 {
-                    printf("Error: %s\n", SDL_GetError());
+                    printf("Error trying to init SDL window: %s\n", SDL_GetError());
                     return;
                 }
 

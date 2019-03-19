@@ -76,7 +76,7 @@ namespace Engine
             cmd_buf_info.pInheritanceInfo 				= nullptr;
 
             VkClearValue clear_values[2];
-            clear_values[0].color = { { 0.2f, 0.2f, 0.2f, 1.0f } };
+            clear_values[0].color = { { 0.8f, 0.2f, 0.8f, 1.0f } };
             clear_values[1].depthStencil = { 1.0f, 0 };
 
             VkRenderPassBeginInfo rp_begin = {};
