@@ -25,7 +25,7 @@ namespace Engine
 
 			VkBuffer 				buf{};
 			VkDeviceMemory 			mem{};
-			VkDescriptorBufferInfo 	buffer_info{};
+			uint32_t 				size = 0;
 
             explicit Buffer(const struct BufferData& buffer_data)
 			{
@@ -45,6 +45,8 @@ namespace Engine
 				res = vkCreateBuffer(app_data->device, &bufferInfo, nullptr, &this->buf);
 				assert(res == VK_SUCCESS);
 
+				size = buffer_data.size;
+
 				VkMemoryRequirements memRequirements;
 				vkGetBufferMemoryRequirements(app_data->device, this->buf, &memRequirements);
 
@@ -59,11 +61,8 @@ namespace Engine
 				res = vkAllocateMemory(app_data->device, &allocInfo, nullptr, &this->mem);
 				assert(res == VK_SUCCESS);
 
-				vkBindBufferMemory(app_data->device, this->buf, this->mem, 0);
-
-				this->buffer_info.range  = buffer_data.size;
-				this->buffer_info.offset = 0;
-				this->buffer_info.buffer = this->buf;
+				res = vkBindBufferMemory(app_data->device, this->buf, this->mem, 0);
+				assert(res == VK_SUCCESS);
 			}
 
 			virtual ~Buffer()

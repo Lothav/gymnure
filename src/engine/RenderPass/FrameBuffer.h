@@ -5,6 +5,7 @@
 #ifndef OBSIDIAN2D_FRAMEBUFFER_H
 #define OBSIDIAN2D_FRAMEBUFFER_H
 
+#include <memory>
 #include <Application.hpp>
 #include "RenderPass/Swapchain.h"
 
@@ -14,31 +15,56 @@ namespace Engine
 	{
 		class FrameBuffer {
 
-		protected:
-
-			SwapChain* 					_swap_chain = nullptr;
-
 		private:
 
-			Memory::BufferImage* 		_depth_buffer{};
-			std::vector<VkFramebuffer>  _frame_buffers;
-			VkFormat 					_depth_format;
+			std::unique_ptr<Memory::BufferImage> depth_buffer_;
+			std::shared_ptr<SwapChain> 			 swap_chain_;
+
+			std::vector<VkFramebuffer>  		 frame_buffers_;
+			const VkFormat 						 depth_format_ = VK_FORMAT_D32_SFLOAT_S8_UINT;
 
 		public:
 
 			FrameBuffer()
 			{
-				_swap_chain = new SwapChain();
+				swap_chain_ = std::make_shared<SwapChain>();
 
-				createDepthBuffer();
+				auto app_data = ApplicationData::data;
+
+				VkFormatProperties props;
+				VkImageTiling depth_tiling;
+
+				vkGetPhysicalDeviceFormatProperties(app_data->gpu, depth_format_, &props);
+
+				if (props.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+					depth_tiling = VK_IMAGE_TILING_LINEAR;
+				} else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+					depth_tiling = VK_IMAGE_TILING_OPTIMAL;
+				} else {
+					/* Try other depth formats? */
+					std::cerr << "depth_format " << depth_format_ << " Unsupported.\n";
+					assert(false);
+				}
+
+				struct ImageProps img_props = {};
+				img_props.format 		= depth_format_;
+				img_props.tiling 		= depth_tiling;
+				img_props.aspectMask 	= VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+				img_props.usage 		= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+				img_props.width 		= app_data->view_width;
+				img_props.height 		= app_data->view_height;
+
+				struct MemoryProps mem_props = {};
+				mem_props.props_flags   = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+				// Create Depth Buffer
+				depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
 			}
 
 			virtual ~FrameBuffer()
 			{
-				delete _depth_buffer;
-				delete _swap_chain;
-				for (auto &_frame_buffer : _frame_buffers)
-					vkDestroyFramebuffer(ApplicationData::data->device, _frame_buffer, nullptr);
+				for (auto &frame_buffer_ : frame_buffers_)
+					vkDestroyFramebuffer(ApplicationData::data->device, frame_buffer_, nullptr);
 			}
 
 			void* operator new(std::size_t size)
@@ -56,7 +82,7 @@ namespace Engine
 				auto app_data = ApplicationData::data;
 
 				VkImageView img_attachments[2];
-				img_attachments[1] = _depth_buffer->view;
+				img_attachments[1] = depth_buffer_->view;
 
 				VkFramebufferCreateInfo fb_info = {};
 				fb_info.sType 					= VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -68,64 +94,27 @@ namespace Engine
 				fb_info.height 					= app_data->view_height;
 				fb_info.layers 					= 1;
 
-				_frame_buffers.resize(_swap_chain->getImageCount());
+				frame_buffers_.resize(swap_chain_->getImageCount());
 
-				for (uint32_t i = 0; i < _swap_chain->getImageCount(); i++) {
-					img_attachments[0] = (_swap_chain->getSwapChainBuffer(i))->view;
-					assert(vkCreateFramebuffer(app_data->device, &fb_info, nullptr, &_frame_buffers[i]) == VK_SUCCESS);
+				for (uint32_t i = 0; i < swap_chain_->getImageCount(); i++) {
+					img_attachments[0] = (swap_chain_->getSwapChainBuffer(i))->view;
+					assert(vkCreateFramebuffer(app_data->device, &fb_info, nullptr, &frame_buffers_[i]) == VK_SUCCESS);
 				}
 			}
 
-			VkFormat getDepthBufferFormat()
+			const VkFormat getDepthBufferFormat() const
 			{
-				return _depth_format;
+				return depth_format_;
 			}
 
-			SwapChain* getSwapChain()
+			std::shared_ptr<SwapChain> getSwapChain()
 			{
-				return _swap_chain;
+				return swap_chain_;
 			}
 
 			std::vector<VkFramebuffer> getFrameBuffers()
 			{
-				return _frame_buffers;
-			}
-
-		private :
-
-			void createDepthBuffer()
-			{
-				auto app_data = ApplicationData::data;
-
-				_depth_format = VK_FORMAT_D32_SFLOAT_S8_UINT;
-
-				VkFormatProperties props;
-				VkImageTiling depth_tiling;
-
-				vkGetPhysicalDeviceFormatProperties(app_data->gpu, _depth_format, &props);
-
-				if (props.linearTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-					depth_tiling = VK_IMAGE_TILING_LINEAR;
-				} else if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-					depth_tiling = VK_IMAGE_TILING_OPTIMAL;
-				} else {
-					/* Try other depth formats? */
-					std::cerr << "depth_format " << _depth_format << " Unsupported.\n";
-					assert(false);
-				}
-
-				struct ImageProps img_props = {};
-				img_props.format 		= _depth_format;
-				img_props.tiling 		= depth_tiling;
-				img_props.aspectMask 	= VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-				img_props.usage 		= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-				img_props.width 		= app_data->view_width;
-				img_props.height 		= app_data->view_height;
-
-				struct MemoryProps mem_props = {};
-				mem_props.props_flags   = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-
-				_depth_buffer = new Memory::BufferImage(mem_props, img_props);
+				return frame_buffers_;
 			}
 
 		};

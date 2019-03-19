@@ -33,7 +33,7 @@ namespace Engine
 
             void init(VkRenderPass render_pass) override
             {
-                auto app_data = ApplicationData::data;
+                /*auto app_data = ApplicationData::data;
 
                 auto vert = Engine::GraphicPipeline::Shader{};
                 vert.type = VK_SHADER_STAGE_VERTEX_BIT;
@@ -73,7 +73,7 @@ namespace Engine
 
                 graphic_pipeline->addViAttributes(vi_attribs);
                 graphic_pipeline->setViBinding(vi_binding);
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, VK_CULL_MODE_FRONT_BIT);
+                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, VK_CULL_MODE_FRONT_BIT);*/
             }
 
             void addObjData(const GymnureObjData& obj_data) override

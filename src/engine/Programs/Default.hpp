@@ -40,7 +40,7 @@ namespace Engine
                 frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
                 frag.path = "default.frag.spv";
 
-                descriptor_set = new Descriptors::DescriptorSet(Descriptors::Type::GRAPHIC);
+                descriptor_set = new Descriptors::DescriptorSet(0);
                 graphic_pipeline = new GraphicPipeline::GraphicPipeline(app_data->device, {vert, frag});
 
                 descriptor_set->create();

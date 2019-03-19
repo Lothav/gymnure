@@ -22,11 +22,6 @@ namespace Engine
             VkSampler               sampler = nullptr;
         };
 
-        enum Type {
-            GRAPHIC,
-            COMPUTE
-        };
-
         class DescriptorSet
         {
 
@@ -34,28 +29,28 @@ namespace Engine
 
             std::vector<VkDescriptorSetLayoutBinding,
                 mem::StdAllocator<
-                    VkDescriptorSetLayoutBinding>>      _layout_bindings    = {};
+                    VkDescriptorSetLayoutBinding>>      layout_bindings_    = {};
             std::vector<VkDescriptorSetLayout,
                 mem::StdAllocator<
-                    VkDescriptorSetLayout>> 		    _desc_layout        = {};
-            VkPipelineLayout 						    _pipeline_layout    = nullptr;
-            Descriptors::UniformBuffer*                 _uniform_buffer     = nullptr;
+                    VkDescriptorSetLayout>> 		    desc_layout_        = {};
+            VkPipelineLayout 						    pipeline_layout_    = nullptr;
+            Descriptors::UniformBuffer*                 uniform_buffer_     = nullptr;
 
-            Type                                        _type               = Type::GRAPHIC;
+            uint32_t                                    texture_count_      = 0;
 
         public:
 
-            DescriptorSet(Type type) :  _type(type) {}
+            explicit DescriptorSet(uint32_t texture_count) : texture_count_(texture_count) {}
 
             ~DescriptorSet()
             {
                 auto app_data = ApplicationData::data;
 
-                vkDestroyPipelineLayout(app_data->device, _pipeline_layout, nullptr);
-                for (auto &desc_layout : _desc_layout) {
+                vkDestroyPipelineLayout(app_data->device, pipeline_layout_, nullptr);
+                for (auto &desc_layout : desc_layout_) {
                     vkDestroyDescriptorSetLayout(app_data->device, desc_layout, nullptr);
                 }
-                delete _uniform_buffer;
+                delete uniform_buffer_;
             }
 
             void* operator new(std::size_t size)
@@ -71,46 +66,34 @@ namespace Engine
             void create()
             {
                 // Set Layout Bindings
-                if(_type == Type::GRAPHIC) {
-                    _layout_bindings.resize(2);
+                layout_bindings_.resize(1 + texture_count_);
 
-                    _layout_bindings[0].binding 					 = 0;
-                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    _layout_bindings[0].descriptorCount 			 = 1;
-                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
-                    _layout_bindings[0].pImmutableSamplers			 = nullptr;
+                layout_bindings_[0].binding 					 = 0;
+                layout_bindings_[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                layout_bindings_[0].descriptorCount 			 = 1;
+                layout_bindings_[0].stageFlags 					 = VK_SHADER_STAGE_VERTEX_BIT;
+                layout_bindings_[0].pImmutableSamplers			 = nullptr;
 
-                    _layout_bindings[1].binding 					 = 1;
-                    _layout_bindings[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    _layout_bindings[1].descriptorCount 			 = 1;
-                    _layout_bindings[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
-                    _layout_bindings[1].pImmutableSamplers 			 = nullptr;
-                }
-                else if(_type == Type::COMPUTE) {
-                    _layout_bindings.resize(1);
-
-                    _layout_bindings[0].binding 					 = 1;
-                    _layout_bindings[0].descriptorType 				 = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-                    _layout_bindings[0].descriptorCount 			 = 1;
-                    _layout_bindings[0].stageFlags 					 = VK_SHADER_STAGE_COMPUTE_BIT;
-                    _layout_bindings[0].pImmutableSamplers 			 = nullptr;
-                } else {
-                    Debug::logError("Descriptor Type " + std::to_string(_type) + "not supported!");
-                    assert(false);
+                if (texture_count_ > 0) {
+                    layout_bindings_[1].binding 					 = 1;
+                    layout_bindings_[1].descriptorType 				 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                    layout_bindings_[1].descriptorCount 			 = 1;
+                    layout_bindings_[1].stageFlags 					 = VK_SHADER_STAGE_FRAGMENT_BIT;
+                    layout_bindings_[1].pImmutableSamplers 			 = nullptr;
                 }
 
                 // Set Descriptor Layouts
                 VkResult res;
 
-                _desc_layout.resize(1);
+                desc_layout_.resize(1);
 
-                VkDescriptorSetLayoutCreateInfo  _descriptor_layout = {};
-                _descriptor_layout.sType 						 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-                _descriptor_layout.pNext 						 = nullptr;
-                _descriptor_layout.bindingCount 				 = static_cast<uint32_t>(_layout_bindings.size());
-                _descriptor_layout.pBindings 					 = _layout_bindings.data();
+                VkDescriptorSetLayoutCreateInfo descriptor_layout_ = {};
+                descriptor_layout_.sType 						 = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+                descriptor_layout_.pNext 						 = nullptr;
+                descriptor_layout_.bindingCount 				 = static_cast<uint32_t>(layout_bindings_.size());
+                descriptor_layout_.pBindings 					 = layout_bindings_.data();
 
-                res = vkCreateDescriptorSetLayout(ApplicationData::data->device, &_descriptor_layout, nullptr, _desc_layout.data());
+                res = vkCreateDescriptorSetLayout(ApplicationData::data->device, &descriptor_layout_, nullptr, desc_layout_.data());
                 assert(res == VK_SUCCESS);
 
                 // Set Pipeline Layout
@@ -120,9 +103,9 @@ namespace Engine
                 pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
                 pPipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
                 pPipelineLayoutCreateInfo.setLayoutCount         = 1;
-                pPipelineLayoutCreateInfo.pSetLayouts            = _desc_layout.data();
+                pPipelineLayoutCreateInfo.pSetLayouts            = desc_layout_.data();
 
-                res = vkCreatePipelineLayout(ApplicationData::data->device, &pPipelineLayoutCreateInfo, nullptr, &_pipeline_layout);
+                res = vkCreatePipelineLayout(ApplicationData::data->device, &pPipelineLayoutCreateInfo, nullptr, &pipeline_layout_);
                 assert(res == VK_SUCCESS);
 
                 //  Create Uniform Buffer
@@ -132,8 +115,8 @@ namespace Engine
                 uniformBufferData.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
                 uniformBufferData.size       = sizeof(glm::mat4)*3;
 
-                _uniform_buffer = new UniformBuffer(uniformBufferData);
-                _uniform_buffer->initModelView(app_data->view_width, app_data->view_height);
+                uniform_buffer_ = new UniformBuffer(uniformBufferData);
+                uniform_buffer_->initModelView(app_data->view_width, app_data->view_height);
             }
 
             Texture getTextelBuffer(const std::string& texture_path, VkQueue queue)
@@ -144,24 +127,37 @@ namespace Engine
                 img_props.format = VK_FORMAT_R8G8B8A8_UNORM;
                 img_props.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
-                if(_type == Type::GRAPHIC) {
-                    VkImage texture_image = nullptr;
-                    if(!texture_path.empty()) {
-                        texture_image = Textures::createTextureImage(texture_path, queue);
+                VkImage texture_image = nullptr;
+                if(!texture_path.empty()) {
+                    texture_image = Textures::createTextureImage(texture_path, queue);
 
-                        if(texture_image != nullptr) {
-                            return Texture{
-                                .buffer  = new Memory::BufferImage(img_props, &texture_image),
-                                .sampler = createSampler()
-                            };
-                        }
+                    if(texture_image != nullptr) {
+
+                        VkSamplerCreateInfo sampler_ = {};
+                        sampler_.sType 				= VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+                        sampler_.maxAnisotropy 		= 1.0f;
+                        sampler_.magFilter 			= VK_FILTER_LINEAR;
+                        sampler_.minFilter 			= VK_FILTER_LINEAR;
+                        sampler_.mipmapMode 		= VK_SAMPLER_MIPMAP_MODE_LINEAR;
+                        sampler_.addressModeU 		= VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                        sampler_.addressModeV 		= VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                        sampler_.addressModeW 		= VK_SAMPLER_ADDRESS_MODE_REPEAT;
+                        sampler_.mipLodBias 		= 0.0f;
+                        sampler_.compareOp 			= VK_COMPARE_OP_NEVER;
+                        sampler_.minLod 			= 0.0f;
+                        sampler_.maxLod 			= 0.0f;
+                        sampler_.maxAnisotropy 		= 1.0;
+                        sampler_.anisotropyEnable 	= VK_FALSE;
+                        sampler_.borderColor 		= VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+                        VkSampler sampler_obj_ = {};
+                        assert(vkCreateSampler(ApplicationData::data->device, &sampler_, nullptr, &sampler_obj_) == VK_SUCCESS);
+
+                        return Texture{
+                            .buffer  = new Memory::BufferImage(img_props, &texture_image),
+                            .sampler = sampler_obj_
+                        };
                     }
-                }
-
-                if (_type == Type::COMPUTE) {
-                    return Texture{
-                        .buffer = new Memory::BufferImage(img_props),
-                    };
                 }
 
                 assert(false);
@@ -171,18 +167,23 @@ namespace Engine
             {
                 std::vector<VkWriteDescriptorSet, mem::StdAllocator<VkWriteDescriptorSet>> writes = {};
 
+                VkDescriptorBufferInfo buffer_info;
+                buffer_info.range  = uniform_buffer_->size;
+                buffer_info.offset = 0;
+                buffer_info.buffer = uniform_buffer_->buf;
+
                 VkWriteDescriptorSet write = {};
                 write.sType 			= VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                 write.pNext 			= nullptr;
                 write.dstSet 			= desc_set;
                 write.descriptorCount 	= 1;
                 write.descriptorType 	= VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                write.pBufferInfo 		= &_uniform_buffer->buffer_info;
+                write.pBufferInfo 		= &buffer_info;
                 write.dstArrayElement 	= 0;
                 write.dstBinding 		= 0;
                 writes.push_back(write);
 
-                if (texture.buffer != nullptr) {
+                if (texture_count_ > 0) {
                     VkDescriptorImageInfo texture_info = {};
                     texture_info.imageLayout    = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                     texture_info.imageView 	    = texture.buffer->view;
@@ -209,28 +210,13 @@ namespace Engine
 
                 std::vector<VkDescriptorPoolSize> poolSizes = {};
 
-                if(_type == Type::GRAPHIC) {
+                poolSizes.resize(1 + texture_count_);
+                poolSizes[0].type 			 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                poolSizes[0].descriptorCount = 1;
 
-                    poolSizes.resize(2);
-
-                    poolSizes[0].type 			 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    poolSizes[0].descriptorCount = 1;
-
+                if(texture_count_ > 0){
                     poolSizes[1].type 			 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                     poolSizes[1].descriptorCount = 1;
-
-                } else if(_type == Type::COMPUTE) {
-
-                    poolSizes.resize(3);
-
-                    poolSizes[0].type 			 = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-                    poolSizes[0].descriptorCount = 1;
-
-                    poolSizes[1].type 			 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    poolSizes[1].descriptorCount = 1;
-
-                    poolSizes[2].type 			 = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                    poolSizes[2].descriptorCount = 1;
                 }
 
                 VkDescriptorPoolCreateInfo descriptor_pool = {};
@@ -248,59 +234,29 @@ namespace Engine
 
             VkDescriptorSet createDescriptorSet(VkDescriptorPool desc_pool)
             {
-                VkDescriptorSet _desc_set = nullptr;
+                VkDescriptorSet desc_set_ = nullptr;
 
-                VkDescriptorSetAllocateInfo _alloc_info[1];
-                _alloc_info[0].sType 							  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-                _alloc_info[0].pNext 							  = nullptr;
-                _alloc_info[0].descriptorPool 					  = desc_pool;
-                _alloc_info[0].descriptorSetCount 				  = 1;
-                _alloc_info[0].pSetLayouts 						  = _desc_layout.data();
+                VkDescriptorSetAllocateInfo alloc_info_[1];
+                alloc_info_[0].sType 							  = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+                alloc_info_[0].pNext 							  = nullptr;
+                alloc_info_[0].descriptorPool 					  = desc_pool;
+                alloc_info_[0].descriptorSetCount 				  = 1;
+                alloc_info_[0].pSetLayouts 						  = desc_layout_.data();
 
-                assert(vkAllocateDescriptorSets(ApplicationData::data->device, _alloc_info, &_desc_set) == VK_SUCCESS);
+                assert(vkAllocateDescriptorSets(ApplicationData::data->device, alloc_info_, &desc_set_) == VK_SUCCESS);
 
-                return _desc_set;
+                return desc_set_;
             }
 
             VkPipelineLayout getPipelineLayout() const
             {
-                return _pipeline_layout;
+                return pipeline_layout_;
             }
 
             UniformBuffer* getUniformBuffer() const
             {
-                return _uniform_buffer;
+                return uniform_buffer_;
             }
-
-        private:
-
-            VkSampler createSampler()
-            {
-                VkSamplerCreateInfo sampler = {};
-                sampler.sType 									  = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-                sampler.maxAnisotropy 							  = 1.0f;
-                sampler.magFilter 								  = VK_FILTER_LINEAR;
-                sampler.minFilter 								  = VK_FILTER_LINEAR;
-                sampler.mipmapMode 								  = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-                sampler.addressModeU 							  = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                sampler.addressModeV 							  = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                sampler.addressModeW 							  = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-                sampler.mipLodBias 								  = 0.0f;
-                sampler.compareOp 								  = VK_COMPARE_OP_NEVER;
-                sampler.minLod 									  = 0.0f;
-                sampler.maxLod 									  = 0.0f;
-                sampler.maxAnisotropy 							  = 1.0;
-                sampler.anisotropyEnable 						  = VK_FALSE;
-                sampler.borderColor 							  = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-
-                VkSampler sampler_obj = {};
-
-                assert(vkCreateSampler(ApplicationData::data->device, &sampler, nullptr, &sampler_obj) == VK_SUCCESS);
-
-                return sampler_obj;
-            }
-
-
         };
     }
 }
