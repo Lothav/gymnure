@@ -41,9 +41,90 @@ namespace Engine
 
         VkResult res = vkCreateInstance(&_inst_info, nullptr, &app_data->instance);
         assert(res == VK_SUCCESS);
-    #ifdef DEBUG
-        Engine::Debug::init();
-    #endif
+    }
+
+    void Application::destroy()
+    {
+        auto app_data = ApplicationData::data;
+
+        vkDeviceWaitIdle(app_data->device);
+        for(auto &program: programs) delete program;
+        delete sync_primitives;
+        delete render_pass;
+        if(app_data->surface != VK_NULL_HANDLE)
+            vkDestroySurfaceKHR(app_data->instance, app_data->surface, nullptr);
+        delete command_buffer;
+        vkDestroyCommandPool(app_data->device, app_data->graphic_command_pool, nullptr);
+        for(auto &i : Descriptors::Textures::textureImageMemory) vkFreeMemory(app_data->device, i, nullptr);
+        vkDestroyDevice(app_data->device, nullptr);
+        Debug::destroy();
+        vkDestroyInstance(app_data->instance, nullptr);
+    }
+
+    void Application::draw()
+    {
+        VkResult res;
+        VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
+
+        BENCHMARK_FUNCTION(vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_), res);
+        assert(res == VK_SUCCESS);
+
+        VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
+
+        auto current_command_buffer = command_buffer->getCommandBuffers()[current_buffer_];
+
+        VkSubmitInfo submit_info = {};
+        submit_info.pNext                     = nullptr;
+        submit_info.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.waitSemaphoreCount        = 1;
+        submit_info.pWaitDstStageMask         = &pipe_stage_flags;
+        submit_info.commandBufferCount        = 1;
+        submit_info.pCommandBuffers           = &current_command_buffer;
+        submit_info.signalSemaphoreCount      = 1;
+        submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
+        submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
+
+        auto* current_buffer_fence = sync_primitives->getFence(current_buffer_);
+        do {
+            // Fences are created already signaled, so, we can wait for it before queue submit.
+            BENCHMARK_FUNCTION(vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX), res);
+        } while (res == VK_TIMEOUT);
+        assert(res == VK_SUCCESS);
+        BENCHMARK_FUNCTION(vkResetFences(ApplicationData::data->device, 1, current_buffer_fence), res);
+
+        BENCHMARK_FUNCTION(vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *current_buffer_fence), res);
+        assert(res == VK_SUCCESS);
+
+        VkPresentInfoKHR present = {};
+        present.sType 				  = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        present.pNext 				  = nullptr;
+        present.swapchainCount 		  = 1;
+        present.pSwapchains 		  = &swap_c;
+        present.pImageIndices 		  = &current_buffer_;
+        present.pWaitSemaphores 	  = nullptr;
+        present.waitSemaphoreCount 	  = 0;
+        present.pResults              = nullptr;
+
+        if (sync_primitives->renderSemaphore != VK_NULL_HANDLE) {
+            present.pWaitSemaphores = &sync_primitives->renderSemaphore;
+            present.waitSemaphoreCount = 1;
+        }
+
+        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present), res);
+        assert(res == VK_SUCCESS);
+    }
+
+    void Application::prepare()
+    {
+        command_buffer->bindGraphicCommandBuffer(programs, render_pass, ApplicationData::data->view_width, ApplicationData::data->view_height);
+    }
+
+    void Application::setupSurface(const uint32_t width, const uint32_t height)
+    {
+        auto app_data = ApplicationData::data;
+        VkResult res;
 
         std::vector<VkPhysicalDevice> gpu_vector = {};
         res = vkEnumeratePhysicalDevices(app_data->instance, &app_data->queue_family_count, nullptr);
@@ -60,9 +141,9 @@ namespace Engine
             device_log += "\tDevice[" + std::to_string(i) + "]: " + device_properties.deviceName + "\n";
             device_log += "\t\tType: " + Util::Util::physicalDeviceTypeString(device_properties.deviceType) + "\n";
             device_log += "\t\tAPI: " +
-                std::to_string(device_properties.apiVersion >> 22) + "." +
-                std::to_string((device_properties.apiVersion >> 12) & 0x3ff) + "." +
-                std::to_string(device_properties.apiVersion & 0xfff) + "\n";
+                          std::to_string(device_properties.apiVersion >> 22) + "." +
+                          std::to_string((device_properties.apiVersion >> 12) & 0x3ff) + "." +
+                          std::to_string(device_properties.apiVersion & 0xfff) + "\n";
         }
         uint gpu_index = 0;
         device_log += "Using Device[" + std::to_string(gpu_index) + "]\n";
@@ -177,89 +258,6 @@ namespace Engine
 
         res = vkCreateCommandPool(app_data->device, &cmd_pool_info, nullptr, &app_data->graphic_command_pool);
         assert(res == VK_SUCCESS);
-    }
-
-    void Application::destroy()
-    {
-        auto app_data = ApplicationData::data;
-
-        vkDeviceWaitIdle(app_data->device);
-        for(auto &program: programs) delete program;
-        delete sync_primitives;
-        delete render_pass;
-        if(app_data->surface != VK_NULL_HANDLE)
-            vkDestroySurfaceKHR(app_data->instance, app_data->surface, nullptr);
-        delete command_buffer;
-        vkDestroyCommandPool(app_data->device, app_data->graphic_command_pool, nullptr);
-        for(auto &i : Descriptors::Textures::textureImageMemory) vkFreeMemory(app_data->device, i, nullptr);
-        vkDestroyDevice(app_data->device, nullptr);
-        Debug::destroy();
-        vkDestroyInstance(app_data->instance, nullptr);
-    }
-
-    void Application::draw()
-    {
-        VkResult res;
-        VkSwapchainKHR swap_c = render_pass->getSwapChain()->getSwapChainKHR();
-
-        BENCHMARK_FUNCTION(vkAcquireNextImageKHR(ApplicationData::data->device, swap_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, nullptr, &current_buffer_), res);
-        assert(res == VK_SUCCESS);
-
-        VkPipelineStageFlags pipe_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-        for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
-
-        auto current_command_buffer = command_buffer->getCommandBuffers()[current_buffer_];
-
-        VkSubmitInfo submit_info = {};
-        submit_info.pNext                     = nullptr;
-        submit_info.sType                     = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submit_info.waitSemaphoreCount        = 1;
-        submit_info.pWaitDstStageMask         = &pipe_stage_flags;
-        submit_info.commandBufferCount        = 1;
-        submit_info.pCommandBuffers           = &current_command_buffer;
-        submit_info.signalSemaphoreCount      = 1;
-        submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
-        submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
-
-        auto* current_buffer_fence = sync_primitives->getFence(current_buffer_);
-        do {
-            // Fences are created already signaled, so, we can wait for it before queue submit.
-            BENCHMARK_FUNCTION(vkWaitForFences(ApplicationData::data->device, 1, current_buffer_fence, VK_TRUE, UINT64_MAX), res);
-        } while (res == VK_TIMEOUT);
-        assert(res == VK_SUCCESS);
-        BENCHMARK_FUNCTION(vkResetFences(ApplicationData::data->device, 1, current_buffer_fence), res);
-
-        BENCHMARK_FUNCTION(vkQueueSubmit(render_pass->getSwapChain()->getGraphicQueue(), 1, &submit_info, *current_buffer_fence), res);
-        assert(res == VK_SUCCESS);
-
-        VkPresentInfoKHR present = {};
-        present.sType 				  = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        present.pNext 				  = nullptr;
-        present.swapchainCount 		  = 1;
-        present.pSwapchains 		  = &swap_c;
-        present.pImageIndices 		  = &current_buffer_;
-        present.pWaitSemaphores 	  = nullptr;
-        present.waitSemaphoreCount 	  = 0;
-        present.pResults              = nullptr;
-
-        if (sync_primitives->renderSemaphore != VK_NULL_HANDLE) {
-            present.pWaitSemaphores = &sync_primitives->renderSemaphore;
-            present.waitSemaphoreCount = 1;
-        }
-
-        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present), res);
-        assert(res == VK_SUCCESS);
-    }
-
-    void Application::prepare()
-    {
-        command_buffer->bindGraphicCommandBuffer(programs, render_pass, ApplicationData::data->view_width, ApplicationData::data->view_height);
-    }
-
-    void Application::setupSurface(const uint32_t width, const uint32_t height)
-    {
-        auto app_data = ApplicationData::data;
 
         app_data->view_width  = width;
         app_data->view_height = height;

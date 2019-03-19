@@ -2,8 +2,15 @@
 #ifndef GYMNURE_SDLWINDOW_HPP
 #define GYMNURE_SDLWINDOW_HPP
 
+#define VK_USE_PLATFORM_XCB_KHR
+#define SDL_VIDEO_DRIVER_X11
+
 #include <SDL.h>
 #include <SDL_vulkan.h>
+
+#include <vulkan/vulkan.h>
+#include <SDL2/SDL_syswm.h>
+
 #include <ApplicationData.hpp>
 #include <Application.hpp>
 
@@ -16,6 +23,7 @@ namespace Engine
 
         private:
 
+            SDL_SysWMinfo info;
             SDL_Window* window_ = nullptr;
             std::vector<const char *> instance_extension_names_ = {};
 
@@ -37,21 +45,25 @@ namespace Engine
 
                 window_ = SDL_CreateWindow("Hell Yeah!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
 
+                SDL_VERSION(&info.version);   // initialize info structure with SDL version info
+                if(!SDL_GetWindowWMInfo(window_, &info))
+                {
+                    Debug::logError(std::string("Couldn't get window information: ") + SDL_GetError());
+                }
+
                 uint32_t extensions_count = 0;
                 SDL_Vulkan_GetInstanceExtensions(window_, &extensions_count, nullptr);
-                auto extensions = std::make_shared<std::array<const char*, 2>>();
-                SDL_Vulkan_GetInstanceExtensions(window_, &extensions_count, &extensions.get()->front());
+                auto extensions = std::vector<const char*>();
+                extensions.resize(extensions_count);
+                SDL_Vulkan_GetInstanceExtensions(window_, &extensions_count, extensions.data());
 
-                for(auto extension_name : *extensions.get())
+                for(auto extension_name : extensions)
                     instance_extension_names_.emplace_back(extension_name);
 
-                //@TODO remove this (test for think pad)
-                instance_extension_names_.emplace_back("VK_KHR_xcb_surface");
-
-                #ifdef DEBUG
+            #ifdef DEBUG
                 instance_extension_names_.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
                 instance_extension_names_.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-                #endif
+            #endif
             }
 
             ~SDLWindow()
@@ -108,8 +120,7 @@ namespace Engine
             {
                 if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data->instance, &ApplicationData::data->surface) == SDL_bool::SDL_FALSE)
                 {
-                    std::cerr << "Failed to create Vulkan surface." << std::endl;
-                    //assert(false);
+                    Debug::logError(std::string("Failed to create Vulkan surface: ") + SDL_GetError());
                 }
             }
 
