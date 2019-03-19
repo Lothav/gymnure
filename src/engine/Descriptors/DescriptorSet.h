@@ -154,7 +154,7 @@ namespace Engine
                         assert(vkCreateSampler(ApplicationData::data->device, &sampler_, nullptr, &sampler_obj_) == VK_SUCCESS);
 
                         return Texture{
-                            .buffer  = new Memory::BufferImage(img_props, &texture_image),
+                            .buffer  = new Memory::BufferImage(img_props, texture_image),
                             .sampler = sampler_obj_
                         };
                     }

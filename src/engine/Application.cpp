@@ -117,7 +117,7 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getGraphicQueue(), &present), res);
+        BENCHMARK_FUNCTION(vkQueuePresentKHR(render_pass->getSwapChain()->getPresentQueue(), &present), res);
         assert(res == VK_SUCCESS);
 
         BENCHMARK_FUNCTION(vkDeviceWaitIdle(app_data->device), res);

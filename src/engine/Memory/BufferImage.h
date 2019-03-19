@@ -43,13 +43,13 @@ namespace Engine
             VkImageView 	view    = nullptr;
             VkFormat        format;
 
-            BufferImage(struct MemoryProps memory_pro, struct ImageProps img_props, VkImage* images = nullptr)
+            BufferImage(struct MemoryProps memory_pro, struct ImageProps img_props, VkImage image_ptr = VK_NULL_HANDLE)
             {
                 this->img_pros_  = img_props;
                 this->mem_props_ = memory_pro;
                 this->format     = img_props.format;
 
-                image = images == nullptr ? createImage() : *images;
+                image = image_ptr == nullptr ? createImage() : image_ptr;
 
                 // Create Imageview
                 VkImageViewCreateInfo viewInfo = {};
@@ -68,7 +68,7 @@ namespace Engine
                 assert(res == VK_SUCCESS);
             }
 
-            explicit BufferImage(struct ImageProps img_props, VkImage* images = nullptr) : BufferImage({}, img_props, images) {}
+            explicit BufferImage(struct ImageProps img_props, VkImage image = VK_NULL_HANDLE) : BufferImage({}, img_props, image) {}
 
             ~BufferImage()
             {

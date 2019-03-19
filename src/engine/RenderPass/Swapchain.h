@@ -11,6 +11,7 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <Application.hpp>
+#include <Util/Debug.hpp>
 
 namespace Engine
 {
@@ -20,13 +21,13 @@ namespace Engine
 
 		private:
 
-			uint32_t 							_image_count{};
-			VkSwapchainKHR  					_swap_chain = nullptr;
-			VkQueue 							_graphics_queue{}, _present_queue{};
+			uint32_t 							image_count_{};
+			VkSwapchainKHR  					swap_chain_ = nullptr;
+			VkQueue 							graphics_queue_{}, present_queue_{};
 			VkFormat 							format_;
 			VkColorSpaceKHR						colorSpace_;
 
-			std::vector<Memory::BufferImage *> 	_swap_chain_buffer = {};
+			std::vector<Memory::BufferImage *> 	swap_chain_buffer_ = {};
 
 		public:
 
@@ -35,7 +36,6 @@ namespace Engine
 			    auto app_data = ApplicationData::data;
 
 				VkResult res;
-				VkImage* _swap_chain_images = nullptr;
 
                 // Get supported format
                 {
@@ -80,44 +80,44 @@ namespace Engine
 
                 VkSwapchainCreateInfoKHR swapChainCI = buildSwapChainCI();
 
-				res = vkCreateSwapchainKHR(app_data->device, &swapChainCI, nullptr, &_swap_chain);
+				res = vkCreateSwapchainKHR(app_data->device, &swapChainCI, nullptr, &swap_chain_);
 				assert(res == VK_SUCCESS);
 
-				res = vkGetSwapchainImagesKHR(app_data->device, _swap_chain, &_image_count, nullptr);
+				res = vkGetSwapchainImagesKHR(app_data->device, swap_chain_, &image_count_, nullptr);
 				assert(res == VK_SUCCESS);
 
-				_swap_chain_images = (VkImage *)malloc(_image_count * sizeof(VkImage));
-				assert(_swap_chain_images);
+				auto* swap_chain_images_ = (VkImage *) malloc(image_count_ * sizeof(VkImage));
+				assert(swap_chain_images_);
 
-				res = vkGetSwapchainImagesKHR(app_data->device, _swap_chain, &_image_count, _swap_chain_images);
-				assert(res == VK_SUCCESS && _image_count > 0);
+				res = vkGetSwapchainImagesKHR(app_data->device, swap_chain_, &image_count_, swap_chain_images_);
+				assert(res == VK_SUCCESS && image_count_ > 0);
 
 				// Create Swapchain Buffer
-				for (uint32_t i = 0; i < _image_count; i++)
+				for (uint32_t i = 0; i < image_count_; i++)
 				{
 					ImageProps img_props = {};
-					img_props.format = format_;
-					img_props.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+					img_props.format 	  = format_;
+					img_props.aspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
 					img_props.component.r = VK_COMPONENT_SWIZZLE_R;
 					img_props.component.g = VK_COMPONENT_SWIZZLE_G;
 					img_props.component.b = VK_COMPONENT_SWIZZLE_B;
 					img_props.component.a = VK_COMPONENT_SWIZZLE_A;
 
-					auto* sc_buffer = new Memory::BufferImage(img_props, &_swap_chain_images[i]);
+					auto* sc_buffer = new Memory::BufferImage(img_props, swap_chain_images_[i]);
 
-					_swap_chain_buffer.push_back(sc_buffer);
+					swap_chain_buffer_.push_back(sc_buffer);
 				}
 			}
 
 			~SwapChain()
 			{
-				if(_swap_chain_buffer.size() == _image_count) {
-					for (u_int32_t i = 0; i < _image_count; i++){
-						_swap_chain_buffer[i]->image = nullptr;
-						delete _swap_chain_buffer[i];
+				if(swap_chain_buffer_.size() == image_count_) {
+					for (u_int32_t i = 0; i < image_count_; i++){
+						swap_chain_buffer_[i]->image = nullptr;
+						delete swap_chain_buffer_[i];
 					}
 				}
-                vkDestroySwapchainKHR(ApplicationData::data->device, _swap_chain, nullptr);
+                vkDestroySwapchainKHR(ApplicationData::data->device, swap_chain_, nullptr);
 			}
 
 			void* operator new(std::size_t size)
@@ -132,12 +132,12 @@ namespace Engine
 
 			uint32_t getImageCount() const
 			{
-				return _image_count;
+				return image_count_;
 			}
 
 			Memory::BufferImage * getSwapChainBuffer(uint32_t i) const
 			{
-				return _swap_chain_buffer[i];
+				return swap_chain_buffer_[i];
 			}
 
 			VkFormat getSwapChainFormat() const
@@ -147,17 +147,17 @@ namespace Engine
 
 			VkSwapchainKHR getSwapChainKHR() const
 			{
-				return _swap_chain;
+				return swap_chain_;
 			}
 
 			VkQueue getGraphicQueue() const
 			{
-				return _graphics_queue;
+				return graphics_queue_;
 			}
 
 			VkQueue getPresentQueue() const
 			{
-				return _present_queue;
+				return present_queue_;
 			}
 
 		private:
@@ -167,8 +167,8 @@ namespace Engine
 			    auto app_data = ApplicationData::data;
 
 				VkResult res;
-				uint32_t _graphics_queue_family_index = UINT32_MAX;
-				uint32_t _present_queue_family_index  = UINT32_MAX;
+				uint32_t graphics_queue_family_index_ = UINT32_MAX;
+				uint32_t present_queue_family_index_  = UINT32_MAX;
 
 				auto *pSupportsPresent = (VkBool32 *)malloc(app_data->queue_family_count * sizeof(VkBool32));
 
@@ -181,22 +181,22 @@ namespace Engine
 
 				for (uint32_t i = 0; i < app_data->queue_family_count; ++i) {
 					if ((app_data->queue_family_props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0) {
-						if (_graphics_queue_family_index == UINT32_MAX) _graphics_queue_family_index = i;
+						if (graphics_queue_family_index_ == UINT32_MAX) graphics_queue_family_index_ = i;
 
 						if (pSupportsPresent[i] == VK_TRUE) {
-							_graphics_queue_family_index = i;
-							_present_queue_family_index = i;
+							graphics_queue_family_index_ = i;
+							present_queue_family_index_ = i;
 							break;
 						}
 					}
 				}
 
-				if (_present_queue_family_index == UINT32_MAX) {
+				if (present_queue_family_index_ == UINT32_MAX) {
 					// If didn't find a queue that supports both graphics and present, then
 					// find a separate present queue.
 					for (size_t i = 0; i < app_data->queue_family_count; ++i)
 						if (pSupportsPresent[i] == VK_TRUE) {
-							_present_queue_family_index = (u_int32_t)i;
+							present_queue_family_index_ = (u_int32_t)i;
 							break;
 						}
 				}
@@ -204,22 +204,15 @@ namespace Engine
 
 				// Generate error if could not find queues that support graphics
 				// and present
-				if (_graphics_queue_family_index == UINT32_MAX || _present_queue_family_index == UINT32_MAX) {
-					std::cout << "Could not find a queues for both graphics and present";
-					exit(-1);
+				if (graphics_queue_family_index_ == UINT32_MAX || present_queue_family_index_ == UINT32_MAX) {
+					Debug::logError("Could not find a queues for both graphics and present");
 				}
 
-				VkCommandBufferBeginInfo cmd_buf_info = {};
-				cmd_buf_info.sType 							= VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				cmd_buf_info.pNext 							= nullptr;
-				cmd_buf_info.flags 							= 0;
-				cmd_buf_info.pInheritanceInfo 				= nullptr;
-
-				vkGetDeviceQueue(app_data->device, _graphics_queue_family_index, 0, &_graphics_queue);
-				if (_graphics_queue_family_index == _present_queue_family_index) {
-					_present_queue = _graphics_queue;
+				vkGetDeviceQueue(app_data->device, graphics_queue_family_index_, 0, &graphics_queue_);
+				if (graphics_queue_family_index_ == present_queue_family_index_) {
+					present_queue_ = graphics_queue_;
 				} else {
-					vkGetDeviceQueue(app_data->device, _present_queue_family_index, 0, &_present_queue);
+					vkGetDeviceQueue(app_data->device, present_queue_family_index_, 0, &present_queue_);
 				}
 
 				VkSurfaceCapabilitiesKHR surfCapabilities;
@@ -267,10 +260,10 @@ namespace Engine
 				// Asking for minImageCount images ensures that we can acquire
 				// 1 presentable image as long as we present it before attempting
 				// to acquire another.
-				_image_count = surfCapabilities.minImageCount + 1;
-				if ((surfCapabilities.maxImageCount > 0) && (_image_count > surfCapabilities.maxImageCount))
+				image_count_ = surfCapabilities.minImageCount + 1;
+				if ((surfCapabilities.maxImageCount > 0) && (image_count_ > surfCapabilities.maxImageCount))
 				{
-					_image_count = surfCapabilities.maxImageCount;
+					image_count_ = surfCapabilities.maxImageCount;
 				}
 
 				VkSurfaceTransformFlagBitsKHR preTransform;
@@ -299,7 +292,7 @@ namespace Engine
 				swapchain_ci.sType 					= VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 				swapchain_ci.pNext 					= nullptr;
 				swapchain_ci.surface 				= app_data->surface;
-				swapchain_ci.minImageCount 			= _image_count;
+				swapchain_ci.minImageCount 			= image_count_;
 				swapchain_ci.imageFormat 			= format_;
 				swapchain_ci.imageColorSpace		= colorSpace_;
 				swapchain_ci.imageUsage 			= VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -311,15 +304,15 @@ namespace Engine
 				swapchain_ci.imageArrayLayers 		= 1;
 				swapchain_ci.presentMode 			= swapchainPresentMode;
 				swapchain_ci.oldSwapchain 			= VK_NULL_HANDLE;
-				swapchain_ci.clipped 				= (VkBool32)true;
+				swapchain_ci.clipped 				= VK_TRUE;
 				swapchain_ci.queueFamilyIndexCount  = 0;
 				swapchain_ci.pQueueFamilyIndices 	= nullptr;
 
 				auto* queueFamilyIndices = static_cast<uint32_t*>(malloc(sizeof(uint32_t) * 2));
-				queueFamilyIndices[0] = (uint32_t)_graphics_queue_family_index;
-				queueFamilyIndices[1] = (uint32_t)_present_queue_family_index;
+				queueFamilyIndices[0] = (uint32_t)graphics_queue_family_index_;
+				queueFamilyIndices[1] = (uint32_t)present_queue_family_index_;
 
-				if (_graphics_queue_family_index != _present_queue_family_index) {
+				if (graphics_queue_family_index_ != present_queue_family_index_) {
 					// If the graphics and present queues are from different queue families,
 					// we either have to explicitly transfer ownership of images between the
 					// queues, or we have to create the swapchain with imageSharingMode
