@@ -101,8 +101,8 @@ namespace Engine
 
                     for(auto &data : program_obj->data) {
 
-                        Util::Util::initViewports(command_buffers_[i], width, height);
-                        Util::Util::initScissors(command_buffers_[i], width, height);
+                        Util::Util::initViewport(command_buffers_[i], width, height);
+                        Util::Util::initScissor(command_buffers_[i], width, height);
 
                         vkCmdBindPipeline(command_buffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, program_obj->graphic_pipeline->getPipeline());
 
@@ -110,9 +110,15 @@ namespace Engine
                                                 program_obj->descriptor_set->getPipelineLayout(), 0,
                                                 1, &data->descriptor_set, 0, nullptr);
 
-                        vkCmdBindVertexBuffers(command_buffers_[i], 0, 1, &data->vertex_buffer->getBuffer()->buf, offsets);
+                        vkCmdBindVertexBuffers(command_buffers_[i], 0, 1, &data->vertex_buffer->getVertexBuffer()->buf, offsets);
 
-                        vkCmdDraw(command_buffers_[i], data->vertex_buffer->getVertexSize(), 1, 0, 0);
+                        auto index_count = data->vertex_buffer->getIndexSize();
+                        if(index_count > 0) {
+                            vkCmdBindIndexBuffer(command_buffers_[i], data->vertex_buffer->getIndexBuffer()->buf, 0, VK_INDEX_TYPE_UINT32);
+                            vkCmdDrawIndexed(command_buffers_[i], index_count, 1, 0, 0, 1);
+                        } else {
+                            vkCmdDraw(command_buffers_[i], data->vertex_buffer->getVertexSize(), 1, 0, 0);
+                        }
                     }
                 }
 

@@ -60,9 +60,9 @@ namespace Engine
 
 			Util() = delete;
 
-			static void initViewports(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height);
+			static void initViewport(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height);
+			static void initScissor(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height);
 			static std::string physicalDeviceTypeString(VkPhysicalDeviceType type);
-			static void initScissors(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height);
 			static VkShaderModule loadSPIRVShader(const std::string& filename, VkDevice device);
 		};
 	}

@@ -5,7 +5,7 @@ namespace Engine
     namespace Util
     {
 
-        void Util::initViewports(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
+        void Util::initViewport(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
         {
             VkViewport viewport;
             viewport.height 	= static_cast<float>(height);
@@ -16,6 +16,16 @@ namespace Engine
             viewport.y 			= 0;
 
             vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
+        }
+
+        void Util::initScissor(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
+        {
+            VkRect2D scissor;
+            scissor.extent.width 	= (uint32_t)width;
+            scissor.extent.height 	= (uint32_t)height;
+            scissor.offset.x 		= 0;
+            scissor.offset.y 		= 0;
+            vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
         }
 
         std::string Util::physicalDeviceTypeString(VkPhysicalDeviceType type)
@@ -30,16 +40,6 @@ namespace Engine
                 default: return "UNKNOWN_DEVICE_TYPE";
             }
         #undef CASE_STR
-        }
-
-        void Util::initScissors(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
-        {
-            VkRect2D scissor;
-            scissor.extent.width 	= (uint32_t)width;
-            scissor.extent.height 	= (uint32_t)height;
-            scissor.offset.x 		= 0;
-            scissor.offset.y 		= 0;
-            vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
         }
 
         VkShaderModule Util::loadSPIRVShader(const std::string& filename, VkDevice device)

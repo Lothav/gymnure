@@ -14,9 +14,19 @@ namespace Engine
             return vertex_count;
         }
 
-        std::shared_ptr<Memory::Buffer> VertexBuffer::getBuffer() const
+        std::shared_ptr<Memory::Buffer> VertexBuffer::getVertexBuffer() const
         {
-            return buffer_;
+            return vertexBuffer_;
+        }
+
+        uint32_t VertexBuffer::getIndexSize() const
+        {
+            return index_count;
+        }
+
+        std::shared_ptr<Memory::Buffer> VertexBuffer::getIndexBuffer() const
+        {
+            return indexBuffer_;
         }
 
         std::vector<VertexData> VertexBuffer::createPrimitiveTriangle()
@@ -29,7 +39,10 @@ namespace Engine
                     { {  0.0f, -1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }
                 };
 
-            initBuffer(vertexBuffer);
+            // Setup indices
+            std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
+
+            this->initBuffers(vertexBuffer, indexBuffer);
 
             return vertexBuffer;
         }
