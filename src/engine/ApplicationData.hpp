@@ -7,6 +7,7 @@
 
 #include <memancpp/Allocator.hpp>
 #include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.hpp>
 
 namespace Engine
 {
@@ -15,17 +16,17 @@ namespace Engine
         uint32_t                                view_width;
         uint32_t                                view_height;
 
-        VkInstance 		                        instance;
-        VkSurfaceKHR                            surface;
-        VkDevice 								device;
-        VkPhysicalDevice                        gpu;
-        VkCommandPool                           graphic_command_pool;
+        vk::Instance 		                    instance;
+        vk::SurfaceKHR                          surface;
+        vk::Device 								device;
+        vk::PhysicalDevice                      gpu;
+        vk::CommandPool                         graphic_command_pool;
 
         u_int32_t							 	queue_family_count;
-        VkPhysicalDeviceMemoryProperties 		memory_properties;
-        std::vector<VkQueueFamilyProperties,
+        vk::PhysicalDeviceMemoryProperties 		memory_properties;
+        std::vector<vk::QueueFamilyProperties,
             mem::StdAllocator<
-                VkQueueFamilyProperties>>       queue_family_props;
+                vk::QueueFamilyProperties>>     queue_family_props;
     };
 
     class ApplicationData
