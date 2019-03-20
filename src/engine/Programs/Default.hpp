@@ -2,6 +2,7 @@
 #ifndef GYMNURE_DEFAULT_HPP
 #define GYMNURE_DEFAULT_HPP
 
+#include <GraphicsPipeline/GraphicsPipeline.h>
 #include "Program.h"
 
 namespace Engine
@@ -13,7 +14,7 @@ namespace Engine
 
         public:
 
-            explicit Default(VkQueue queue)
+            explicit Default(vk::Queue queue)
             {
                 queue_ = queue;
             }
@@ -28,44 +29,44 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            void init(VkRenderPass render_pass) override
+            void init(vk::RenderPass render_pass) override
             {
                 auto app_data = ApplicationData::data;
 
-                auto vert = Engine::GraphicPipeline::Shader{};
-                vert.type = VK_SHADER_STAGE_VERTEX_BIT;
+                auto vert = Engine::GraphicsPipeline::Shader{};
+                vert.type = vk::ShaderStageFlagBits::eVertex;
                 vert.path = "default.vert.spv";
 
-                auto frag = Engine::GraphicPipeline::Shader{};
-                frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
+                auto frag = Engine::GraphicsPipeline::Shader{};
+                frag.type = vk::ShaderStageFlagBits::eFragment;
                 frag.path = "default.frag.spv";
 
                 descriptor_set = new Descriptors::DescriptorSet(0);
-                graphic_pipeline = new GraphicPipeline::GraphicPipeline(app_data->device, {vert, frag});
+                graphic_pipeline = new GraphicsPipeline::GraphicsPipeline({vert, frag});
 
                 descriptor_set->create();
 
-                VkVertexInputBindingDescription vi_binding = {};
+                vk::VertexInputBindingDescription vi_binding = {};
                 vi_binding.binding 					= 0;
-                vi_binding.inputRate 				= VK_VERTEX_INPUT_RATE_VERTEX;
+                vi_binding.inputRate 				= vk::VertexInputRate::eVertex;
                 vi_binding.stride 					= sizeof(VertexData);
 
-                std::vector<VkVertexInputAttributeDescription> vi_attribs;
+                std::vector<vk::VertexInputAttributeDescription> vi_attribs;
                 vi_attribs.resize(2);
 
                 vi_attribs[0].binding 			    = 0;
                 vi_attribs[0].location 			    = 0;
-                vi_attribs[0].format 			    = VK_FORMAT_R32G32B32_SFLOAT;
+                vi_attribs[0].format 			    = vk::Format::eR32G32B32Sfloat;
                 vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
 
                 vi_attribs[1].binding 			    = 0;
                 vi_attribs[1].location 			    = 1;
-                vi_attribs[1].format 			    = VK_FORMAT_R32G32_SFLOAT;
+                vi_attribs[1].format 			    = vk::Format::eR32G32Sfloat;
                 vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
 
                 graphic_pipeline->addViAttributes(vi_attribs);
                 graphic_pipeline->setViBinding(vi_binding);
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, VK_CULL_MODE_NONE);
+                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eNone);
             }
 
             void addObjData(const GymnureObjData& obj_data) override

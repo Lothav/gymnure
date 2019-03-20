@@ -16,7 +16,7 @@ namespace Engine
 
         public:
 
-            explicit Skybox(VkQueue queue)
+            explicit Skybox(vk::Queue queue)
             {
                 queue_ = queue;
             }
@@ -35,16 +35,16 @@ namespace Engine
             {
                 /*auto app_data = ApplicationData::data;
 
-                auto vert = Engine::GraphicPipeline::Shader{};
+                auto vert = Engine::GraphicsPipeline::Shader{};
                 vert.type = VK_SHADER_STAGE_VERTEX_BIT;
                 vert.path = "skybox.vert.spv";
 
-                auto frag = Engine::GraphicPipeline::Shader{};
+                auto frag = Engine::GraphicsPipeline::Shader{};
                 frag.type = VK_SHADER_STAGE_FRAGMENT_BIT;
                 frag.path = "skybox.frag.spv";
 
                 descriptor_set = new Descriptors::DescriptorSet(Descriptors::Type::GRAPHIC);
-                graphic_pipeline  = new GraphicPipeline::GraphicPipeline(app_data->device, {vert, frag});
+                graphic_pipeline  = new GraphicsPipeline::GraphicsPipeline(app_data->device, {vert, frag});
 
                 descriptor_set->create();
 

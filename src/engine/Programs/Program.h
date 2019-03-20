@@ -5,11 +5,11 @@
 #ifndef GYMNURE_PROGRAM_H
 #define GYMNURE_PROGRAM_H
 
-#include <GraphicPipeline/GraphicPipeline.h>
 #include <Descriptors/DescriptorSet.h>
 #include <Vertex/VertexBuffer.h>
 #include <memancpp/Provider.hpp>
 #include <ApplicationData.hpp>
+#include <GraphicsPipeline/GraphicsPipeline.h>
 
 struct GymnureObjData
 {
@@ -27,8 +27,8 @@ namespace Engine
         {
             Descriptors::Texture  texture         = {};
             Vertex::VertexBuffer* vertex_buffer   = nullptr;
-            VkDescriptorPool      descriptor_pool = nullptr;
-            VkDescriptorSet       descriptor_set  = nullptr;
+            vk::DescriptorPool    descriptor_pool = nullptr;
+            vk::DescriptorSet     descriptor_set  = nullptr;
         };
 
         class Program
@@ -36,10 +36,10 @@ namespace Engine
 
         public:
 
-            Descriptors::DescriptorSet*         descriptor_set   = nullptr;
-            std::vector<ProgramData*>           data             = {};
-            GraphicPipeline::GraphicPipeline*   graphic_pipeline = nullptr;
-            VkQueue                             queue_{};
+            Descriptors::DescriptorSet*             descriptor_set   = nullptr;
+            std::vector<ProgramData*>               data             = {};
+            GraphicsPipeline::GraphicsPipeline*     graphic_pipeline = nullptr;
+            vk::Queue                               queue_{};
 
             ~Program()
             {
@@ -65,7 +65,7 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            virtual void init(VkRenderPass render_pass) = 0;
+            virtual void init(vk::RenderPass render_pass) = 0;
 
             virtual void addObjData(const GymnureObjData& obj_data) = 0;
         };
