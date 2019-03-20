@@ -5,17 +5,11 @@
 #include <ApplicationData.hpp>
 #include "Debug.hpp"
 
-PFN_vkCreateDebugUtilsMessengerEXT  Engine::Debug::CreateDebugUtilsMessengerEXT;
-PFN_vkDestroyDebugUtilsMessengerEXT Engine::Debug::DestroyDebugUtilsMessengerEXT;
-VkDebugUtilsMessengerEXT            Engine::Debug::dbg_messenger;
+vk::DebugUtilsMessengerEXT Engine::Debug::dbg_messenger;
 
 void Engine::Debug::init()
 {
     auto instance = ApplicationData::data->instance;
-
-    // Setup our pointers to the VK_EXT_debug_utils commands
-    CreateDebugUtilsMessengerEXT  = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-    DestroyDebugUtilsMessengerEXT = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
 
     PFN_vkDebugUtilsMessengerCallbackEXT debug_messenger_callback = [](
             VkDebugUtilsMessageSeverityFlagBitsEXT       messageSeverity,
@@ -38,24 +32,23 @@ void Engine::Debug::init()
     };
 
     // Create a Debug Utils Messenger that will trigger our callback for any warning or error.
-    VkDebugUtilsMessengerCreateInfoEXT dbg_messenger_create_info;
-    dbg_messenger_create_info.sType                 = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    vk::DebugUtilsMessengerCreateInfoEXT dbg_messenger_create_info;
     dbg_messenger_create_info.pNext                 = nullptr;
-    dbg_messenger_create_info.flags                 = 0;
     dbg_messenger_create_info.pfnUserCallback       = debug_messenger_callback;
     dbg_messenger_create_info.pUserData             = nullptr;
-    dbg_messenger_create_info.messageSeverity       =
-            VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    dbg_messenger_create_info.messageType           =
-            VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 
-    VkResult result = CreateDebugUtilsMessengerEXT(instance, &dbg_messenger_create_info, nullptr, &dbg_messenger);
-    assert(result == VK_SUCCESS);
+    dbg_messenger_create_info.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
+        vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+        vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
+
+    dbg_messenger_create_info.messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+        vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation;
+
+    vk::Result result = instance.createDebugUtilsMessengerEXT(&dbg_messenger_create_info, nullptr, &dbg_messenger);
+    assert(result == vk::Result::eSuccess);
 }
 
 void Engine::Debug::destroy()
 {
-    DestroyDebugUtilsMessengerEXT(ApplicationData::data->instance, dbg_messenger, nullptr);
+    ApplicationData::data->instance.destroyDebugUtilsMessengerEXT(dbg_messenger);
 }
