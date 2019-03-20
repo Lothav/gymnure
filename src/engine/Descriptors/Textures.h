@@ -20,18 +20,18 @@ namespace Engine
 
 		public:
 
-			static std::vector<VkDeviceMemory, mem::StdAllocator<VkDeviceMemory>> textureImageMemory;
-			static VkImage createTextureImage(const std::string &texture_path, VkQueue graphicQueue);
+			static std::vector<vk::DeviceMemory, mem::StdAllocator<vk::DeviceMemory>> textureImageMemory;
+			static vk::Image createTextureImage(const std::string &texture_path, vk::Queue graphicQueue);
 
 		private:
 
-            static void createImage(uint32_t width, uint32_t height, VkFormat format,
-                                    VkImageTiling tiling, VkImageUsageFlags usage,
-                                    VkMemoryPropertyFlags properties, VkImage& image);
-			static VkCommandBuffer beginSingleTimeCommands();
-			static void endSingleTimeCommands(VkCommandBuffer commandBuffer, VkQueue graphicsQueue);
-			static void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, VkQueue graphicsQueue);
-			static void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, VkQueue graphicsQueue);
+            static void createImage(uint32_t width, uint32_t height, vk::Format format,
+									vk::ImageTiling tiling, vk::ImageUsageFlags usage,
+									vk::MemoryPropertyFlags properties, vk::Image& image);
+			static vk::CommandBuffer beginSingleTimeCommands();
+			static void endSingleTimeCommands(vk::CommandBuffer commandBuffer, vk::Queue graphicsQueue);
+			static void transitionImageLayout(vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::Queue graphicsQueue);
+			static void copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, vk::Queue graphicsQueue);
 
 		};
 	}
