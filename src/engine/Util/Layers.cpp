@@ -48,52 +48,50 @@ namespace Engine
             return layer_names_;
         }
 
-        VkResult Layers::setGlobalLayerProperties()
+        vk::Result Layers::setGlobalLayerProperties()
         {
             uint32_t instance_layer_count;
-            VkLayerProperties *vk_props = nullptr;
-            VkResult res;
+            vk::LayerProperties *vk_props = nullptr;
+            vk::Result res;
 
             do {
-                res = vkEnumerateInstanceLayerProperties(&instance_layer_count, nullptr);
-                if (res) return res;
-                if (instance_layer_count == 0) return VK_SUCCESS;
-                vk_props = (VkLayerProperties *)realloc(vk_props, instance_layer_count * sizeof(VkLayerProperties));
-                res = vkEnumerateInstanceLayerProperties(&instance_layer_count, vk_props);
-            } while (res == VK_INCOMPLETE);
+                res = vk::enumerateInstanceLayerProperties(&instance_layer_count, nullptr, {});
+                if (instance_layer_count == 0)
+                    return vk::Result::eSuccess;
+                vk_props = (vk::LayerProperties *)realloc(vk_props, instance_layer_count * sizeof(vk::LayerProperties));
+                res = vk::enumerateInstanceLayerProperties(&instance_layer_count, vk_props);
+            } while (res == vk::Result::eIncomplete);
 
             instanceLayerProps_.clear();
             for (uint32_t i = 0; i < instance_layer_count; i++) {
                 LayerProperties layer_props;
                 layer_props.properties = vk_props[i];
                 res = setGlobalExtensionProperties(layer_props);
-                if (res) return res;
                 instanceLayerProps_.push_back(layer_props);
             }
 
             free(vk_props);
-            assert(res == VK_SUCCESS);
+            assert(res == vk::Result::eSuccess);
 
             return res;
         }
 
-        VkResult Layers::setGlobalExtensionProperties(LayerProperties &layer_props)
+        vk::Result Layers::setGlobalExtensionProperties(LayerProperties &layer_props)
         {
-            VkExtensionProperties *instance_extensions;
+            vk::ExtensionProperties *instance_extensions;
             uint32_t instance_extension_count;
-            VkResult res;
+            vk::Result res;
             char *layer_name = nullptr;
             layer_name = layer_props.properties.layerName;
 
             do {
-                res = vkEnumerateInstanceExtensionProperties(layer_name, &instance_extension_count, nullptr);
-                if (res) return res;
-                if (instance_extension_count == 0) return VK_SUCCESS;
+                res = vk::enumerateInstanceExtensionProperties(layer_name, &instance_extension_count, nullptr);
+                if (instance_extension_count == 0)
+                    return vk::Result::eSuccess;
                 layer_props.extensions.resize(instance_extension_count);
                 instance_extensions = layer_props.extensions.data();
-                res = vkEnumerateInstanceExtensionProperties(layer_name, &instance_extension_count, instance_extensions);
-
-            } while (res == VK_INCOMPLETE);
+                res = vk::enumerateInstanceExtensionProperties(layer_name, &instance_extension_count, instance_extensions);
+            } while (res == vk::Result::eIncomplete);
 
             return res;
         }

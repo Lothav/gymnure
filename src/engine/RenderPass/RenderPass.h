@@ -6,7 +6,6 @@
 #define OBSIDIAN2D_RENDERPASS_H
 
 #include <array>
-#include <Application.hpp>
 #include "RenderPass/FrameBuffer.h"
 
 struct rpAttachments

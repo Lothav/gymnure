@@ -127,11 +127,10 @@ namespace Engine
         vk::Result res;
 
         std::vector<vk::PhysicalDevice> gpu_vector = {};
-        res = app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, nullptr);
-        assert(res == vk::Result::eSuccess && app_data->queue_family_count);
+        app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, nullptr, {});
+        assert(app_data->queue_family_count > 0);
         gpu_vector.resize(app_data->queue_family_count);
-        app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, gpu_vector.data());
-        assert(res == vk::Result::eSuccess);
+        app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, gpu_vector.data(), {});
 
         std::string device_log = "========================================================\n";
         device_log += "Devices found:\n";
@@ -152,10 +151,10 @@ namespace Engine
 
         app_data->gpu = gpu_vector[gpu_index];
 
-        app_data->gpu.getQueueFamilyProperties(&app_data->queue_family_count, nullptr);
+        app_data->gpu.getQueueFamilyProperties(&app_data->queue_family_count, nullptr, {});
         assert(app_data->queue_family_count >= 1);
         app_data->queue_family_props.resize(app_data->queue_family_count);
-        app_data->gpu.getQueueFamilyProperties(&app_data->queue_family_count, app_data->queue_family_props.data());
+        app_data->gpu.getQueueFamilyProperties(&app_data->queue_family_count, app_data->queue_family_props.data(), {});
 
         app_data->gpu.getMemoryProperties(&app_data->memory_properties);
 

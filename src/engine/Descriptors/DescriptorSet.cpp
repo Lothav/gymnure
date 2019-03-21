@@ -63,8 +63,8 @@ namespace Engine
             //  Create Uniform Buffer
             auto app_data = ApplicationData::data;
             struct BufferData uniformBufferData = {};
-            uniformBufferData.usage      = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-            uniformBufferData.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            uniformBufferData.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
+            uniformBufferData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
             uniformBufferData.size       = sizeof(glm::mat4) * 3;
 
             uniform_buffer_ = new UniformBuffer(uniformBufferData);
@@ -74,8 +74,8 @@ namespace Engine
         Texture DescriptorSet::getTextelBuffer(const std::string& texture_path, vk::Queue queue)
         {
             struct ImageProps img_props = {};
-            img_props.format = VK_FORMAT_R8G8B8A8_UNORM;
-            img_props.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            img_props.format     = vk::Format::eR8G8B8A8Unorm;
+            img_props.aspectMask = vk::ImageAspectFlagBits::eColor;
 
             vk::Image texture_image = nullptr;
             if(!texture_path.empty()) {

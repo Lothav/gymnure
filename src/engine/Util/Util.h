@@ -39,19 +39,6 @@ struct VertexData
 
 namespace Engine
 {
-	#ifdef DEBUG
-	#define BENCHMARK_FUNCTION(fn, ret)                                                             		 \
-	{                                                                                               		 \
-	    auto start_cf = std::chrono::high_resolution_clock::now();                                  		 \
-	    ret = fn;                                                                                   		 \
-	    auto end_cf = std::chrono::high_resolution_clock::now();                                    		 \
-	    auto duration_cf = std::chrono::duration<double, std::milli>(end_cf - start_cf).count();    		 \
-	    Engine::Debug::logInfo("Took " + std::to_string(duration_cf) + "ms to execute " + std::string(#fn)); \
-	}
-	#else
-	#define BENCHMARK_FUNCTION(fn) fn;
-	#endif
-
 	namespace Util
 	{
 		class Util
@@ -60,10 +47,10 @@ namespace Engine
 
 			Util() = delete;
 
-			static void initViewport(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height);
-			static void initScissor(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height);
-			static std::string physicalDeviceTypeString(VkPhysicalDeviceType type);
-			static VkShaderModule loadSPIRVShader(const std::string& filename, VkDevice device);
+			static void initViewport(vk::CommandBuffer cmd_buffer, uint32_t width, uint32_t height);
+			static void initScissor(vk::CommandBuffer cmd_buffer, uint32_t width, uint32_t height);
+			static std::string physicalDeviceTypeString(vk::PhysicalDeviceType type);
+			static vk::ShaderModule loadSPIRVShader(const std::string& filename);
 		};
 	}
 }

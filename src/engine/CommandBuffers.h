@@ -7,13 +7,13 @@
 
 #include <vector>
 #include <cassert>
-#include <GraphicPipeline/GraphicPipeline.h>
+#include <GraphicsPipeline/GraphicsPipeline.h>
 #include <Programs/Program.h>
-#include "RenderPass/RenderPass.h"
 #include "Descriptors/DescriptorSet.h"
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "Vertex/VertexBuffer.h"
 #include <memory>
+#include <RenderPass/RenderPass.h>
 
 namespace Engine
 {

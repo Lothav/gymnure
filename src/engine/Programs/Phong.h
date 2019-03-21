@@ -31,7 +31,7 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            void init(VkRenderPass render_pass) override
+            void init(vk::RenderPass render_pass) override
             {
                 /*auto app_data = ApplicationData::data;
 

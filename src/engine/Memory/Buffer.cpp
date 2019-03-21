@@ -38,7 +38,7 @@ namespace Engine
             app_data->device.bindBufferMemory(this->buf, this->mem, 0);
         }
 
-        virtual Buffer::~Buffer()
+        Buffer::~Buffer()
         {
             auto device = ApplicationData::data->device;
             device.destroyBuffer(this->buf, nullptr);

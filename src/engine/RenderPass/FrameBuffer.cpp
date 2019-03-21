@@ -39,7 +39,7 @@ namespace Engine
             depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
         }
 
-        virtual FrameBuffer::~FrameBuffer()
+        FrameBuffer::~FrameBuffer()
         {
             for (auto &frame_buffer_ : frame_buffers_)
                 vkDestroyFramebuffer(ApplicationData::data->device, frame_buffer_, nullptr);

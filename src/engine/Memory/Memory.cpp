@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Memory
     {
-        static void Memory::copyMemory(vk::DeviceMemory device_memory, const void * object, size_t object_size)
+        void Memory::copyMemory(vk::DeviceMemory device_memory, const void * object, size_t object_size)
         {
             void* _buffer_address = nullptr;
 
@@ -16,7 +16,7 @@ namespace Engine
             vkUnmapMemory(app_data->device, device_memory);
         }
 
-        static bool Memory::findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask, uint32_t *typeIndex)
+        bool Memory::findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask, uint32_t *typeIndex)
         {
             auto app_data = ApplicationData::data;
 

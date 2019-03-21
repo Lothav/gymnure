@@ -1,3 +1,5 @@
+#include <vulkan/vulkan.hpp>
+#include <ApplicationData.hpp>
 #include "Util.h"
 
 namespace Engine
@@ -5,9 +7,9 @@ namespace Engine
     namespace Util
     {
 
-        void Util::initViewport(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
+        void Util::initViewport(vk::CommandBuffer cmd_buffer, uint32_t width, uint32_t height)
         {
-            VkViewport viewport;
+            vk::Viewport viewport;
             viewport.height 	= static_cast<float>(height);
             viewport.width 		= static_cast<float>(width);
             viewport.minDepth 	= 0.0f;
@@ -15,23 +17,25 @@ namespace Engine
             viewport.x 			= 0;
             viewport.y 			= 0;
 
-            vkCmdSetViewport(cmd_buffer, 0, 1, &viewport);
+            cmd_buffer.setViewport(0, 1, &viewport);
         }
 
-        void Util::initScissor(VkCommandBuffer cmd_buffer, uint32_t width, uint32_t height)
+        void Util::initScissor(vk::CommandBuffer cmd_buffer, uint32_t width, uint32_t height)
         {
-            VkRect2D scissor;
+            vk::Rect2D scissor;
             scissor.extent.width 	= (uint32_t)width;
             scissor.extent.height 	= (uint32_t)height;
             scissor.offset.x 		= 0;
             scissor.offset.y 		= 0;
-            vkCmdSetScissor(cmd_buffer, 0, 1, &scissor);
+            cmd_buffer.setScissor(0, 1, &scissor);
         }
 
-        std::string Util::physicalDeviceTypeString(VkPhysicalDeviceType type)
+        std::string Util::physicalDeviceTypeString(vk::PhysicalDeviceType type)
         {
+            auto pType = static_cast<VkPhysicalDeviceType>(type);
+
         #define CASE_STR(r) case VK_PHYSICAL_DEVICE_TYPE_##r: return #r
-            switch (type)
+            switch (pType)
             {
                 CASE_STR(OTHER);
                 CASE_STR(INTEGRATED_GPU);
@@ -42,7 +46,7 @@ namespace Engine
         #undef CASE_STR
         }
 
-        VkShaderModule Util::loadSPIRVShader(const std::string& filename, VkDevice device)
+        vk::ShaderModule Util::loadSPIRVShader(const std::string& filename)
         {
             long shaderSize;
             char* shaderCode = nullptr;
@@ -64,14 +68,13 @@ namespace Engine
             if (shaderCode)
             {
                 // Create a new shader module that will be used for pipeline creation
-                VkShaderModuleCreateInfo moduleCreateInfo{};
-                moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+                vk::ShaderModuleCreateInfo moduleCreateInfo{};
                 moduleCreateInfo.codeSize = static_cast<size_t>(shaderSize);
                 moduleCreateInfo.pCode = (uint32_t*)shaderCode;
 
-                VkShaderModule shaderModule;
-                VkResult res = vkCreateShaderModule(device, &moduleCreateInfo, nullptr, &shaderModule);
-                assert(res == VK_SUCCESS);
+                vk::ShaderModule shaderModule;
+                vk::Result res = ApplicationData::data->device.createShaderModule(&moduleCreateInfo, nullptr, &shaderModule);
+                assert(res == vk::Result::eSuccess);
 
                 delete[] shaderCode;
 

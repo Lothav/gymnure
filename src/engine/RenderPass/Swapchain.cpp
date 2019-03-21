@@ -18,7 +18,7 @@ namespace Engine
             {
                 uint32_t formatCount;
 
-                res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, nullptr);
+                res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, nullptr, {});
                 assert(res == vk::Result::eSuccess);
 
                 std::vector<vk::SurfaceFormatKHR> surfFormats(formatCount);
@@ -60,7 +60,7 @@ namespace Engine
             res = app_data->device.createSwapchainKHR(&swapChainCI, nullptr, &swap_chain_);
             assert(res == vk::Result::eSuccess);
 
-            res = app_data->device.getSwapchainImagesKHR(swap_chain_, &image_count_, nullptr);
+            res = app_data->device.getSwapchainImagesKHR(swap_chain_, &image_count_, nullptr, {});
             assert(res == vk::Result::eSuccess);
 
             auto* swap_chain_images_ = (vk::Image *) malloc(image_count_ * sizeof(vk::Image));
@@ -186,7 +186,7 @@ namespace Engine
 
             uint32_t presentation_modes_count = 0;
 
-            res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, nullptr);
+            res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, nullptr, {});
             assert(res == vk::Result::eSuccess);
             auto *presentModes = (vk::PresentModeKHR *)malloc(presentation_modes_count * sizeof(vk::PresentModeKHR));
             assert(presentModes);
@@ -291,5 +291,4 @@ namespace Engine
 
     }
 }
-#endif //OBSIDIAN2D_SWAPCHAIN_H
 

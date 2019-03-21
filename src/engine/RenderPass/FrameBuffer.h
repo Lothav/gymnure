@@ -6,7 +6,6 @@
 #define OBSIDIAN2D_FRAMEBUFFER_H
 
 #include <memory>
-#include <Application.hpp>
 #include "RenderPass/Swapchain.h"
 
 namespace Engine

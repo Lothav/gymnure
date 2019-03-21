@@ -27,8 +27,8 @@ namespace Engine
             assert(pixels);
 
             struct BufferData stagingBufferData = {};
-            stagingBufferData.usage             = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-            stagingBufferData.properties        = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            stagingBufferData.usage             = vk::BufferUsageFlagBits::eTransferSrc;
+            stagingBufferData.properties        = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
             stagingBufferData.size              = imageSize;
 
             auto staging_buffer = std::make_unique<Memory::Buffer>(stagingBufferData);

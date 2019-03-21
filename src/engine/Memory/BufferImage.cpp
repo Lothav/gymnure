@@ -7,7 +7,7 @@ namespace Engine
 {
     namespace Memory
     {
-        BufferImage::BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, vk::Image image_ptr = {})
+        BufferImage::BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, vk::Image image_ptr)
         {
             this->img_pros_  = img_props;
             this->mem_props_ = memory_pro;
@@ -30,8 +30,6 @@ namespace Engine
             vk::Result res = ApplicationData::data->device.createImageView(&viewInfo, nullptr, &this->view);
             assert(res == vk::Result::eSuccess);
         }
-
-        BufferImage::BufferImage(const struct ImageProps& img_props, vk::Image image = {}) : BufferImage({}, img_props, image) {}
 
         BufferImage::~BufferImage()
         {

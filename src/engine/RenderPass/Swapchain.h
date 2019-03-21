@@ -10,7 +10,6 @@
 #include "Descriptors/Textures.h"
 #include "Memory/BufferImage.h"
 #include <vector>
-#include <Application.hpp>
 #include <Util/Debug.hpp>
 
 namespace Engine

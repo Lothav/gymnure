@@ -34,8 +34,8 @@ namespace Engine
             vertex_count_ = static_cast<uint32_t>(vertexData.size());
 
             struct BufferData vbData = {};
-            vbData.usage      = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            vbData.properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            vbData.usage      = vk::BufferUsageFlagBits::eVertexBuffer;
+            vbData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
             vbData.size       = vertex_count_ * sizeof(VertexData);
 
             vertexBuffer_ = std::make_unique<Memory::Buffer>(vbData);
@@ -45,7 +45,7 @@ namespace Engine
 
                 index_count_ = static_cast<uint32_t>(indexBuffer.size());
 
-                vbData.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+                vbData.usage = vk::BufferUsageFlagBits::eIndexBuffer;
                 vbData.size = index_count_ * sizeof(uint32_t);
 
                 indexBuffer_ = std::make_unique<Memory::Buffer>(vbData);
