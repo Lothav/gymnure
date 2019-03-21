@@ -53,14 +53,23 @@ namespace Engine
             }
         }
 
-        void VertexBuffer::createPrimitiveTriangle()
+        void VertexBuffer::createPrimitiveTriangle(Descriptors::UniformBuffer* uo)
         {
+            auto mvp = uo->mvp.projection * uo->mvp.view * uo->mvp.model;
+
+            auto pos  = (mvp * glm::vec4(  1.0f,  1.0f, 0.0f, 1.0f ));
+            pos /= pos.w;
+            auto pos2 = (mvp * glm::vec4( -1.0f,  1.0f, 0.0f, 1.0f ));
+            pos2 /= pos2.w;
+            auto pos3 = (mvp * glm::vec4(  0.0f, -1.0f, 0.0f, 1.0f ));
+            pos3 /= pos3.w;
+
             std::vector<VertexData> vertexBuffer =
                 {
                     //       POSITION              UV              NORMAL
-                    { {  1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
-                    { { -1.0f,  1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
-                    { {  0.0f, -1.0f, 0.0f }, {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }
+                    { {pos .x, pos .y, pos .z} , {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
+                    { {pos2.x, pos2.y, pos2.z} , {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
+                    { {pos3.x, pos3.y, pos3.z} , {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }
                 };
 
             // Setup indices

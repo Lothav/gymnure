@@ -88,7 +88,7 @@ namespace Engine
             vk::MemoryAllocateInfo allocInfo = {};
             allocInfo.allocationSize = memRequirements.size;
 
-            Memory::Memory::findMemoryType(memRequirements.memoryTypeBits, properties, &allocInfo.memoryTypeIndex);
+            allocInfo.memoryTypeIndex = Memory::Memory::findMemoryType(memRequirements.memoryTypeBits, properties);
 
             textureImageMemory.resize(textureImageMemory.size() + 1);
             res = app_data->device.allocateMemory(&allocInfo, nullptr, &textureImageMemory[textureImageMemory.size() - 1]);

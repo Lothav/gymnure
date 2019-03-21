@@ -26,9 +26,6 @@ namespace Engine
 
     void CommandBuffers::bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::RenderPass* render_pass, uint32_t width, uint32_t height)
     {
-        vk::Result res;
-        const vk::DeviceSize offsets[1] = {0};
-
         auto frame_buffers = render_pass->getFrameBuffers();
         auto image_count = render_pass->getSwapChain()->getImageCount();
 
@@ -54,11 +51,10 @@ namespace Engine
 
         for(uint32_t i = 0; i < image_count; i++)
         {
-            res = command_buffers_[i].begin(&cmd_buf_info);
-            assert(res == vk::Result::eSuccess);
+            command_buffers_[i].begin(cmd_buf_info);
 
-            rp_begin.framebuffer = frame_buffers[i];
-            command_buffers_[i].beginRenderPass(&rp_begin, vk::SubpassContents::eInline);
+            rp_begin.setFramebuffer(frame_buffers[i]);
+            command_buffers_[i].beginRenderPass(rp_begin, vk::SubpassContents::eInline);
 
             for(auto& program_obj : programs) {
 
@@ -72,9 +68,9 @@ namespace Engine
 
                     command_buffers_[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                                                            program_obj->descriptor_set->getPipelineLayout(), 0,
-                                                           1, &data->descriptor_set, 0, nullptr);
+                                                           {data->descriptor_set}, {});
 
-                    command_buffers_[i].bindVertexBuffers(0, 1, &data->vertex_buffer->getVertexBuffer()->buf, offsets);
+                    command_buffers_[i].bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()->buf}, {0});
 
                     auto index_count = data->vertex_buffer->getIndexSize();
                     if(index_count > 0) {

@@ -2,6 +2,7 @@
 // Created by tracksale on 8/31/17.
 //
 #include "BufferImage.h"
+#include "Util/Debug.hpp"
 
 namespace Engine
 {
@@ -27,8 +28,7 @@ namespace Engine
             viewInfo.subresourceRange.baseArrayLayer 	= 0;
             viewInfo.subresourceRange.layerCount 		= 1;
 
-            vk::Result res = ApplicationData::data->device.createImageView(&viewInfo, nullptr, &this->view);
-            assert(res == vk::Result::eSuccess);
+            DEBUG_CALL(this->view = ApplicationData::data->device.createImageView(viewInfo));
         }
 
         BufferImage::~BufferImage()
@@ -40,12 +40,8 @@ namespace Engine
             if(mem) device.freeMemory(mem, nullptr);
         }
 
-
         vk::Image BufferImage::createImage()
         {
-            vk::Result res;
-            vk::Image image;
-
             // Create Image
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType 	= vk::ImageType::e2D;
@@ -62,25 +58,20 @@ namespace Engine
             imageInfo.sharingMode 	= vk::SharingMode::eExclusive;
 
             auto device = ApplicationData::data->device;
-
-            res = device.createImage(&imageInfo, nullptr, &image);
-            assert(res == vk::Result::eSuccess);
+            vk::Image image = device.createImage(imageInfo);
 
             // Allocate Image Memory
             vk::MemoryRequirements mem_reqs{};
-            device.getImageMemoryRequirements(image, &mem_reqs);
+            DEBUG_CALL(mem_reqs = device.getImageMemoryRequirements(image));
 
             vk::MemoryAllocateInfo mem_alloc = {};
             mem_alloc.pNext			  = nullptr;
             mem_alloc.allocationSize  = 0;
             mem_alloc.memoryTypeIndex = 0;
             mem_alloc.allocationSize  = mem_reqs.size;
+            mem_alloc.memoryTypeIndex = Memory::findMemoryType(mem_reqs.memoryTypeBits, mem_props_.props_flags);
 
-            bool pass = Memory::findMemoryType(mem_reqs.memoryTypeBits, mem_props_.props_flags, &mem_alloc.memoryTypeIndex);
-            assert(pass);
-
-            res = device.allocateMemory(&mem_alloc, nullptr, &mem);
-            assert(res == vk::Result::eSuccess);
+            DEBUG_CALL(mem = device.allocateMemory(mem_alloc));
 
             // Bind Image to Memory
             device.bindImageMemory(image, mem, 0);

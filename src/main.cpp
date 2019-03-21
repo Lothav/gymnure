@@ -49,7 +49,7 @@ int main(int argc, char** argv)
             if (duration >= 3e3) {
 				auto fps = std::abs((float)frames * (1.e3 / duration));
 
-				Engine::Debug::logInfo("FPS: " + std::to_string(fps));
+				Engine::Debug::logInfo("FPS: " + std::to_string(std::round(fps)));
 
 				frames 	 = 0;
 				duration = 0.f;

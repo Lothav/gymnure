@@ -82,11 +82,10 @@ namespace Engine
 
                 // Load Vertex
                 program_data->vertex_buffer = new Vertex::VertexBuffer();
-
                 if(!obj_data.path_obj.empty())
                     program_data->vertex_buffer->loadObjModelVertices(obj_data.path_obj, obj_data.obj_mtl);
                 else
-                    program_data->vertex_buffer->createPrimitiveTriangle();
+                    program_data->vertex_buffer->createPrimitiveTriangle(descriptor_set->getUniformBuffer());
 
                 descriptor_set->updateDescriptorSet(program_data->texture, program_data->descriptor_set);
 

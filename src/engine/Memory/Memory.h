@@ -20,7 +20,7 @@ namespace Engine
 
 			static void copyMemory(vk::DeviceMemory device_memory, const void * object, size_t object_size);
 
-			static bool findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask, uint32_t *typeIndex);
+			static uint32_t findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask);
 		};
 	}
 }

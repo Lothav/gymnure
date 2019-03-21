@@ -12,6 +12,7 @@
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 #include <memory>
+#include <Descriptors/UniformBuffer.h>
 
 namespace Engine
 {
@@ -52,7 +53,7 @@ namespace Engine
             std::shared_ptr<Memory::Buffer> getIndexBuffer() const;
 
             void loadObjModelVertices(const std::string& model_path, const std::string& obj_mtl);
-            void createPrimitiveTriangle();
+            void createPrimitiveTriangle(Descriptors::UniformBuffer* uo);
 
         };
     }

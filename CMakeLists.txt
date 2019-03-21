@@ -34,7 +34,7 @@ IF (NOT IMGUI_FOUND)
     message(FATAL_ERROR "IMGUI not found!")
 ENDIF()
 
-# FIND IMGUI
+# FIND MEMANCPP
 find_package(MEMANCPP REQUIRED)
 IF (NOT MEMANCPP_FOUND)
     message(FATAL_ERROR "MEMANCPP not find!")

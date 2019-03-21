@@ -5,7 +5,7 @@
 #include <ApplicationData.hpp>
 #include "Debug.hpp"
 
-vk::DebugUtilsMessengerEXT Engine::Debug::dbg_messenger;
+vk::DebugUtilsMessengerEXT Engine::Debug::dbg_utils_messenger;
 
 void Engine::Debug::init()
 {
@@ -46,7 +46,7 @@ void Engine::Debug::init()
 
     auto pfnGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr) instance.getProcAddr("vkGetInstanceProcAddr");
     vk::DispatchLoaderDynamic dldi(instance, pfnGetInstanceProcAddr);
-    dbg_messenger = instance.createDebugUtilsMessengerEXT(dbg_messenger_create_info, nullptr, dldi);
+    dbg_utils_messenger = instance.createDebugUtilsMessengerEXT(dbg_messenger_create_info, nullptr, dldi);
 }
 
 void Engine::Debug::destroy()
@@ -55,5 +55,5 @@ void Engine::Debug::destroy()
 
     auto pfnGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr) instance.getProcAddr("vkGetInstanceProcAddr");
     vk::DispatchLoaderDynamic dldi(instance, pfnGetInstanceProcAddr);
-    instance.destroyDebugUtilsMessengerEXT(dbg_messenger, nullptr, dldi);
+    instance.destroyDebugUtilsMessengerEXT(dbg_utils_messenger, nullptr, dldi);
 }

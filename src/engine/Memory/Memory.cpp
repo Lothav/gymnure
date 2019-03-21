@@ -1,4 +1,5 @@
 #include "Memory.h"
+#include "Util/Debug.hpp"
 
 namespace Engine
 {
@@ -6,17 +7,15 @@ namespace Engine
     {
         void Memory::copyMemory(vk::DeviceMemory device_memory, const void * object, size_t object_size)
         {
-            void* _buffer_address = nullptr;
+            auto device = ApplicationData::data->device;
 
-            auto app_data = ApplicationData::data;
-
-            vk::Result res = app_data->device.mapMemory(device_memory, 0, object_size, {}, &_buffer_address);
-            assert(res == vk::Result::eSuccess);
-            memcpy(_buffer_address, object, object_size);
-            vkUnmapMemory(app_data->device, device_memory);
+            void* buffer_address_ = nullptr;
+            DEBUG_CALL(buffer_address_ = device.mapMemory(device_memory, 0, object_size, {}));
+            memcpy(buffer_address_, object, object_size);
+            DEBUG_CALL(device.unmapMemory(device_memory));
         }
 
-        bool Memory::findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask, uint32_t *typeIndex)
+        uint32_t Memory::findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask)
         {
             auto app_data = ApplicationData::data;
 
@@ -25,14 +24,13 @@ namespace Engine
                 if ((typeBits & 1) == 1) {
                     // Type is available, does it match user properties?
                     if ((app_data->memory_properties.memoryTypes[i].propertyFlags & requirements_mask) == requirements_mask) {
-                        *typeIndex = i;
-                        return true;
+                        return  i;
                     }
                 }
                 typeBits >>= 1;
             }
-            // No memory types matched, return failure
-            return false;
+            // No memory types matched, throw exception
+            throw "Could not find a suitable memory type!";
         }
     }
 }

@@ -14,7 +14,13 @@ namespace Engine
 		{
 		public:
 
-            explicit UniformBuffer(struct BufferData uniformBufferData) : Buffer(uniformBufferData)
+			struct MVP{
+				glm::mat4 model;
+				glm::mat4 view;
+				glm::mat4 projection;
+			} mvp{};
+
+            explicit UniformBuffer(const struct BufferData &uniformBufferData) : Buffer(uniformBufferData)
 			{
 				zoom 	 = -7.0f;
 				rotation = { 0.0f,  0.0f, 0.0f };
@@ -31,12 +37,6 @@ namespace Engine
 			}
 
 		private:
-
-			struct {
-				glm::mat4 model;
-				glm::mat4 view;
-				glm::mat4 projection;
-			} mvp{};
 
 			glm::vec3 rotation  = glm::vec3();
 			float zoom = 0;
@@ -60,8 +60,8 @@ namespace Engine
 
 			void updateUniform()
 			{
-				this->mvp.model = glm::mat4x4();
-				this->mvp.view  = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, zoom));
+				this->mvp.model = glm::mat4x4(1.0f);
+				this->mvp.view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
 
 				this->updateMVP();
 			}

@@ -29,8 +29,7 @@ namespace Engine
             allocInfo.allocationSize 		 = memRequirements.size;
             allocInfo.pNext 				 = nullptr;
 
-            auto pass = Memory::findMemoryType(memRequirements.memoryTypeBits, buffer_data.properties, &allocInfo.memoryTypeIndex);
-            assert(pass);
+            allocInfo.memoryTypeIndex = Memory::findMemoryType(memRequirements.memoryTypeBits, buffer_data.properties);
 
             res = app_data->device.allocateMemory(&allocInfo, nullptr, &this->mem);
             assert(res == vk::Result::eSuccess);

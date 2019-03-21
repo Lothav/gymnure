@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cassert>
 #include <sstream>
+#include <chrono>
 #include <vulkan/vulkan.hpp>
 
 namespace Engine
@@ -41,7 +42,7 @@ namespace Engine
 
     private:
 
-        static vk::DebugUtilsMessengerEXT dbg_messenger;
+        static vk::DebugUtilsMessengerEXT dbg_utils_messenger;
 
     public:
 
