@@ -115,12 +115,11 @@ namespace Engine
 
             void createSurface()
             {
-                auto surf = static_cast<VkSurfaceKHR>(ApplicationData::data->surface);
-
-                if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data->instance, &surf) == SDL_bool::SDL_FALSE)
-                {
+                VkSurfaceKHR temp_surf;
+                if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data->instance, &temp_surf) == SDL_bool::SDL_FALSE)
                     Debug::logError(std::string("Failed to create Vulkan surface: ") + SDL_GetError());
-                }
+
+                ApplicationData::data->surface = temp_surf;
             }
 
         };

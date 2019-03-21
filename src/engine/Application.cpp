@@ -83,9 +83,9 @@ namespace Engine
         vk::Fence current_buffer_fence = sync_primitives->getFence(current_buffer_);
         do {
             // Fences are created already signaled, so, we can wait for it before queue submit.
-            DEBUG_CALL(ApplicationData::data->device.waitForFences({current_buffer_fence}, VK_TRUE, UINT64_MAX));
+            DEBUG_CALL(res = ApplicationData::data->device.waitForFences({current_buffer_fence}, VK_TRUE, UINT64_MAX));
         } while (res == vk::Result::eTimeout);
-        ApplicationData::data->device.resetFences({current_buffer_fence});
+        DEBUG_CALL(ApplicationData::data->device.resetFences({current_buffer_fence}));
 
         vk::SubmitInfo submit_info = {};
         submit_info.pNext                     = nullptr;
@@ -97,7 +97,7 @@ namespace Engine
         submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
         submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
 
-        render_pass->getSwapChain()->getGraphicQueue().submit({submit_info}, current_buffer_fence);
+        DEBUG_CALL(render_pass->getSwapChain()->getGraphicQueue().submit({submit_info}, current_buffer_fence));
 
         vk::PresentInfoKHR present = {};
         present.pNext 				  = nullptr;
@@ -113,7 +113,7 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        render_pass->getSwapChain()->getPresentQueue().presentKHR(present);
+        DEBUG_CALL(render_pass->getSwapChain()->getPresentQueue().presentKHR(present));
     }
 
     void Application::prepare()

@@ -24,6 +24,9 @@ namespace Engine
             error_message << "Error code: " << e.code() << std::endl;                                           \
             error_message << "Error message: " << e.what() << std::endl;                                        \
             Engine::Debug::logError(error_message.str());                                                       \
+            exit(-1);                                                                                           \
+        } catch(...) {                                                                                          \
+            Engine::Debug::logError("Unknown error.");                                                          \
         }                                                                                                       \
         auto end_cf = std::chrono::high_resolution_clock::now();                                    		    \
         auto duration_cf = std::chrono::duration<double, std::milli>(end_cf - start_cf).count();    		    \

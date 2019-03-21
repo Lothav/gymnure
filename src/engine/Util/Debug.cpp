@@ -33,9 +33,9 @@ void Engine::Debug::init()
 
     // Create a Debug Utils Messenger that will trigger our callback for any warning or error.
     vk::DebugUtilsMessengerCreateInfoEXT dbg_messenger_create_info;
-    dbg_messenger_create_info.pNext                 = nullptr;
-    dbg_messenger_create_info.pfnUserCallback       = debug_messenger_callback;
-    dbg_messenger_create_info.pUserData             = nullptr;
+    dbg_messenger_create_info.pNext           = nullptr;
+    dbg_messenger_create_info.pUserData       = nullptr;
+    dbg_messenger_create_info.pfnUserCallback = debug_messenger_callback;
 
     dbg_messenger_create_info.messageSeverity = vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose |
         vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
@@ -44,11 +44,16 @@ void Engine::Debug::init()
     dbg_messenger_create_info.messageType = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
         vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation;
 
-    //vk::Result result = instance.createDebugUtilsMessengerEXT(&dbg_messenger_create_info, nullptr, &dbg_messenger, {});
-    //assert(result == vk::Result::eSuccess);
+    auto pfnGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr) instance.getProcAddr("vkGetInstanceProcAddr");
+    vk::DispatchLoaderDynamic dldi(instance, pfnGetInstanceProcAddr);
+    dbg_messenger = instance.createDebugUtilsMessengerEXT(dbg_messenger_create_info, nullptr, dldi);
 }
 
 void Engine::Debug::destroy()
 {
-    //ApplicationData::data->instance.destroyDebugUtilsMessengerEXT(dbg_messenger);
+    auto instance = ApplicationData::data->instance;
+
+    auto pfnGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr) instance.getProcAddr("vkGetInstanceProcAddr");
+    vk::DispatchLoaderDynamic dldi(instance, pfnGetInstanceProcAddr);
+    instance.destroyDebugUtilsMessengerEXT(dbg_messenger, nullptr, dldi);
 }
