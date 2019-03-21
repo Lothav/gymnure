@@ -188,9 +188,9 @@ namespace Engine
 
             res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, nullptr, {});
             assert(res == vk::Result::eSuccess);
-            auto *presentModes = (vk::PresentModeKHR *)malloc(presentation_modes_count * sizeof(vk::PresentModeKHR));
-            assert(presentModes);
-            res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, presentModes);
+            auto *presentation_modes = (vk::PresentModeKHR *)malloc(presentation_modes_count * sizeof(vk::PresentModeKHR));
+            assert(presentation_modes);
+            res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, presentation_modes);
             assert(res == vk::Result::eSuccess);
 
             vk::Extent2D swapchainExtent;
@@ -219,7 +219,14 @@ namespace Engine
             // The FIFO present mode is guaranteed by the spec to be supported
             // Also note that current Android driver only supports FIFO
             vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
-
+            for(short i = 0; i < presentation_modes_count; i++) {
+                // Use MailBox if supported
+                if (presentation_modes[i] == vk::PresentModeKHR::eMailbox) {
+                    swapchainPresentMode = presentation_modes[i];
+                    break;
+                }
+            }
+            
             // Determine the number of vk::Image's to use in the swap chain.
             // We need to acquire only 1 presentable image at at time.
             // Asking for minImageCount images ensures that we can acquire
