@@ -99,11 +99,9 @@ namespace Engine
                     sampler_.anisotropyEnable 	= VK_FALSE;
                     sampler_.borderColor 		= vk::BorderColor::eFloatOpaqueWhite;
 
-                    vk::Sampler sampler_obj_ = ApplicationData::data->device.createSampler(sampler_, nullptr);
-
                     return Texture{
                         .buffer  = new Memory::BufferImage(img_props, texture_image),
-                        .sampler = sampler_obj_
+                        .sampler = ApplicationData::data->device.createSampler(sampler_)
                     };
                 }
             }
@@ -145,7 +143,7 @@ namespace Engine
                 writes.push_back(write);
             }
 
-            ApplicationData::data->device.updateDescriptorSets(static_cast<u_int32_t>(writes.size()), writes.data(), 0, nullptr);
+            DEBUG_CALL(ApplicationData::data->device.updateDescriptorSets(writes, {}));
         }
 
         vk::DescriptorPool DescriptorSet::createDescriptorPool()
@@ -169,26 +167,24 @@ namespace Engine
             descriptor_pool_info.poolSizeCount 	= static_cast<uint32_t>(poolSizes.size());
             descriptor_pool_info.pPoolSizes 	= poolSizes.data();
 
-            vk::Result res = ApplicationData::data->device.createDescriptorPool(&descriptor_pool_info, nullptr, &desc_pool);
-            assert(res == vk::Result::eSuccess);
+            DEBUG_CALL(desc_pool = ApplicationData::data->device.createDescriptorPool(descriptor_pool_info));
 
             return desc_pool;
         }
 
         vk::DescriptorSet DescriptorSet::createDescriptorSet(vk::DescriptorPool desc_pool)
         {
-            vk::DescriptorSet desc_set_;
+            std::vector<vk::DescriptorSet> desc_sets_;
 
-            vk::DescriptorSetAllocateInfo alloc_info_[1];
-            alloc_info_[0].pNext 							  = nullptr;
-            alloc_info_[0].descriptorPool 					  = desc_pool;
-            alloc_info_[0].descriptorSetCount 				  = 1;
-            alloc_info_[0].pSetLayouts 						  = desc_layout_.data();
+            vk::DescriptorSetAllocateInfo alloc_info_;
+            alloc_info_.pNext 				= nullptr;
+            alloc_info_.descriptorPool 		= desc_pool;
+            alloc_info_.descriptorSetCount 	= 1;
+            alloc_info_.pSetLayouts 		= desc_layout_.data();
 
-            vk::Result res = ApplicationData::data->device.allocateDescriptorSets(alloc_info_, &desc_set_);
-            assert(res == vk::Result::eSuccess);
+            DEBUG_CALL(desc_sets_ = ApplicationData::data->device.allocateDescriptorSets(alloc_info_));
 
-            return desc_set_;
+            return desc_sets_[0];
         }
 
         vk::PipelineLayout DescriptorSet::getPipelineLayout() const
