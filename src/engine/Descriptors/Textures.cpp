@@ -63,8 +63,6 @@ namespace Engine
         {
             auto app_data = ApplicationData::data;
 
-            vk::Result res;
-
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType 		= vk::ImageType::e2D;
             imageInfo.extent.width 		= width;
@@ -79,8 +77,7 @@ namespace Engine
             imageInfo.samples 			= vk::SampleCountFlagBits::e1;
             imageInfo.sharingMode 		= vk::SharingMode::eExclusive;
 
-            res = app_data->device.createImage(&imageInfo, nullptr, &image);
-            assert(res == vk::Result::eSuccess);
+            image = app_data->device.createImage(imageInfo);
 
             vk::MemoryRequirements memRequirements{};
             app_data->device.getImageMemoryRequirements(image, &memRequirements);
@@ -91,8 +88,7 @@ namespace Engine
             allocInfo.memoryTypeIndex = Memory::Memory::findMemoryType(memRequirements.memoryTypeBits, properties);
 
             textureImageMemory.resize(textureImageMemory.size() + 1);
-            res = app_data->device.allocateMemory(&allocInfo, nullptr, &textureImageMemory[textureImageMemory.size() - 1]);
-            assert(res == vk::Result::eSuccess);
+            textureImageMemory[textureImageMemory.size() - 1] = app_data->device.allocateMemory(allocInfo);
 
             app_data->device.bindImageMemory(image, textureImageMemory[textureImageMemory.size() - 1], 0);
         }

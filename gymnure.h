@@ -6,6 +6,7 @@
 #include <Util/Debug.hpp>
 
 #define GB (1024 * 1024 * 1024)
+#define MB (1024 * 1024)
 
 class Gymnure
 {
@@ -17,7 +18,7 @@ public:
 
     Gymnure(unsigned int windowWidth, unsigned int windowHeight)
     {
-        mem::Provider::initPool(1*GB);
+        mem::Provider::initPool(1*MB);
         window_ = new Engine::Window::SDLWindow(windowWidth, windowHeight);
         Engine::Application::create(window_->getInstanceExtensionNames());
 #ifdef DEBUG
@@ -63,8 +64,8 @@ public:
 
     bool draw()
     {
-        if(!window_->poolEvent())
-            return false;
+        //if(!window_->poolEvent())
+        //    return false;
 
         Engine::Application::draw();
         return true;

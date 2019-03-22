@@ -81,8 +81,7 @@ namespace Engine
             rp_info.dependencyCount 					= dependencies.size();
             rp_info.pDependencies 						= dependencies.data();
 
-            vk::Result res = ApplicationData::data->device.createRenderPass(&rp_info, nullptr, &_render_pass);
-            assert(res == vk::Result::eSuccess);
+            _render_pass = ApplicationData::data->device.createRenderPass(rp_info);
             this->createFrameBuffer(_render_pass);
         }
 

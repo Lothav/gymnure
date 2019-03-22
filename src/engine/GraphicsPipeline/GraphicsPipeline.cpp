@@ -18,10 +18,10 @@ namespace Engine
 
             // Set shader stages
             for (int i = 0; i < shaders.size(); ++i) {
-                _shader_stages[i].stage 			= shaders[i].type;
-                _shader_stages[i].module 			= Util::Util::loadSPIRVShader(shaders[i].path);
-                _shader_stages[i].pName 			= "main";
-                assert(_shader_stages[0].module);
+                _shader_stages[i].stage  = shaders[i].type;
+                _shader_stages[i].module = Util::Util::loadSPIRVShader(shaders[i].path);
+                _shader_stages[i].pName  = "main";
+                assert(_shader_stages[i].module);
             }
         }
 
@@ -68,8 +68,7 @@ namespace Engine
             pipelineCache.pNext 					= nullptr;
             pipelineCache.initialDataSize 			= 0;
             pipelineCache.pInitialData 				= nullptr;
-            vk::Result res = device.createPipelineCache(&pipelineCache, nullptr, &_pipeline_cache);
-            assert(res == vk::Result::eSuccess);
+            _pipeline_cache = device.createPipelineCache(pipelineCache);
 
             vk::PipelineInputAssemblyStateCreateInfo ia = {};
             ia.pNext 								= nullptr;
@@ -176,7 +175,6 @@ namespace Engine
             pipeline_info.subpass 					= 0;
 
             _vk_pipeline = device.createGraphicsPipeline(_pipeline_cache, pipeline_info, nullptr);
-            assert(res == vk::Result::eSuccess);
 
             for (auto &shader_stage : _shader_stages) {
                 device.destroyShaderModule(shader_stage.module, nullptr);

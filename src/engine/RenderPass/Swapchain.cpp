@@ -12,18 +12,15 @@ namespace Engine
         {
             auto app_data = ApplicationData::data;
 
-            vk::Result res;
-
             // Get supported format
             {
                 uint32_t formatCount;
 
-                res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, nullptr, {});
+                vk::Result res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, nullptr, {});
                 assert(res == vk::Result::eSuccess);
 
                 std::vector<vk::SurfaceFormatKHR> surfFormats(formatCount);
-                res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, surfFormats.data());
-                assert(res == vk::Result::eSuccess);
+                surfFormats = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, {});
                 // If the format list includes just one entry of vk::Format::eUndefined,
                 // the surface has no preferred format.  Otherwise, at least one
                 // supported format will be returned.
@@ -57,11 +54,10 @@ namespace Engine
 
             vk::SwapchainCreateInfoKHR swapChainCI = buildSwapChainCI();
 
-            res = app_data->device.createSwapchainKHR(&swapChainCI, nullptr, &swap_chain_);
-            assert(res == vk::Result::eSuccess);
+            swap_chain_ = app_data->device.createSwapchainKHR(swapChainCI);
 
-            res = app_data->device.getSwapchainImagesKHR(swap_chain_, &image_count_, nullptr, {});
-            assert(res == vk::Result::eSuccess);
+            vk::Result res = app_data->device.getSwapchainImagesKHR(swap_chain_, &image_count_, nullptr, {});
+            assert(res == vk::Result::eSuccess && image_count_ > 0);
 
             auto* swap_chain_images_ = (vk::Image *) malloc(image_count_ * sizeof(vk::Image));
             assert(swap_chain_images_);
@@ -94,7 +90,7 @@ namespace Engine
                     delete swap_chain_buffer_[i];
                 }
             }
-            vkDestroySwapchainKHR(ApplicationData::data->device, swap_chain_, nullptr);
+            ApplicationData::data->device.destroySwapchainKHR(swap_chain_);
         }
 
         uint32_t SwapChain::getImageCount() const
@@ -138,7 +134,7 @@ namespace Engine
             auto *pSupportsPresent = (vk::Bool32 *)malloc(app_data->queue_family_count * sizeof(vk::Bool32));
 
             for (uint32_t i = 0; i < app_data->queue_family_count; i++) {
-                app_data->gpu.getSurfaceSupportKHR(i, app_data->surface, &pSupportsPresent[i]);
+                pSupportsPresent[i] = app_data->gpu.getSurfaceSupportKHR(i, app_data->surface);
             }
 
             // Search for a graphics and a present queue in the array of queue
@@ -173,25 +169,24 @@ namespace Engine
                 Debug::logError("Could not find a queues for both graphics and present");
             }
 
-            app_data->device.getQueue(graphics_queue_family_index_, 0, &graphics_queue_);
+            graphics_queue_ = app_data->device.getQueue(graphics_queue_family_index_, 0);
             if (graphics_queue_family_index_ == present_queue_family_index_) {
                 present_queue_ = graphics_queue_;
             } else {
-                app_data->device.getQueue(present_queue_family_index_, 0, &present_queue_);
+                present_queue_ = app_data->device.getQueue(present_queue_family_index_, 0);
             }
 
             vk::SurfaceCapabilitiesKHR surfCapabilities;
-            res = app_data->gpu.getSurfaceCapabilitiesKHR(app_data->surface, &surfCapabilities);
-            assert(res == vk::Result::eSuccess);
+            surfCapabilities = app_data->gpu.getSurfaceCapabilitiesKHR(app_data->surface);
 
             uint32_t presentation_modes_count = 0;
 
             res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, nullptr, {});
-            assert(res == vk::Result::eSuccess);
+            assert(res == vk::Result::eSuccess && presentation_modes_count > 0);
             auto *presentation_modes = (vk::PresentModeKHR *)malloc(presentation_modes_count * sizeof(vk::PresentModeKHR));
             assert(presentation_modes);
             res = app_data->gpu.getSurfacePresentModesKHR(app_data->surface, &presentation_modes_count, presentation_modes);
-            assert(res == vk::Result::eSuccess);
+            assert(res == vk::Result::eSuccess && presentation_modes_count > 0);
 
             vk::Extent2D swapchainExtent;
             // width and height are either both 0xFFFFFFFF, or both not 0xFFFFFFFF.
@@ -222,7 +217,7 @@ namespace Engine
             for(short i = 0; i < presentation_modes_count; i++) {
                 // Use MailBox if supported
                 if (presentation_modes[i] == vk::PresentModeKHR::eMailbox) {
-                    swapchainPresentMode = presentation_modes[i];
+                    //swapchainPresentMode = presentation_modes[i];
                     break;
                 }
             }

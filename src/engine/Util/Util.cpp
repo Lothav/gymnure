@@ -73,8 +73,7 @@ namespace Engine
                 moduleCreateInfo.pCode = (uint32_t*)shaderCode;
 
                 vk::ShaderModule shaderModule;
-                vk::Result res = ApplicationData::data->device.createShaderModule(&moduleCreateInfo, nullptr, &shaderModule);
-                assert(res == vk::Result::eSuccess);
+                shaderModule = ApplicationData::data->device.createShaderModule(moduleCreateInfo);
 
                 delete[] shaderCode;
 

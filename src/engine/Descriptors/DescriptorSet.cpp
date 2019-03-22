@@ -9,8 +9,7 @@ namespace Engine
             auto device = ApplicationData::data->device;
 
             device.destroyPipelineLayout(pipeline_layout_);
-            for (auto &desc_layout : desc_layout_)
-                device.destroyDescriptorSetLayout(desc_layout);
+            device.destroyDescriptorSetLayout(desc_layout_);
 
             delete uniform_buffer_;
         }
@@ -29,25 +28,20 @@ namespace Engine
             layout_bindings_[0].pImmutableSamplers			 = nullptr;
 
             if (texture_count_ > 0) {
-                layout_bindings_[1].binding 					 = 1;
-                layout_bindings_[1].descriptorType 				 = vk::DescriptorType::eCombinedImageSampler;
-                layout_bindings_[1].descriptorCount 			 = 1;
-                layout_bindings_[1].stageFlags 					 = vk::ShaderStageFlagBits::eFragment;
-                layout_bindings_[1].pImmutableSamplers 			 = nullptr;
+                layout_bindings_[1].binding 				 = 1;
+                layout_bindings_[1].descriptorType 			 = vk::DescriptorType::eCombinedImageSampler;
+                layout_bindings_[1].descriptorCount 		 = 1;
+                layout_bindings_[1].stageFlags 				 = vk::ShaderStageFlagBits::eFragment;
+                layout_bindings_[1].pImmutableSamplers 		 = nullptr;
             }
 
             // Set Descriptor Layouts
-            vk::Result res;
-
-            desc_layout_.resize(1);
-
             vk::DescriptorSetLayoutCreateInfo descriptor_layout_ = {};
             descriptor_layout_.pNext 						 = nullptr;
             descriptor_layout_.bindingCount 				 = static_cast<uint32_t>(layout_bindings_.size());
             descriptor_layout_.pBindings 					 = layout_bindings_.data();
 
-            res = device.createDescriptorSetLayout(&descriptor_layout_, nullptr, desc_layout_.data());
-            assert(res == vk::Result::eSuccess);
+            desc_layout_ = device.createDescriptorSetLayout(descriptor_layout_);
 
             // Set Pipeline Layout
             vk::PipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
@@ -55,10 +49,9 @@ namespace Engine
             pPipelineLayoutCreateInfo.pushConstantRangeCount = 0;
             pPipelineLayoutCreateInfo.pPushConstantRanges    = nullptr;
             pPipelineLayoutCreateInfo.setLayoutCount         = 1;
-            pPipelineLayoutCreateInfo.pSetLayouts            = desc_layout_.data();
+            pPipelineLayoutCreateInfo.pSetLayouts            = &desc_layout_;
 
-            res = device.createPipelineLayout(&pPipelineLayoutCreateInfo, nullptr, &pipeline_layout_);
-            assert(res == vk::Result::eSuccess);
+            pipeline_layout_ = device.createPipelineLayout(pPipelineLayoutCreateInfo);
 
             //  Create Uniform Buffer
             auto app_data = ApplicationData::data;
@@ -111,6 +104,9 @@ namespace Engine
 
         void DescriptorSet::updateDescriptorSet(Texture texture, vk::DescriptorSet desc_set)
         {
+            if(uniform_buffer_ == nullptr)
+                return;
+
             std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
 
             vk::DescriptorBufferInfo buffer_info;
@@ -143,7 +139,7 @@ namespace Engine
                 writes.push_back(write);
             }
 
-            DEBUG_CALL(ApplicationData::data->device.updateDescriptorSets(writes, {}));
+            ApplicationData::data->device.updateDescriptorSets(writes, {});
         }
 
         vk::DescriptorPool DescriptorSet::createDescriptorPool()
@@ -180,7 +176,7 @@ namespace Engine
             alloc_info_.pNext 				= nullptr;
             alloc_info_.descriptorPool 		= desc_pool;
             alloc_info_.descriptorSetCount 	= 1;
-            alloc_info_.pSetLayouts 		= desc_layout_.data();
+            alloc_info_.pSetLayouts 		= &desc_layout_;
 
             DEBUG_CALL(desc_sets_ = ApplicationData::data->device.allocateDescriptorSets(alloc_info_));
 

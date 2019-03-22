@@ -12,9 +12,7 @@ namespace Engine
         cmd_buff_ai.level 			 	= vk::CommandBufferLevel::ePrimary;
         cmd_buff_ai.commandBufferCount  = swapchain_images_count;
 
-        command_buffers_.resize(swapchain_images_count);
-        vk::Result res = app_data->device.allocateCommandBuffers(&cmd_buff_ai, command_buffers_.data());
-        assert(res == vk::Result::eSuccess);
+        command_buffers_ = app_data->device.allocateCommandBuffers(cmd_buff_ai);
     }
 
     CommandBuffers::~CommandBuffers()

@@ -62,7 +62,7 @@ namespace Engine
         {
         #ifdef DEBUG
             std::cerr << log_msg << std::endl;
-            assert(false);
+            exit(-1);
         #endif
         };
     };

@@ -7,7 +7,6 @@ namespace Engine
         Buffer::Buffer(const struct BufferData& buffer_data)
         {
             auto app_data = ApplicationData::data;
-            vk::Result res;
 
             vk::BufferCreateInfo bufferInfo = {};
             bufferInfo.size 				 = buffer_data.size;
@@ -17,8 +16,7 @@ namespace Engine
             bufferInfo.sharingMode 			 = vk::SharingMode::eExclusive;
             bufferInfo.pNext 				 = nullptr;
 
-            res = app_data->device.createBuffer(&bufferInfo, nullptr, &this->buf);
-            assert(res == vk::Result::eSuccess);
+            this->buf = app_data->device.createBuffer(bufferInfo);
 
             size = static_cast<uint32_t>(buffer_data.size);
 
@@ -31,8 +29,7 @@ namespace Engine
 
             allocInfo.memoryTypeIndex = Memory::findMemoryType(memRequirements.memoryTypeBits, buffer_data.properties);
 
-            res = app_data->device.allocateMemory(&allocInfo, nullptr, &this->mem);
-            assert(res == vk::Result::eSuccess);
+            this->mem = app_data->device.allocateMemory(allocInfo);
 
             app_data->device.bindBufferMemory(this->buf, this->mem, 0);
         }

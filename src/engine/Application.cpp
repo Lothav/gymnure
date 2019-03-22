@@ -25,7 +25,7 @@ namespace Engine
         app_info_.applicationVersion 	= 1;
         app_info_.pEngineName 			= APP_NAME;
         app_info_.engineVersion 		= 1;
-        app_info_.apiVersion 			= VK_API_VERSION_1_0;
+        app_info_.apiVersion 			= VK_MAKE_VERSION(1, 1, 101);
 
         vk::InstanceCreateInfo inst_info_ = {};
         inst_info_.pNext 					= nullptr;
@@ -60,32 +60,25 @@ namespace Engine
 
     void Application::draw()
     {
-        auto app_data = ApplicationData::data;
-
         vk::Result res;
 
+        auto device = ApplicationData::data->device;
         auto swapchain_c = render_pass->getSwapChain()->getSwapChainKHR();
 
-        DEBUG_CALL(
-            res = app_data->device.acquireNextImageKHR(
-                swapchain_c,
-                UINT64_MAX,
-                sync_primitives->imageAcquiredSemaphore,
-                nullptr,
-                &current_buffer_));
+        std::tie(res, current_buffer_) = device.acquireNextImageKHR(swapchain_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, {});
+        assert(res == vk::Result::eSuccess);
+        Debug::logInfo(std::to_string(current_buffer_));
 
         vk::PipelineStageFlags pipe_stage_flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-
         //for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
-
         vk::CommandBuffer current_command_buffer = command_buffer->getCommandBuffers()[current_buffer_];
 
         vk::Fence current_buffer_fence = sync_primitives->getFence(current_buffer_);
         do {
             // Fences are created already signaled, so, we can wait for it before queue submit.
-            DEBUG_CALL(res = ApplicationData::data->device.waitForFences({current_buffer_fence}, VK_TRUE, UINT64_MAX));
+            res = device.waitForFences({current_buffer_fence}, VK_TRUE, UINT64_MAX);
         } while (res == vk::Result::eTimeout);
-        DEBUG_CALL(ApplicationData::data->device.resetFences({current_buffer_fence}));
+        DEBUG_CALL(device.resetFences({current_buffer_fence}));
 
         vk::SubmitInfo submit_info = {};
         submit_info.pNext                     = nullptr;
@@ -113,7 +106,9 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        DEBUG_CALL(render_pass->getSwapChain()->getPresentQueue().presentKHR(present));
+        DEBUG_CALL(render_pass->getSwapChain()->getGraphicQueue().presentKHR(&present));
+
+        DEBUG_CALL(device.waitIdle());
     }
 
     void Application::prepare()
@@ -124,7 +119,6 @@ namespace Engine
     void Application::setupSurface(const uint32_t width, const uint32_t height)
     {
         auto app_data = ApplicationData::data;
-        vk::Result res;
 
         std::vector<vk::PhysicalDevice> gpu_vector = {};
         app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, nullptr, {});
@@ -200,15 +194,13 @@ namespace Engine
         device_info.ppEnabledLayerNames 	= nullptr;
         device_info.pEnabledFeatures 		= nullptr;
 
-        res = app_data->gpu.createDevice(&device_info, nullptr, &app_data->device);
-        assert(res == vk::Result::eSuccess);
+        app_data->device = app_data->gpu.createDevice(device_info);
 
         vk::CommandPoolCreateInfo cmd_pool_info = {};
         cmd_pool_info.pNext 			= nullptr;
         cmd_pool_info.queueFamilyIndex  = queueGraphicFamilyIndex;
 
-        res = app_data->device.createCommandPool(&cmd_pool_info, nullptr, &app_data->graphic_command_pool);
-        assert(res == vk::Result::eSuccess);
+        app_data->graphic_command_pool = app_data->device.createCommandPool(cmd_pool_info);
 
         app_data->view_width  = width;
         app_data->view_height = height;

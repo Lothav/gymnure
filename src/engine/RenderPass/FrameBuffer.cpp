@@ -66,8 +66,7 @@ namespace Engine
             for (uint32_t i = 0; i < swap_chain_->getImageCount(); i++) {
                 img_attachments[0] = (swap_chain_->getSwapChainBuffer(i))->view;
 
-                vk::Result res = app_data->device.createFramebuffer(&fb_info, nullptr, &frame_buffers_[i]);
-                assert(res == vk::Result::eSuccess);
+                frame_buffers_[i] = app_data->device.createFramebuffer(fb_info);
             }
         }
 

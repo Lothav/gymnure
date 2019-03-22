@@ -4,7 +4,7 @@
 
 int main(int argc, char** argv)
 {
-	const unsigned windowWidth  = 800;
+    const unsigned windowWidth  = 800;
 	const unsigned windowHeight = 600;
 
 	{

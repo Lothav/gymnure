@@ -29,10 +29,8 @@ namespace Engine
 
             std::vector<vk::DescriptorSetLayoutBinding,
                 mem::StdAllocator<
-                    vk::DescriptorSetLayoutBinding>>   layout_bindings_    = {};
-            std::vector<vk::DescriptorSetLayout,
-                mem::StdAllocator<
-                    vk::DescriptorSetLayout>> 		    desc_layout_        = {};
+                    vk::DescriptorSetLayoutBinding>>    layout_bindings_    = {};
+            vk::DescriptorSetLayout 		            desc_layout_        = {};
             vk::PipelineLayout 						    pipeline_layout_    = nullptr;
             Descriptors::UniformBuffer*                 uniform_buffer_     = nullptr;
 

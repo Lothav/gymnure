@@ -1,4 +1,5 @@
 #include "SyncPrimitives.h"
+#include "Util/Debug.hpp"
 
 namespace Engine
 {
@@ -8,25 +9,20 @@ namespace Engine
         {
             auto device = ApplicationData::data->device;
 
-            device.destroySemaphore(imageAcquiredSemaphore, nullptr);
-            device.destroySemaphore(renderSemaphore, nullptr);
+            device.destroySemaphore(imageAcquiredSemaphore);
+            device.destroySemaphore(renderSemaphore);
             for (auto &fence : fences_) {
-                device.destroyFence(fence, nullptr);
+                device.destroyFence(fence);
             }
         }
 
         void SyncPrimitives::createSemaphore()
         {
             auto device = ApplicationData::data->device;
-            vk::Result res;
 
             vk::SemaphoreCreateInfo imageAcquiredSemaphoreCreateInfo = {};
-
-            res = device.createSemaphore(&imageAcquiredSemaphoreCreateInfo, nullptr, &imageAcquiredSemaphore);
-            assert(res == vk::Result::eSuccess);
-
-            res = device.createSemaphore(&imageAcquiredSemaphoreCreateInfo, nullptr, &renderSemaphore);
-            assert(res == vk::Result::eSuccess);
+            imageAcquiredSemaphore = device.createSemaphore(imageAcquiredSemaphoreCreateInfo);
+            renderSemaphore = device.createSemaphore(imageAcquiredSemaphoreCreateInfo);
         }
 
 
@@ -37,13 +33,11 @@ namespace Engine
             auto device = ApplicationData::data->device;
 
             vk::FenceCreateInfo fenceInfo = {};
-            fenceInfo.pNext = nullptr;
             fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
-            for(u_int32_t i = 0; i< size; i++)
-                device.createFence(&fenceInfo, nullptr, &fences_[i]);
+            for(u_int32_t i = 0; i < size; i++)
+                DEBUG_CALL(fences_[i] = device.createFence(fenceInfo));
         }
-
 
         vk::Fence SyncPrimitives::getFence(u_int32_t i)
         {
