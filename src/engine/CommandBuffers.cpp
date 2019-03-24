@@ -68,11 +68,11 @@ namespace Engine
                                                            program_obj->descriptor_set->getPipelineLayout(), 0,
                                                            {data->descriptor_set}, {});
 
-                    command_buffers_[i].bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()->buf}, {0});
+                    command_buffers_[i].bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()}, {0});
 
                     auto index_count = data->vertex_buffer->getIndexSize();
                     if(index_count > 0) {
-                        command_buffers_[i].bindIndexBuffer(data->vertex_buffer->getIndexBuffer()->buf, 0, vk::IndexType::eUint32);
+                        command_buffers_[i].bindIndexBuffer(data->vertex_buffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
                         command_buffers_[i].drawIndexed(index_count, 1, 0, 0, 1);
                     } else {
                         command_buffers_[i].draw(data->vertex_buffer->getVertexSize(), 1, 0, 0);

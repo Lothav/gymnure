@@ -72,8 +72,7 @@ namespace Engine
         static inline void logError(const std::string &log_msg)
         {
         #ifdef DEBUG
-            std::cerr << log_msg << std::endl;
-            exit(-1);
+            throw log_msg;
         #endif
         };
     };

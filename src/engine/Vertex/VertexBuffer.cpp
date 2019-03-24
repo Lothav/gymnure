@@ -14,9 +14,9 @@ namespace Engine
             return vertex_count_;
         }
 
-        std::shared_ptr<Memory::Buffer> VertexBuffer::getVertexBuffer() const
+        vk::Buffer VertexBuffer::getVertexBuffer() const
         {
-            return vertexBuffer_;
+            return vertex_buffer_->getBuffer();
         }
 
         uint32_t VertexBuffer::getIndexSize() const
@@ -24,53 +24,44 @@ namespace Engine
             return index_count_;
         }
 
-        std::shared_ptr<Memory::Buffer> VertexBuffer::getIndexBuffer() const
+        vk::Buffer VertexBuffer::getIndexBuffer() const
         {
-            return indexBuffer_;
+            return index_buffer_->getBuffer();
         }
 
         void VertexBuffer::initBuffers(const std::vector<VertexData>& vertexData, const std::vector<uint32_t>& indexBuffer)
         {
             vertex_count_ = static_cast<uint32_t>(vertexData.size());
 
-            struct BufferData vbData = {};
-            vbData.usage      = vk::BufferUsageFlagBits::eVertexBuffer;
-            vbData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-            vbData.size       = vertex_count_ * sizeof(VertexData);
+            struct BufferData buffer_data = {};
+            buffer_data.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+            buffer_data.usage      = vk::BufferUsageFlagBits::eVertexBuffer;
+            buffer_data.size       = vertexData.size();
 
-            vertexBuffer_ = std::make_unique<Memory::Buffer>(vbData);
-            Memory::Memory::copyMemory(vertexBuffer_->mem, vertexData.data(), vbData.size);
+            vertex_buffer_ = std::make_unique<Memory::Buffer<VertexData>>(buffer_data);
+            vertex_buffer_->updateBuffer(vertexData);
 
             if (!indexBuffer.empty()) {
 
                 index_count_ = static_cast<uint32_t>(indexBuffer.size());
 
-                vbData.usage = vk::BufferUsageFlagBits::eIndexBuffer;
-                vbData.size = index_count_ * sizeof(uint32_t);
+                buffer_data.usage = vk::BufferUsageFlagBits::eIndexBuffer;
+                buffer_data.size  = indexBuffer.size();
 
-                indexBuffer_ = std::make_unique<Memory::Buffer>(vbData);
-                Memory::Memory::copyMemory(indexBuffer_->mem, vertexData.data(), vbData.size);
+                index_buffer_ = std::make_unique<Memory::Buffer<uint32_t>>(buffer_data);
+                index_buffer_->updateBuffer(indexBuffer);
             }
         }
 
         void VertexBuffer::createPrimitiveTriangle(Descriptors::UniformBuffer* uo)
         {
-            auto mvp = uo->mvp.projection * uo->mvp.view * uo->mvp.model;
-
-            auto pos  = (mvp * glm::vec4(  1.0f,  1.0f, 0.0f, 1.0f ));
-            pos /= pos.w;
-            auto pos2 = (mvp * glm::vec4( -1.0f,  1.0f, 0.0f, 1.0f ));
-            pos2 /= pos2.w;
-            auto pos3 = (mvp * glm::vec4(  0.0f, -1.0f, 0.0f, 1.0f ));
-            pos3 /= pos3.w;
-
             std::vector<VertexData> vertexBuffer =
-                {
-                    //       POSITION              UV              NORMAL
-                    { {pos .x, pos .y, pos .z} , {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
-                    { {pos2.x, pos2.y, pos2.z} , {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } },
-                    { {pos3.x, pos3.y, pos3.z} , {1.0f, 1.0f}, { 0.0f, 0.0f, -1.0f } }
-                };
+            {
+                //     POSITION              UV              NORMAL
+                { { 1.0f,  1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f} },
+                { {-1.0f,  1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f} },
+                { { 0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, -1.0f} }
+            };
 
             // Setup indices
             std::vector<uint32_t> indexBuffer = { 0, 1, 2 };

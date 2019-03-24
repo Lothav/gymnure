@@ -5,16 +5,6 @@ namespace Engine
 {
     namespace Memory
     {
-        void Memory::copyMemory(vk::DeviceMemory device_memory, const void * object, size_t object_size)
-        {
-            auto device = ApplicationData::data->device;
-
-            void* buffer_address_ = nullptr;
-            DEBUG_CALL(buffer_address_ = device.mapMemory(device_memory, 0, object_size, {}));
-            memcpy(buffer_address_, object, object_size);
-            DEBUG_CALL(device.unmapMemory(device_memory));
-        }
-
         uint32_t Memory::findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask)
         {
             auto app_data = ApplicationData::data;

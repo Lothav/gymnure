@@ -16,7 +16,7 @@ namespace Engine
 
         void DescriptorSet::create()
         {
-            auto device = ApplicationData::data->device;
+            auto app_data = ApplicationData::data;
 
             // Set Layout Bindings
             layout_bindings_.resize(1 + texture_count_);
@@ -41,7 +41,7 @@ namespace Engine
             descriptor_layout_.bindingCount 				 = static_cast<uint32_t>(layout_bindings_.size());
             descriptor_layout_.pBindings 					 = layout_bindings_.data();
 
-            desc_layout_ = device.createDescriptorSetLayout(descriptor_layout_);
+            desc_layout_ = app_data->device.createDescriptorSetLayout(descriptor_layout_);
 
             // Set Pipeline Layout
             vk::PipelineLayoutCreateInfo pPipelineLayoutCreateInfo = {};
@@ -51,16 +51,10 @@ namespace Engine
             pPipelineLayoutCreateInfo.setLayoutCount         = 1;
             pPipelineLayoutCreateInfo.pSetLayouts            = &desc_layout_;
 
-            pipeline_layout_ = device.createPipelineLayout(pPipelineLayoutCreateInfo);
+            pipeline_layout_ = app_data->device.createPipelineLayout(pPipelineLayoutCreateInfo);
 
             //  Create Uniform Buffer
-            auto app_data = ApplicationData::data;
-            struct BufferData uniformBufferData = {};
-            uniformBufferData.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
-            uniformBufferData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-            uniformBufferData.size       = sizeof(glm::mat4) * 3;
-
-            uniform_buffer_ = new UniformBuffer(uniformBufferData);
+            uniform_buffer_ = new UniformBuffer();
             uniform_buffer_->initModelView(app_data->view_width, app_data->view_height);
         }
 
@@ -104,25 +98,10 @@ namespace Engine
 
         void DescriptorSet::updateDescriptorSet(Texture texture, vk::DescriptorSet desc_set)
         {
-            if(uniform_buffer_ == nullptr)
-                return;
-
             std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
 
-            vk::DescriptorBufferInfo buffer_info;
-            buffer_info.range  = uniform_buffer_->size;
-            buffer_info.offset = 0;
-            buffer_info.buffer = uniform_buffer_->buf;
-
-            vk::WriteDescriptorSet write = {};
-            write.pNext 			= nullptr;
-            write.dstSet 			= desc_set;
-            write.descriptorCount 	= 1;
-            write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
-            write.pBufferInfo 		= &buffer_info;
-            write.dstArrayElement 	= 0;
-            write.dstBinding 		= 0;
-            writes.push_back(write);
+            if(uniform_buffer_ != nullptr)
+                writes.push_back(uniform_buffer_->getWrite(desc_set));
 
             if (texture_count_ > 0) {
                 vk::DescriptorImageInfo texture_info = {};
@@ -130,6 +109,7 @@ namespace Engine
                 texture_info.imageView 	    = texture.buffer->view;
                 texture_info.sampler 	    = texture.sampler;
 
+                vk::WriteDescriptorSet write = {};
                 write.dstSet 			    = desc_set;
                 write.descriptorCount 	    = 1;
                 write.descriptorType 	    = vk::DescriptorType::eCombinedImageSampler;
@@ -139,7 +119,8 @@ namespace Engine
                 writes.push_back(write);
             }
 
-            ApplicationData::data->device.updateDescriptorSets(writes, {});
+            if(!writes.empty())
+                ApplicationData::data->device.updateDescriptorSets(writes, {});
         }
 
         vk::DescriptorPool DescriptorSet::createDescriptorPool()

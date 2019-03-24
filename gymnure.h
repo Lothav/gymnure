@@ -64,8 +64,8 @@ public:
 
     bool draw()
     {
-        //if(!window_->poolEvent())
-        //    return false;
+        if(!window_->poolEvent())
+            return false;
 
         Engine::Application::draw();
         return true;

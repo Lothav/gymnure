@@ -31,12 +31,15 @@ namespace Engine
             stagingBufferData.properties        = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
             stagingBufferData.size              = imageSize;
 
-            auto staging_buffer = std::make_unique<Memory::Buffer>(stagingBufferData);
+            //auto staging_buffer = std::make_unique<Memory::Buffer<>>(
+            //    vk::BufferUsageFlagBits::eTransferSrc,
+            //    vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+            //    stagingBufferData);
 
-            void *data = nullptr;
-            vkMapMemory(app_data->device, staging_buffer->mem, 0, imageSize, 0, &data);
-            memcpy(data, pixels, static_cast<size_t>(imageSize));
-            vkUnmapMemory(app_data->device, staging_buffer->mem);
+            //void *data = nullptr;
+            //vkMapMemory(app_data->device, staging_buffer->mem, 0, imageSize, 0, &data);
+            //memcpy(data, pixels, static_cast<size_t>(imageSize));
+            //vkUnmapMemory(app_data->device, staging_buffer->mem);
 
             stbi_image_free(pixels);
 
@@ -48,8 +51,8 @@ namespace Engine
             transitionImageLayout(textureImage, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eUndefined,
                                   vk::ImageLayout::eTransferDstOptimal, graphicQueue);
 
-            copyBufferToImage(staging_buffer->buf, textureImage, static_cast<uint32_t>(texWidth),
-                              static_cast<uint32_t>(texHeight), graphicQueue);
+            //copyBufferToImage(staging_buffer->buf, textureImage, static_cast<uint32_t>(texWidth),
+            //                  static_cast<uint32_t>(texHeight), graphicQueue);
 
             transitionImageLayout(textureImage, vk::Format::eR8G8B8A8Unorm, vk::ImageLayout::eTransferDstOptimal,
                                   vk::ImageLayout::eShaderReadOnlyOptimal, graphicQueue);

@@ -24,12 +24,12 @@ namespace Engine
         private:
 
             uint32_t vertex_count_ = 0;
-            std::shared_ptr<Memory::Buffer> vertexBuffer_;
+            std::shared_ptr<Memory::Buffer<VertexData>> vertex_buffer_;
 
             uint32_t index_count_ = 0;
-            std::shared_ptr<Memory::Buffer> indexBuffer_;
+            std::shared_ptr<Memory::Buffer<uint32_t>> index_buffer_;
 
-            void initBuffers(const std::vector<VertexData>& vertexData, const std::vector<uint32_t>& indexBuffer = {});
+            void initBuffers(const std::vector<VertexData>& vertexData = {}, const std::vector<uint32_t>& indexBuffer = {});
 
         public:
 
@@ -47,10 +47,10 @@ namespace Engine
             }
 
             uint32_t getVertexSize() const;
-            std::shared_ptr<Memory::Buffer> getVertexBuffer() const;
+            vk::Buffer getVertexBuffer() const;
 
             uint32_t getIndexSize() const;
-            std::shared_ptr<Memory::Buffer> getIndexBuffer() const;
+            vk::Buffer getIndexBuffer() const;
 
             void loadObjModelVertices(const std::string& model_path, const std::string& obj_mtl);
             void createPrimitiveTriangle(Descriptors::UniformBuffer* uo);

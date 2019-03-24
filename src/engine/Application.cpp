@@ -60,14 +60,15 @@ namespace Engine
 
     void Application::draw()
     {
-        vk::Result res;
+        vk::Result res = vk::Result::eNotReady;
 
         auto device = ApplicationData::data->device;
-        auto swapchain_c = render_pass->getSwapChain()->getSwapChainKHR();
+        auto swapchainKHR = render_pass->getSwapChain()->getSwapChainKHR();
 
-        std::tie(res, current_buffer_) = device.acquireNextImageKHR(swapchain_c, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, {});
+        DEBUG_CALL(
+            std::tie(res, current_buffer_) = device.acquireNextImageKHR(
+                swapchainKHR, UINT64_MAX, sync_primitives->imageAcquiredSemaphore, {}));
         assert(res == vk::Result::eSuccess);
-        Debug::logInfo(std::to_string(current_buffer_));
 
         vk::PipelineStageFlags pipe_stage_flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
         //for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
@@ -95,7 +96,7 @@ namespace Engine
         vk::PresentInfoKHR present = {};
         present.pNext 				  = nullptr;
         present.swapchainCount 		  = 1;
-        present.pSwapchains 		  = &swapchain_c;
+        present.pSwapchains 		  = &swapchainKHR;
         present.pImageIndices 		  = &current_buffer_;
         present.pWaitSemaphores 	  = nullptr;
         present.waitSemaphoreCount 	  = 0;
