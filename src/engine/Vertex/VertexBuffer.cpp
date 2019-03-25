@@ -9,7 +9,7 @@ namespace Engine
 {
     namespace Vertex
     {
-        uint32_t VertexBuffer::getVertexSize() const
+        uint32_t VertexBuffer::getVertexCount() const
         {
             return vertex_count_;
         }
@@ -19,7 +19,7 @@ namespace Engine
             return vertex_buffer_->getBuffer();
         }
 
-        uint32_t VertexBuffer::getIndexSize() const
+        uint32_t VertexBuffer::getIndexCount() const
         {
             return index_count_;
         }

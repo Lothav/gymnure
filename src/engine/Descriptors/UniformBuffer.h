@@ -83,9 +83,9 @@ namespace Engine
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set)
 			{
                 vk::DescriptorBufferInfo *buffer_info = new vk::DescriptorBufferInfo();
-                buffer_info->range  = buffer_->getSize();
-                buffer_info->offset = 0;
-                buffer_info->buffer = buffer_->getBuffer();
+				buffer_info->offset 	= 0;
+                buffer_info->range  	= buffer_->getSize();
+                buffer_info->buffer 	= buffer_->getBuffer();
 
                 vk::WriteDescriptorSet write = {};
                 write.pNext 			= nullptr;
@@ -93,7 +93,7 @@ namespace Engine
                 write.descriptorCount 	= 1;
                 write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
                 write.pBufferInfo 		= buffer_info;
-                write.dstArrayElement 	= 0;
+				// Binds this uniform buffer to binding point 0
                 write.dstBinding 		= 0;
 
                 return write;

@@ -221,7 +221,9 @@ namespace Engine
                     break;
                 }
             }
-            
+
+            free(presentation_modes);
+
             // Determine the number of vk::Image's to use in the swap chain.
             // We need to acquire only 1 presentable image at at time.
             // Asking for minImageCount images ensures that we can acquire
@@ -274,15 +276,16 @@ namespace Engine
             swapchain_ci.queueFamilyIndexCount  = 0;
             swapchain_ci.pQueueFamilyIndices 	= nullptr;
 
-            auto* queueFamilyIndices = static_cast<uint32_t*>(malloc(sizeof(uint32_t) * 2));
-            queueFamilyIndices[0] = (uint32_t)graphics_queue_family_index_;
-            queueFamilyIndices[1] = (uint32_t)present_queue_family_index_;
-
             if (graphics_queue_family_index_ != present_queue_family_index_) {
                 // If the graphics and present queues are from different queue families,
                 // we either have to explicitly transfer ownership of images between the
                 // queues, or we have to create the swapchain with imageSharingMode
                 // as VK_SHARING_MODE_CONCURRENT
+
+                auto* queueFamilyIndices = static_cast<uint32_t*>(malloc(sizeof(uint32_t) * 2));
+                queueFamilyIndices[0] = (uint32_t)graphics_queue_family_index_;
+                queueFamilyIndices[1] = (uint32_t)present_queue_family_index_;
+
                 swapchain_ci.imageSharingMode 		= vk::SharingMode::eConcurrent;
                 swapchain_ci.queueFamilyIndexCount 	= 2;
                 swapchain_ci.pQueueFamilyIndices 	= queueFamilyIndices;

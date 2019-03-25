@@ -46,10 +46,10 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            uint32_t getVertexSize() const;
+            uint32_t getVertexCount() const;
             vk::Buffer getVertexBuffer() const;
 
-            uint32_t getIndexSize() const;
+            uint32_t getIndexCount() const;
             vk::Buffer getIndexBuffer() const;
 
             void loadObjModelVertices(const std::string& model_path, const std::string& obj_mtl);

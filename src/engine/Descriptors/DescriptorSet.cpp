@@ -86,14 +86,15 @@ namespace Engine
                     sampler_.anisotropyEnable 	= VK_FALSE;
                     sampler_.borderColor 		= vk::BorderColor::eFloatOpaqueWhite;
 
-                    return Texture{
+                    return Texture
+                    {
                         .buffer  = new Memory::BufferImage(img_props, texture_image),
                         .sampler = ApplicationData::data->device.createSampler(sampler_)
                     };
                 }
             }
 
-            assert(false);
+            throw "Fail to create Texture!";
         }
 
         void DescriptorSet::updateDescriptorSet(Texture texture, vk::DescriptorSet desc_set)
@@ -105,17 +106,17 @@ namespace Engine
 
             if (texture_count_ > 0) {
                 vk::DescriptorImageInfo texture_info = {};
-                texture_info.imageLayout    = vk::ImageLayout::eShaderReadOnlyOptimal;
-                texture_info.imageView 	    = texture.buffer->view;
-                texture_info.sampler 	    = texture.sampler;
+                texture_info.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+                texture_info.imageView 	 = texture.buffer->view;
+                texture_info.sampler 	 = texture.sampler;
 
                 vk::WriteDescriptorSet write = {};
-                write.dstSet 			    = desc_set;
-                write.descriptorCount 	    = 1;
-                write.descriptorType 	    = vk::DescriptorType::eCombinedImageSampler;
-                write.pImageInfo 		    = &texture_info;
-                write.dstArrayElement 	    = 0;
-                write.dstBinding 		    = 1;
+                write.dstArrayElement 	 = 0;
+                write.descriptorCount 	 = 1;
+                write.descriptorType 	 = vk::DescriptorType::eCombinedImageSampler;
+                write.dstBinding 		 = 1;
+                write.pImageInfo 		 = &texture_info;
+                write.dstSet 			 = desc_set;
                 writes.push_back(write);
             }
 
@@ -125,28 +126,23 @@ namespace Engine
 
         vk::DescriptorPool DescriptorSet::createDescriptorPool()
         {
-            vk::DescriptorPool desc_pool;
-
             std::vector<vk::DescriptorPoolSize> poolSizes = {};
 
             poolSizes.resize(1 + texture_count_);
-            poolSizes[0].type 			 = vk::DescriptorType::eUniformBuffer;
+            poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
             poolSizes[0].descriptorCount = 1;
 
             if(texture_count_ > 0){
-                poolSizes[1].type 			 = vk::DescriptorType::eCombinedImageSampler;
+                poolSizes[1].type = vk::DescriptorType::eCombinedImageSampler;
                 poolSizes[1].descriptorCount = 1;
             }
 
             vk::DescriptorPoolCreateInfo descriptor_pool_info = {};
-            descriptor_pool_info.pNext 			= nullptr;
             descriptor_pool_info.maxSets 		= 1;
             descriptor_pool_info.poolSizeCount 	= static_cast<uint32_t>(poolSizes.size());
             descriptor_pool_info.pPoolSizes 	= poolSizes.data();
 
-            DEBUG_CALL(desc_pool = ApplicationData::data->device.createDescriptorPool(descriptor_pool_info));
-
-            return desc_pool;
+            return ApplicationData::data->device.createDescriptorPool(descriptor_pool_info);
         }
 
         vk::DescriptorSet DescriptorSet::createDescriptorSet(vk::DescriptorPool desc_pool)
@@ -159,9 +155,7 @@ namespace Engine
             alloc_info_.descriptorSetCount 	= 1;
             alloc_info_.pSetLayouts 		= &desc_layout_;
 
-            DEBUG_CALL(desc_sets_ = ApplicationData::data->device.allocateDescriptorSets(alloc_info_));
-
-            return desc_sets_[0];
+            return ApplicationData::data->device.allocateDescriptorSets(alloc_info_)[0];
         }
 
         vk::PipelineLayout DescriptorSet::getPipelineLayout() const

@@ -35,7 +35,7 @@ namespace Engine
         cmd_buf_info.pInheritanceInfo 	= nullptr;
 
         vk::ClearValue clear_values[2];
-        std::array<float,4> clear_values_arr = { 0.8f, 0.2f, 0.8f, 1.0f };
+        std::array<float,4> clear_values_arr = { 0.2f, 0.8f, 0.2f, 1.0f };
         clear_values[0].color = vk::ClearColorValue(clear_values_arr);
         clear_values[1].depthStencil = vk::ClearDepthStencilValue{1.0f, 0u};
 
@@ -70,12 +70,12 @@ namespace Engine
 
                     command_buffers_[i].bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()}, {0});
 
-                    auto index_count = data->vertex_buffer->getIndexSize();
+                    auto index_count = data->vertex_buffer->getIndexCount();
                     if(index_count > 0) {
                         command_buffers_[i].bindIndexBuffer(data->vertex_buffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
-                        command_buffers_[i].drawIndexed(index_count, 1, 0, 0, 1);
+                        command_buffers_[i].drawIndexed(index_count, 1, 0, 0, 0);
                     } else {
-                        command_buffers_[i].draw(data->vertex_buffer->getVertexSize(), 1, 0, 0);
+                        command_buffers_[i].draw(data->vertex_buffer->getVertexCount(), 1, 0, 0);
                     }
                 }
             }

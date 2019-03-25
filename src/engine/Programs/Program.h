@@ -13,9 +13,9 @@
 
 struct GymnureObjData
 {
-    std::string             path_obj        = "";
-    std::string             path_texture    = "";
-    std::string             obj_mtl         = "";
+    std::string path_obj     = "";
+    std::string path_texture = "";
+    std::string obj_mtl      = "";
 };
 
 namespace Engine
