@@ -35,18 +35,18 @@ namespace Engine
 
             stbi_image_free(pixels);
 
-            MemoryProps mem_props = {};
-            mem_props.props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
+            Memory::ImageViewProps img_view_props = {};
+            img_view_props.format = vk::Format::eR8G8B8A8Unorm;
+            img_view_props.aspectMask = vk::ImageAspectFlagBits::eColor;
 
-            ImageProps img_props = {};
-            img_props.width      = static_cast<uint32_t>(texWidth);
-            img_props.height     = static_cast<uint32_t>(texHeight);
-            img_props.usage      = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
-            img_props.aspectMask = vk::ImageAspectFlagBits::eColor;
-            img_props.format     = vk::Format::eR8G8B8A8Unorm;
-            img_props.tiling     = vk::ImageTiling::eOptimal;
+            Memory::ImageProps img_props = {};
+            img_props.width             = static_cast<uint32_t>(texWidth);
+            img_props.height            = static_cast<uint32_t>(texHeight);
+            img_props.usage             = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+            img_props.tiling            = vk::ImageTiling::eOptimal;
+            img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
-            buffer_image_ = new Memory::BufferImage(mem_props, img_props);
+            buffer_image_ = new Memory::BufferImage(img_view_props, img_props);
 
             transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
 

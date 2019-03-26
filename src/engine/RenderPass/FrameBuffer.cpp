@@ -34,19 +34,19 @@ namespace Engine
             if(depth_format_ == vk::Format::eUndefined)
                 throw "Cannot find an optimal valid Depth format!";
 
-            struct ImageProps img_props = {};
-            img_props.width         = app_data->view_width;
-            img_props.height        = app_data->view_height;
-            img_props.format 		= depth_format_;
-            img_props.tiling 		= vk::ImageTiling::eOptimal;
-            img_props.aspectMask 	= vk::ImageAspectFlagBits::eDepth;
-            img_props.usage 		= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eDepthStencilAttachment;
+            Memory::ImageViewProps img_view_props = {};
+            img_view_props.format = depth_format_;
+            img_view_props.aspectMask = vk::ImageAspectFlagBits::eDepth;
 
-            struct MemoryProps mem_props = {};
-            mem_props.props_flags   = vk::MemoryPropertyFlagBits::eDeviceLocal;
+            Memory::ImageProps img_props = {};
+            img_props.width             = static_cast<uint32_t>(app_data->view_width);
+            img_props.height            = static_cast<uint32_t>(app_data->view_height);
+            img_props.usage             = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eDepthStencilAttachment;
+            img_props.tiling            = vk::ImageTiling::eOptimal;
+            img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
             // Create Depth Buffer
-            depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
+            depth_buffer_ = std::make_unique<Memory::BufferImage>(img_view_props, img_props);
         }
 
         FrameBuffer::~FrameBuffer()

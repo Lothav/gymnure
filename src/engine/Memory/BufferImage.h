@@ -8,45 +8,43 @@
 #include <ApplicationData.hpp>
 #include "Memory/Memory.h"
 
-struct ImageProps
-{
-    uint32_t                width = 0;
-    uint32_t                height = 0;
-    vk::Format              format = vk::Format::eUndefined;
-    vk::ImageTiling         tiling{};
-    vk::ImageUsageFlags     usage{};
-    vk::ImageAspectFlags    aspectMask = vk::ImageAspectFlagBits::eColor;
-    vk::ComponentMapping    component{};
-};
-
-struct MemoryProps
-{
-    vk::MemoryPropertyFlags props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
-};
 
 namespace Engine
 {
     namespace Memory
     {
+        struct ImageProps
+        {
+            uint32_t                width = 0;
+            uint32_t                height = 0;
+            vk::ImageTiling         tiling{};
+            vk::ImageUsageFlags     usage{};
+            vk::MemoryPropertyFlags image_props_flags;
+        };
+
+        struct ImageViewProps
+        {
+            vk::Format              format = vk::Format::eUndefined;
+            vk::ImageAspectFlags    aspectMask = vk::ImageAspectFlagBits::eColor;
+            vk::ComponentMapping    component{};
+        };
+
         class BufferImage
         {
 
         private:
 
-            MemoryProps mem_props_;
-            ImageProps img_pros_;
+            vk::DeviceMemory 	mem = nullptr;
 
         public:
 
-            vk::Image 		    image   = nullptr;
-            vk::DeviceMemory 	mem     = nullptr;
-            vk::ImageView 	    view    = nullptr;
-            vk::Format          format;
+            vk::Image 		    image = nullptr;
+            vk::ImageView 	    view  = nullptr;
 
-            BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, const vk::Image& image_ptr = nullptr, bool create_image_view= true);
+            BufferImage(const struct ImageViewProps& image_view_props, vk::Image image_ptr);
 
-            explicit BufferImage(const struct ImageProps& img_props, const vk::Image& image_ptr = nullptr) :
-                BufferImage({}, img_props, image_ptr) {}
+            BufferImage(const struct ImageViewProps& image_view_props, const struct ImageProps& img_props) :
+                BufferImage(image_view_props, createImage(img_props, image_view_props.format)) {};
 
             ~BufferImage();
 
@@ -62,7 +60,7 @@ namespace Engine
 
         private:
 
-            vk::Image createImage();
+            vk::Image createImage(const struct ImageProps& img_props, vk::Format format);
         };
     }
 }

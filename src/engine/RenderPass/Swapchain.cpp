@@ -68,17 +68,12 @@ namespace Engine
             // Create Swapchain Buffer
             for (uint32_t i = 0; i < image_count_; i++)
             {
-                ImageProps img_props = {};
-                img_props.width       = app_data->view_width;
-                img_props.height      = app_data->view_height;
-                img_props.format 	  = format_;
-                img_props.aspectMask  = vk::ImageAspectFlagBits::eColor;
-                img_props.component.r = vk::ComponentSwizzle::eR;
-                img_props.component.g = vk::ComponentSwizzle::eG;
-                img_props.component.b = vk::ComponentSwizzle::eB;
-                img_props.component.a = vk::ComponentSwizzle::eA;
+                Memory::ImageViewProps img_view_props = {};
+                img_view_props.format = format_;
+                img_view_props.aspectMask = vk::ImageAspectFlagBits::eColor;
+                img_view_props.component = {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA};
 
-                auto* sc_buffer = new Memory::BufferImage(img_props, swap_chain_images_[i]);
+                auto* sc_buffer = new Memory::BufferImage(img_view_props, swap_chain_images_[i]);
 
                 swap_chain_buffer_.push_back(sc_buffer);
             }
