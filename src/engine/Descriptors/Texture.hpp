@@ -21,8 +21,8 @@ namespace Engine
 
 		private:
 
-			Memory::BufferImage* buffer_image_  = nullptr;
-			vk::Sampler          sampler_ = {};
+			std::unique_ptr<Memory::BufferImage> buffer_image_;
+			vk::Sampler sampler_ = {};
 
 		public:
 
@@ -30,7 +30,6 @@ namespace Engine
 
 			~Texture()
 			{
-				delete buffer_image_;
 				vkDestroySampler(ApplicationData::data->device, sampler_, nullptr);
 			}
 

@@ -8,9 +8,9 @@ namespace Engine
 {
     namespace Memory
     {
-        BufferImage::BufferImage(const struct ImageViewProps& image_view_props, vk::Image image_ptr)
+        vk::ImageView BufferImage::createImageView(const struct ImageViewProps& image_view_props) const
         {
-            this->image = image_ptr;
+            vk::ImageView image_view{};
 
             // Create Image View
             vk::ImageViewCreateInfo viewInfo = {};
@@ -24,16 +24,21 @@ namespace Engine
             viewInfo.subresourceRange.baseArrayLayer = 0;
             viewInfo.subresourceRange.layerCount 	 = 1;
 
-            DEBUG_CALL(this->view = ApplicationData::data->device.createImageView(viewInfo));
+            DEBUG_CALL(image_view = ApplicationData::data->device.createImageView(viewInfo));
+
+            return image_view;
         }
 
         BufferImage::~BufferImage()
         {
             auto device = ApplicationData::data->device;
 
-            if(image) device.destroyImage(image, nullptr);
+            if(image_created) {
+                if(image) device.destroyImage(image, nullptr);
+                if(memory) device.freeMemory(memory, nullptr);
+            }
+
             if(view) device.destroyImageView(view, nullptr);
-            if(mem) device.freeMemory(mem, nullptr);
         }
 
         vk::Image BufferImage::createImage(const struct ImageProps& img_props, vk::Format format)
@@ -70,10 +75,10 @@ namespace Engine
             mem_alloc.allocationSize  = mem_reqs.size;
             mem_alloc.memoryTypeIndex = Memory::findMemoryType(mem_reqs.memoryTypeBits, img_props.image_props_flags);
 
-            DEBUG_CALL(mem = device.allocateMemory(mem_alloc));
+            DEBUG_CALL(memory = device.allocateMemory(mem_alloc));
 
             // Bind Image to Memory
-            device.bindImageMemory(image, mem, 0);
+            device.bindImageMemory(image, memory, 0);
 
             return image;
         }

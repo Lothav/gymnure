@@ -74,7 +74,7 @@ namespace Engine
             frame_buffers_.resize(swap_chain_->getImageCount());
 
             for (uint32_t i = 0; i < swap_chain_->getImageCount(); i++) {
-                img_attachments[0] = (swap_chain_->getSwapChainBuffer(i))->view;
+                img_attachments[0] = swap_chain_->getSwapChainImageView(i);
 
                 frame_buffers_[i] = app_data->device.createFramebuffer(fb_info);
             }

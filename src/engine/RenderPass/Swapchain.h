@@ -26,7 +26,7 @@ namespace Engine
 			vk::Format 							format_;
 			vk::ColorSpaceKHR						colorSpace_;
 
-			std::vector<Memory::BufferImage *> 	swap_chain_buffer_ = {};
+			std::vector<std::unique_ptr<Memory::BufferImage>> 	swap_chain_buffer_ = {};
 
 		public:
 
@@ -46,7 +46,7 @@ namespace Engine
 
 			uint32_t getImageCount() const;
 
-			Memory::BufferImage * getSwapChainBuffer(uint32_t i) const;
+			vk::ImageView getSwapChainImageView(uint32_t i) const;
 
 			vk::Format getSwapChainFormat() const;
 

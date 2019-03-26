@@ -46,7 +46,7 @@ namespace Engine
             img_props.tiling            = vk::ImageTiling::eOptimal;
             img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
-            buffer_image_ = new Memory::BufferImage(img_view_props, img_props);
+            buffer_image_ = std::make_unique<Memory::BufferImage>(img_view_props, img_props);
 
             transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
 

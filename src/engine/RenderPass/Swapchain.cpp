@@ -73,20 +73,13 @@ namespace Engine
                 img_view_props.aspectMask = vk::ImageAspectFlagBits::eColor;
                 img_view_props.component = {vk::ComponentSwizzle::eR, vk::ComponentSwizzle::eG, vk::ComponentSwizzle::eB, vk::ComponentSwizzle::eA};
 
-                auto* sc_buffer = new Memory::BufferImage(img_view_props, swap_chain_images_[i]);
-
-                swap_chain_buffer_.push_back(sc_buffer);
+                swap_chain_buffer_.push_back(
+                    std::make_unique<Memory::BufferImage>(img_view_props, swap_chain_images_[i]));
             }
         }
 
         SwapChain::~SwapChain()
         {
-            if(swap_chain_buffer_.size() == image_count_) {
-                for (u_int32_t i = 0; i < image_count_; i++){
-                    swap_chain_buffer_[i]->image = nullptr;
-                    delete swap_chain_buffer_[i];
-                }
-            }
             ApplicationData::data->device.destroySwapchainKHR(swap_chain_);
         }
 
@@ -95,9 +88,9 @@ namespace Engine
             return image_count_;
         }
 
-        Memory::BufferImage* SwapChain::getSwapChainBuffer(uint32_t i) const
+        vk::ImageView SwapChain::getSwapChainImageView(uint32_t swapchain_index) const
         {
-            return swap_chain_buffer_[i];
+            return swap_chain_buffer_[swapchain_index]->view;
         }
 
         vk::Format SwapChain::getSwapChainFormat() const
