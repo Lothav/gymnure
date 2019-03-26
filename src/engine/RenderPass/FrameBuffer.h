@@ -20,7 +20,7 @@ namespace Engine
 			std::shared_ptr<SwapChain> 			 swap_chain_;
 
 			std::vector<vk::Framebuffer>  		 frame_buffers_;
-			const vk::Format 					 depth_format_ = vk::Format::eD32SfloatS8Uint;
+			vk::Format 					 		 depth_format_ = vk::Format::eUndefined;
 
 		public:
 

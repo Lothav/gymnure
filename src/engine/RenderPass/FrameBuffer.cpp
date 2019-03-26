@@ -10,24 +10,34 @@ namespace Engine
 
             auto app_data = ApplicationData::data;
 
-            vk::FormatProperties props;
-            vk::ImageTiling depth_tiling;
+            // Since all depth formats may be optional, we need to find a suitable depth format to use
+            // Start with the highest precision packed format
+            std::vector<vk::Format> depthFormats = {
+                vk::Format::eD32SfloatS8Uint,
+                vk::Format::eD32Sfloat,
+                vk::Format::eD24UnormS8Uint,
+                vk::Format::eD16UnormS8Uint,
+                vk::Format::eD16Unorm,
+            };
 
-            app_data->gpu.getFormatProperties(depth_format_, &props);
-
-            if (props.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) {
-                depth_tiling = vk::ImageTiling::eLinear;
-            } else if (props.optimalTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment) {
-                depth_tiling = vk::ImageTiling::eOptimal;
-            } else {
-                /* Try other depth formats? */
-                assert(false);
+            for (auto& format : depthFormats)
+            {
+                vk::FormatProperties formatProps = app_data->gpu.getFormatProperties(format);
+                // Format must support depth stencil attachment for optimal tiling
+                if (formatProps.optimalTilingFeatures &  vk::FormatFeatureFlagBits::eDepthStencilAttachment)
+                {
+                    depth_format_ = format;
+                    break;
+                }
             }
+
+            if(depth_format_ == vk::Format::eUndefined)
+                throw "Cannot find an optimal valid Depth format!";
 
             struct ImageProps img_props = {};
             img_props.format 		= depth_format_;
-            img_props.tiling 		= depth_tiling;
-            img_props.aspectMask 	= vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
+            img_props.tiling 		= vk::ImageTiling::eOptimal;
+            img_props.aspectMask 	= vk::ImageAspectFlagBits::eDepth;
             img_props.usage 		= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eDepthStencilAttachment;
 
             struct MemoryProps mem_props = {};
