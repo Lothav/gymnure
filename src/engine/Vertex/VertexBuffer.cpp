@@ -112,7 +112,7 @@ namespace Engine
                 }
             }
 
-            //@TODO INIT BUFFERS
+            this->initBuffers(vertex_data);
 
             Debug::logInfo(assets_model_path + " object loaded! Vertex count: " +  std::to_string(vertex_data.size()));
         }
