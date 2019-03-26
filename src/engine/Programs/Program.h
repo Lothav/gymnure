@@ -33,12 +33,15 @@ namespace Engine
         class Program
         {
 
+        protected:
+
+            vk::Queue                               queue_{};
+
         public:
 
             Descriptors::DescriptorSet*             descriptor_set   = nullptr;
             std::vector<ProgramData*>               data             = {};
             GraphicsPipeline::GraphicsPipeline*     graphic_pipeline = nullptr;
-            vk::Queue                               queue_{};
 
             ~Program()
             {

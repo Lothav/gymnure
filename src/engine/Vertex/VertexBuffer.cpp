@@ -53,7 +53,7 @@ namespace Engine
             }
         }
 
-        void VertexBuffer::createPrimitiveTriangle(Descriptors::UniformBuffer* uo)
+        void VertexBuffer::createPrimitiveTriangle()
         {
             std::vector<VertexData> vertexBuffer =
             {
@@ -66,7 +66,7 @@ namespace Engine
             // Setup indices
             std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
 
-            this->initBuffers(vertexBuffer, indexBuffer);
+            this->initBuffers(vertexBuffer);
         }
 
         void VertexBuffer::loadObjModelVertices(const std::string &model_path, const std::string& obj_mtl)

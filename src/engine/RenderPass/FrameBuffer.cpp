@@ -29,14 +29,12 @@ namespace Engine
             img_props.tiling 		= depth_tiling;
             img_props.aspectMask 	= vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
             img_props.usage 		= vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eDepthStencilAttachment;
-            img_props.width 		= app_data->view_width;
-            img_props.height 		= app_data->view_height;
 
             struct MemoryProps mem_props = {};
             mem_props.props_flags   = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
             // Create Depth Buffer
-            depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
+            //depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
         }
 
         FrameBuffer::~FrameBuffer()

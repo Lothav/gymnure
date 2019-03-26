@@ -1,5 +1,3 @@
-#include <utility>
-
 //
 // Created by tracksale on 8/31/17.
 //
@@ -7,6 +5,7 @@
 #ifndef OBSIDIAN2D_VERTEX_BUFFER_H
 #define OBSIDIAN2D_VERTEX_BUFFER_H
 
+#include <utility>
 #include <vector>
 #include <Util/Util.h>
 #include "Memory/Memory.h"
@@ -53,7 +52,7 @@ namespace Engine
             vk::Buffer getIndexBuffer() const;
 
             void loadObjModelVertices(const std::string& model_path, const std::string& obj_mtl);
-            void createPrimitiveTriangle(Descriptors::UniformBuffer* uo);
+            void createPrimitiveTriangle();
 
         };
     }

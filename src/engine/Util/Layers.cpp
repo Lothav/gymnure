@@ -1,4 +1,5 @@
 #include "Layers.h"
+#include "Debug.hpp"
 
 namespace Engine
 {
@@ -9,7 +10,6 @@ namespace Engine
         std::vector<const char*> Layers::getLayerNames()
         {
             std::vector<const char *> layer_names_ = {};
-            #ifdef DEBUG
 
             auto DESIRED_LAYERS = {
                 "VK_LAYER_LUNARG_object_tracker",
@@ -26,10 +26,11 @@ namespace Engine
 
             setGlobalLayerProperties();
 
-            std::cout << "Layers available:" << std::endl;
+            Debug::logInfo("Layers available:");
             for(auto i : instanceLayerProps_)
             {
-                std::cout << i.properties.layerName << std::endl;
+                Debug::logInfo(i.properties.layerName);
+                #ifdef DEBUG
                 for(auto j : DESIRED_LAYERS)
                 {
                     if(0 == strcmp(j, i.properties.layerName))
@@ -37,13 +38,13 @@ namespace Engine
                         layer_names_.push_back(j);
                     }
                 }
+                #endif
             }
 
-            std::cout << "Using Layers:" << std::endl;
+            Debug::logInfo("Using Layers:");
             for(auto i : layer_names_) {
-                std::cout << i << std::endl;
+                Debug::logInfo(i);
             }
-            #endif
 
             return layer_names_;
         }

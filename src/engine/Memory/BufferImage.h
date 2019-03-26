@@ -10,8 +10,6 @@
 
 struct ImageProps
 {
-    uint32_t                width{};
-    uint32_t                height{};
     vk::Format              format = vk::Format::eUndefined;
     vk::ImageTiling         tiling{};
     vk::ImageUsageFlags     usage{};
@@ -43,9 +41,10 @@ namespace Engine
             vk::ImageView 	    view    = nullptr;
             vk::Format          format;
 
-            BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, vk::Image image_ptr = {});
+            BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, const vk::Image& image_ptr = nullptr);
 
-            explicit BufferImage(const struct ImageProps& img_props, vk::Image image = {}) : BufferImage({}, img_props, image) {}
+            explicit BufferImage(const struct ImageProps& img_props, const vk::Image& image_ptr = nullptr) :
+                BufferImage({}, img_props, image_ptr) {}
 
             ~BufferImage();
 

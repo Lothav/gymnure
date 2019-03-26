@@ -8,7 +8,7 @@ namespace Engine
 {
     namespace Memory
     {
-        BufferImage::BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, vk::Image image_ptr)
+        BufferImage::BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, const vk::Image& image_ptr)
         {
             this->img_pros_  = img_props;
             this->mem_props_ = memory_pro;
@@ -42,11 +42,13 @@ namespace Engine
 
         vk::Image BufferImage::createImage()
         {
+            auto app_data = ApplicationData::data;
+
             // Create Image
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType 	= vk::ImageType::e2D;
-            imageInfo.extent.width 	= img_pros_.width;
-            imageInfo.extent.height = img_pros_.height;
+            imageInfo.extent.width 	= app_data->view_width;
+            imageInfo.extent.height = app_data->view_height;
             imageInfo.extent.depth 	= 1;
             imageInfo.mipLevels 	= 1;
             imageInfo.arrayLayers 	= 1;
@@ -57,7 +59,8 @@ namespace Engine
             imageInfo.samples 		= vk::SampleCountFlagBits::e1;
             imageInfo.sharingMode 	= vk::SharingMode::eExclusive;
 
-            auto device = ApplicationData::data->device;
+            vk::Device device = app_data->device;
+
             vk::Image image = device.createImage(imageInfo);
 
             // Allocate Image Memory
