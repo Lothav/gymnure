@@ -19,16 +19,16 @@ namespace Engine
 
 		public:
 
-			glm::mat4 model;
-			glm::mat4 view;
-			glm::mat4 projection;
+			glm::mat4 model{};
+			glm::mat4 view{};
+			glm::mat4 projection{};
 
             explicit UniformBuffer()
 			{
                 struct BufferData buffer_data = {};
                 buffer_data.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
                 buffer_data.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-                buffer_data.size       = 3;
+                buffer_data.count      = 3;
 
             	buffer_  = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
 				zoom 	 = -7.0f;
@@ -102,6 +102,5 @@ namespace Engine
 		};
 	}
 }
-
 
 #endif //OBSIDIAN2D_CORE_UNIFORM_BUFFER_H

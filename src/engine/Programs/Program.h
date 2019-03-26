@@ -24,7 +24,7 @@ namespace Engine
     {
         struct ProgramData
         {
-            Descriptors::Texture  texture         = {};
+            Descriptors::Texture* texture         = {};
             Vertex::VertexBuffer* vertex_buffer   = nullptr;
             vk::DescriptorPool    descriptor_pool = nullptr;
             vk::DescriptorSet     descriptor_set  = nullptr;
@@ -52,8 +52,7 @@ namespace Engine
                 for(auto &d : data) {
                     vkDestroyDescriptorPool(device, d->descriptor_pool, nullptr);
                     delete d->vertex_buffer;
-                    delete d->texture.buffer;
-                    vkDestroySampler(device, d->texture.sampler, nullptr);
+                    delete d->texture;
                 }
             }
 

@@ -15,6 +15,7 @@ int main(int argc, char** argv)
 
         auto room2 = GymnureObjData{};
         room2.path_obj = "room.obj";
+        room2.path_texture = "room.png";
         gymnure->addObjData(default_id, room2);
 
 		//auto room3 = GymnureObjData{};

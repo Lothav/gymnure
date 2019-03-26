@@ -12,7 +12,7 @@ struct BufferData
 {
     vk::BufferUsageFlags  	usage;
 	vk::MemoryPropertyFlags properties;
-    size_t                  size;
+    size_t                  count;
 };
 
 namespace Engine
@@ -27,7 +27,7 @@ namespace Engine
 
 			vk::DeviceMemory mem{};
             vk::Buffer buf{};
-            size_t size;
+            size_t count;
 
 		public:
 
@@ -36,11 +36,11 @@ namespace Engine
                 auto device = ApplicationData::data->device;
 
                 // Backup buffer size
-                size = buffer_data.size;
+                count = buffer_data.count;
 
                 // Create Buffer
                 vk::BufferCreateInfo bufferInfo = {};
-                bufferInfo.size 				 = buffer_data.size * sizeof(T);
+                bufferInfo.size 				 = buffer_data.count * sizeof(T);
                 bufferInfo.usage 				 = buffer_data.usage;
                 bufferInfo.queueFamilyIndexCount = 0;
                 bufferInfo.pQueueFamilyIndices 	 = nullptr;
@@ -74,7 +74,7 @@ namespace Engine
 
 			size_t getSize() const
 			{
-			    return size * sizeof(T);
+			    return count * sizeof(T);
 			}
 
 			void* operator new(std::size_t size)
@@ -87,19 +87,23 @@ namespace Engine
 				// Do not free memory here!
 			}
 
-            void updateBuffer(std::vector<T, std::allocator<T>> data)
+            void updateBuffer(T* data)
             {
-                if (data.size() != size)
-                    Debug::logError("Invalid data size! Allocate buffer size: " + std::to_string(size) + ".");
-
                 auto device = ApplicationData::data->device;
-
-                size_t data_size = data.size() * sizeof(T);
+                size_t data_size = getSize();
 
                 void* buffer_address_ = nullptr;
                 buffer_address_ = device.mapMemory(this->mem, 0, data_size);
-                memcpy(buffer_address_, data.data(), data_size);
+                memcpy(buffer_address_, data, data_size);
                 device.unmapMemory(this->mem);
+            }
+
+            void updateBuffer(std::vector<T, std::allocator<T>> data)
+            {
+                if (data.size() != count)
+                    Debug::logErrorAndDie("Invalid data size! Allocate buffer size: " + std::to_string(getSize()) + ".");
+
+                updateBuffer(data.data());
 			}
         };
 	}

@@ -41,7 +41,7 @@ namespace Engine
                 frag.type = vk::ShaderStageFlagBits::eFragment;
                 frag.path = "default.frag.spv";
 
-                descriptor_set = new Descriptors::DescriptorSet(0);
+                descriptor_set = new Descriptors::DescriptorSet(1);
                 graphic_pipeline = new GraphicsPipeline::GraphicsPipeline({vert, frag});
 
                 descriptor_set->create();
@@ -78,7 +78,7 @@ namespace Engine
                 program_data->descriptor_set  = descriptor_set->createDescriptorSet(program_data->descriptor_pool);
 
                 if(!obj_data.path_texture.empty())
-                    program_data->texture = descriptor_set->getTextelBuffer(obj_data.path_texture, queue_);
+                    program_data->texture = new Descriptors::Texture(obj_data.path_texture, queue_);
 
                 // Load Vertex
                 program_data->vertex_buffer = new Vertex::VertexBuffer();

@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include <iostream>
-#include "Descriptors/Textures.h"
+#include "Descriptors/Texture.hpp"
 #include "Memory/BufferImage.h"
 #include <vector>
 #include <Util/Debug.hpp>

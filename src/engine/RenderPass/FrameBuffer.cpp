@@ -35,6 +35,8 @@ namespace Engine
                 throw "Cannot find an optimal valid Depth format!";
 
             struct ImageProps img_props = {};
+            img_props.width         = app_data->view_width;
+            img_props.height        = app_data->view_height;
             img_props.format 		= depth_format_;
             img_props.tiling 		= vk::ImageTiling::eOptimal;
             img_props.aspectMask 	= vk::ImageAspectFlagBits::eDepth;

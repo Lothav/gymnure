@@ -69,6 +69,8 @@ namespace Engine
             for (uint32_t i = 0; i < image_count_; i++)
             {
                 ImageProps img_props = {};
+                img_props.width       = app_data->view_width;
+                img_props.height      = app_data->view_height;
                 img_props.format 	  = format_;
                 img_props.aspectMask  = vk::ImageAspectFlagBits::eColor;
                 img_props.component.r = vk::ComponentSwizzle::eR;
@@ -166,7 +168,7 @@ namespace Engine
             // Generate error if could not find queues that support graphics
             // and present
             if (graphics_queue_family_index_ == UINT32_MAX || present_queue_family_index_ == UINT32_MAX) {
-                Debug::logError("Could not find a queues for both graphics and present");
+                Debug::logErrorAndDie("Could not find a queues for both graphics and present");
             }
 
             graphics_queue_ = app_data->device.getQueue(graphics_queue_family_index_, 0);

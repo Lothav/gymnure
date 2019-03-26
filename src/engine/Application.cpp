@@ -51,8 +51,6 @@ namespace Engine
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
         delete command_buffer;
         app_data->device.destroyCommandPool(app_data->graphic_command_pool, nullptr);
-        for(auto &texture_image_mem : Descriptors::Textures::textureImageMemory)
-            app_data->device.freeMemory(texture_image_mem, nullptr);
         app_data->device.destroy();
         Debug::destroy();
         app_data->instance.destroy();

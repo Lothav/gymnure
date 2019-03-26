@@ -25,10 +25,10 @@ namespace Engine
                 error_message << "Something went wrong."<< std::endl;                                               \
                 error_message << "Error code: " << e.code() << std::endl;                                           \
                 error_message << "Error message: " << e.what() << std::endl;                                        \
-                Engine::Debug::logError(error_message.str());                                                       \
+                Engine::Debug::logErrorAndDie(error_message.str());                                                 \
                 exit(-1);                                                                                           \
             } catch(...) {                                                                                          \
-                Engine::Debug::logError("Unknown error.");                                                          \
+                Engine::Debug::logErrorAndDie("Unknown error.");                                                    \
             }
 
         #ifdef PRINT_TIME_SPENT
@@ -69,7 +69,7 @@ namespace Engine
         #endif
         };
 
-        static inline void logError(const std::string &log_msg)
+        static inline void logErrorAndDie(const std::string &log_msg)
         {
         #ifdef DEBUG
             throw log_msg;

@@ -19,7 +19,7 @@ namespace Engine
             auto app_data = ApplicationData::data;
 
             // Set Layout Bindings
-            layout_bindings_.resize(1 + texture_count_);
+            layout_bindings_.resize(1 + (texture_count_ > 0 ? 1 : 0));
 
             layout_bindings_[0].binding 					 = 0;
             layout_bindings_[0].descriptorType 				 = vk::DescriptorType::eUniformBuffer;
@@ -58,46 +58,7 @@ namespace Engine
             uniform_buffer_->initModelView(app_data->view_width, app_data->view_height);
         }
 
-        Texture DescriptorSet::getTextelBuffer(const std::string& texture_path, vk::Queue queue)
-        {
-            struct ImageProps img_props = {};
-            img_props.format     = vk::Format::eR8G8B8A8Unorm;
-            img_props.aspectMask = vk::ImageAspectFlagBits::eColor;
-
-            vk::Image texture_image = nullptr;
-            if(!texture_path.empty()) {
-                texture_image = Textures::createTextureImage(texture_path, queue);
-
-                if(nullptr != texture_image) {
-
-                    vk::SamplerCreateInfo sampler_ = {};
-                    sampler_.maxAnisotropy 		= 1.0f;
-                    sampler_.magFilter 			= vk::Filter::eLinear;
-                    sampler_.minFilter 			= vk::Filter::eLinear;
-                    sampler_.mipmapMode 		= vk::SamplerMipmapMode::eLinear;
-                    sampler_.addressModeU 		= vk::SamplerAddressMode::eRepeat;
-                    sampler_.addressModeV 		= vk::SamplerAddressMode::eRepeat;
-                    sampler_.addressModeW 		= vk::SamplerAddressMode::eRepeat;
-                    sampler_.mipLodBias 		= 0.0f;
-                    sampler_.compareOp 			= vk::CompareOp::eNever;
-                    sampler_.minLod 			= 0.0f;
-                    sampler_.maxLod 			= 0.0f;
-                    sampler_.maxAnisotropy 		= 1.0;
-                    sampler_.anisotropyEnable 	= VK_FALSE;
-                    sampler_.borderColor 		= vk::BorderColor::eFloatOpaqueWhite;
-
-                    return Texture
-                    {
-                        .buffer  = new Memory::BufferImage(img_props, texture_image),
-                        .sampler = ApplicationData::data->device.createSampler(sampler_)
-                    };
-                }
-            }
-
-            throw "Fail to create Texture!";
-        }
-
-        void DescriptorSet::updateDescriptorSet(Texture texture, vk::DescriptorSet desc_set)
+        void DescriptorSet::updateDescriptorSet(Texture* texture, vk::DescriptorSet desc_set)
         {
             std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
 
@@ -105,17 +66,18 @@ namespace Engine
                 writes.push_back(uniform_buffer_->getWrite(desc_set));
 
             if (texture_count_ > 0) {
-                vk::DescriptorImageInfo texture_info = {};
-                texture_info.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-                texture_info.imageView 	 = texture.buffer->view;
-                texture_info.sampler 	 = texture.sampler;
+
+                vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
+                texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+                texture_info->imageView   = texture->getImageView();
+                texture_info->sampler 	  = texture->getSampler();
 
                 vk::WriteDescriptorSet write = {};
                 write.dstArrayElement 	 = 0;
                 write.descriptorCount 	 = 1;
                 write.descriptorType 	 = vk::DescriptorType::eCombinedImageSampler;
                 write.dstBinding 		 = 1;
-                write.pImageInfo 		 = &texture_info;
+                write.pImageInfo 		 = texture_info;
                 write.dstSet 			 = desc_set;
                 writes.push_back(write);
             }
@@ -128,7 +90,7 @@ namespace Engine
         {
             std::vector<vk::DescriptorPoolSize> poolSizes = {};
 
-            poolSizes.resize(1 + texture_count_);
+            poolSizes.resize(1 + (texture_count_ > 0 ? 1 : 0));
             poolSizes[0].type = vk::DescriptorType::eUniformBuffer;
             poolSizes[0].descriptorCount = 1;
 

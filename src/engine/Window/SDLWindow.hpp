@@ -45,7 +45,7 @@ namespace Engine
                 SDL_VERSION(&info.version);   // initialize info structure with SDL version info
                 if(!SDL_GetWindowWMInfo(window_, &info))
                 {
-                    Debug::logError(std::string("Couldn't get window information: ") + SDL_GetError());
+                    Debug::logErrorAndDie(std::string("Couldn't get window information: ") + SDL_GetError());
                 }
 
                 uint32_t extensions_count = 0;
@@ -116,7 +116,7 @@ namespace Engine
             {
                 VkSurfaceKHR temp_surf;
                 if (SDL_Vulkan_CreateSurface(window_, ApplicationData::data->instance, &temp_surf) == SDL_bool::SDL_FALSE)
-                    Debug::logError(std::string("Failed to create Vulkan surface: ") + SDL_GetError());
+                    Debug::logErrorAndDie(std::string("Failed to create Vulkan surface: ") + SDL_GetError());
 
                 ApplicationData::data->surface = temp_surf;
             }

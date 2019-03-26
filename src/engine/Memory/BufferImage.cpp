@@ -8,7 +8,7 @@ namespace Engine
 {
     namespace Memory
     {
-        BufferImage::BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, const vk::Image& image_ptr)
+        BufferImage::BufferImage(const struct MemoryProps& memory_pro, const struct ImageProps& img_props, const vk::Image& image_ptr, bool create_image_view)
         {
             this->img_pros_  = img_props;
             this->mem_props_ = memory_pro;
@@ -16,19 +16,22 @@ namespace Engine
 
             image = image_ptr ? image_ptr : createImage();
 
-            // Create Imageview
-            vk::ImageViewCreateInfo viewInfo = {};
-            viewInfo.image 								= this->image;
-            viewInfo.viewType 							= vk::ImageViewType::e2D;
-            viewInfo.format 							= this->format;
-            viewInfo.components                         = this->img_pros_.component;
-            viewInfo.subresourceRange.aspectMask 		= this->img_pros_.aspectMask;
-            viewInfo.subresourceRange.baseMipLevel 		= 0;
-            viewInfo.subresourceRange.levelCount 		= 1;
-            viewInfo.subresourceRange.baseArrayLayer 	= 0;
-            viewInfo.subresourceRange.layerCount 		= 1;
+            // Create Image View
+            if(create_image_view) {
 
-            DEBUG_CALL(this->view = ApplicationData::data->device.createImageView(viewInfo));
+                vk::ImageViewCreateInfo viewInfo = {};
+                viewInfo.image 							 = this->image;
+                viewInfo.viewType 						 = vk::ImageViewType::e2D;
+                viewInfo.format 						 = img_props.format;
+                viewInfo.components                      = img_props.component;
+                viewInfo.subresourceRange.aspectMask 	 = img_props.aspectMask;
+                viewInfo.subresourceRange.baseMipLevel 	 = 0;
+                viewInfo.subresourceRange.levelCount 	 = 1;
+                viewInfo.subresourceRange.baseArrayLayer = 0;
+                viewInfo.subresourceRange.layerCount 	 = 1;
+
+                DEBUG_CALL(this->view = ApplicationData::data->device.createImageView(viewInfo));
+            }
         }
 
         BufferImage::~BufferImage()
@@ -47,8 +50,8 @@ namespace Engine
             // Create Image
             vk::ImageCreateInfo imageInfo = {};
             imageInfo.imageType 	= vk::ImageType::e2D;
-            imageInfo.extent.width 	= app_data->view_width;
-            imageInfo.extent.height = app_data->view_height;
+            imageInfo.extent.width 	= img_pros_.width;
+            imageInfo.extent.height = img_pros_.height;
             imageInfo.extent.depth 	= 1;
             imageInfo.mipLevels 	= 1;
             imageInfo.arrayLayers 	= 1;

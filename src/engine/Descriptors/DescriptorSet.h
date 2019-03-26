@@ -10,17 +10,13 @@
 #include <ApplicationData.hpp>
 #include <Util/Debug.hpp>
 #include "Descriptors/UniformBuffer.h"
-#include "Descriptors/Textures.h"
+#include "Descriptors/Texture.hpp"
 #include "Memory/BufferImage.h"
 
 namespace Engine
 {
     namespace Descriptors
     {
-        struct Texture {
-            Memory::BufferImage*    buffer  = nullptr;
-            vk::Sampler             sampler = nullptr;
-        };
 
         class DescriptorSet
         {
@@ -52,8 +48,7 @@ namespace Engine
             }
 
             void create();
-            Texture getTextelBuffer(const std::string& texture_path, vk::Queue queue);
-            void updateDescriptorSet(Texture texture, vk::DescriptorSet desc_set);
+            void updateDescriptorSet(Texture* texture, vk::DescriptorSet desc_set);
             vk::DescriptorPool createDescriptorPool();
             vk::DescriptorSet createDescriptorSet(vk::DescriptorPool desc_pool);
             vk::PipelineLayout getPipelineLayout() const;
