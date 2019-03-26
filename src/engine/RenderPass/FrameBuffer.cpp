@@ -34,7 +34,7 @@ namespace Engine
             mem_props.props_flags   = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
             // Create Depth Buffer
-            //depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
+            depth_buffer_ = std::make_unique<Memory::BufferImage>(mem_props, img_props);
         }
 
         FrameBuffer::~FrameBuffer()
