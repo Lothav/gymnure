@@ -40,7 +40,7 @@ namespace Engine
             // Do not free memory here!
         }
 
-        void bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::RenderPass* render_pass, uint32_t width, uint32_t height);
+        void bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::FrameBuffer* frame_buffer, uint32_t width, uint32_t height);
 
         std::vector<vk::CommandBuffer> getCommandBuffers();
 

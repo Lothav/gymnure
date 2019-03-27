@@ -7,6 +7,7 @@
 
 #include <memory>
 #include "RenderPass/Swapchain.h"
+#include "RenderPass.h"
 
 namespace Engine
 {
@@ -16,10 +17,11 @@ namespace Engine
 
 		private:
 
-			std::unique_ptr<Memory::BufferImage> depth_buffer_;
-			std::shared_ptr<SwapChain> 			 swap_chain_;
-
 			std::vector<vk::Framebuffer>  		 frame_buffers_;
+
+			std::shared_ptr<SwapChain> 			 swap_chain_;
+			std::shared_ptr<RenderPass>			 render_pass_;
+			std::unique_ptr<Memory::BufferImage> depth_buffer_;
 			vk::Format 					 		 depth_format_ = vk::Format::eUndefined;
 
 		public:
@@ -38,13 +40,14 @@ namespace Engine
 				// Do not free memory here!
 			}
 
-			void createFrameBuffer(vk::RenderPass render_pass);
-
+			uint32_t getImageCount() const;
 			const vk::Format getDepthBufferFormat() const;
-
-			std::shared_ptr<SwapChain> getSwapChain();
-
-			std::vector<vk::Framebuffer> getFrameBuffers();
+			std::shared_ptr<SwapChain> getSwapChain() const;
+			vk::RenderPass getRenderPass() const
+			{
+				return render_pass_->getRenderPass();
+			}
+			std::vector<vk::Framebuffer> getFrameBuffers() const;
 
 		};
 	}

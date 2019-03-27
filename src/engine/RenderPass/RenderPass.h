@@ -6,7 +6,8 @@
 #define OBSIDIAN2D_RENDERPASS_H
 
 #include <array>
-#include "RenderPass/FrameBuffer.h"
+#include <vulkan/vulkan.hpp>
+#include <memancpp/Provider.hpp>
 
 struct rpAttachments
 {
@@ -18,15 +19,15 @@ namespace Engine
 {
 	namespace RenderPass
 	{
-		class RenderPass : public FrameBuffer {
+		class RenderPass {
 
 		private:
 
-			vk::RenderPass _render_pass{};
+			vk::RenderPass render_pass_{};
 
 		public:
 
-			RenderPass() : FrameBuffer() {}
+            RenderPass(std::vector<struct rpAttachments> att_vector);
 
 			~RenderPass();
 
@@ -39,8 +40,6 @@ namespace Engine
 			{
 				// Do not free memory here!
 			}
-
-			void create(std::vector<struct rpAttachments> att_vector);
 
 			vk::RenderPass getRenderPass() const;
 		};

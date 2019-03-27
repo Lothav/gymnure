@@ -3,6 +3,7 @@
 
 #include <SyncPrimitives/SyncPrimitives.h>
 #include <RenderPass/RenderPass.h>
+#include <RenderPass/FrameBuffer.h>
 #include "CommandBuffers.h"
 
 #define APP_NAME "Gymnure"
@@ -16,7 +17,7 @@ namespace Engine
         static SyncPrimitives::SyncPrimitives* 		    sync_primitives;
         static CommandBuffers*                          command_buffer;
         static std::vector<Programs::Program*>          programs;
-        static RenderPass::RenderPass* 				    render_pass;
+        static RenderPass::FrameBuffer* 				frame_buffer;
 
         static uint32_t 								current_buffer_;
 

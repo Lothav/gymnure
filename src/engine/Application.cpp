@@ -11,7 +11,7 @@ namespace Engine
     SyncPrimitives::SyncPrimitives* Application::sync_primitives = nullptr;
     CommandBuffers*                 Application::command_buffer = nullptr;
     uint32_t 						Application::current_buffer_ = 0;
-    RenderPass::RenderPass* 		Application::render_pass = nullptr;
+    RenderPass::FrameBuffer* 		Application::frame_buffer = nullptr;
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -46,7 +46,7 @@ namespace Engine
         for(auto &program: programs)
             delete program;
         delete sync_primitives;
-        delete render_pass;
+        delete frame_buffer;
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
         delete command_buffer;
@@ -61,7 +61,7 @@ namespace Engine
         vk::Result res = vk::Result::eNotReady;
 
         auto device = ApplicationData::data->device;
-        auto swapchainKHR = render_pass->getSwapChain()->getSwapChainKHR();
+        auto swapchainKHR = frame_buffer->getSwapChain()->getSwapChainKHR();
 
         DEBUG_CALL(
             std::tie(res, current_buffer_) = device.acquireNextImageKHR(
@@ -89,7 +89,7 @@ namespace Engine
         submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
         submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
 
-        DEBUG_CALL(render_pass->getSwapChain()->getGraphicQueue().submit({submit_info}, current_buffer_fence));
+        DEBUG_CALL(frame_buffer->getSwapChain()->getGraphicQueue().submit({submit_info}, current_buffer_fence));
 
         vk::PresentInfoKHR present = {};
         present.pNext 				  = nullptr;
@@ -105,14 +105,14 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        DEBUG_CALL(render_pass->getSwapChain()->getGraphicQueue().presentKHR(&present));
+        DEBUG_CALL(frame_buffer->getSwapChain()->getGraphicQueue().presentKHR(&present));
 
         DEBUG_CALL(device.waitIdle());
     }
 
     void Application::prepare()
     {
-        command_buffer->bindGraphicCommandBuffer(programs, render_pass, ApplicationData::data->view_width, ApplicationData::data->view_height);
+        command_buffer->bindGraphicCommandBuffer(programs, frame_buffer, ApplicationData::data->view_width, ApplicationData::data->view_height);
     }
 
     void Application::setupSurface(const uint32_t width, const uint32_t height)
@@ -204,30 +204,16 @@ namespace Engine
         app_data->view_width  = width;
         app_data->view_height = height;
 
-        // Init Render Pass
-        render_pass = new RenderPass::RenderPass();
-
-        std::vector<struct rpAttachments> rp_attachments = {};
-
-        struct rpAttachments attch = {};
-
-        attch.format = render_pass->getSwapChain()->getSwapChainFormat();
-        attch.clear  = true;
-        rp_attachments.push_back(attch);
-
-        attch.format = render_pass->getDepthBufferFormat();
-        attch.clear  = true;
-        rp_attachments.push_back(attch);
-
-        render_pass->create(rp_attachments);
+        // Init Frame Buffer
+        frame_buffer = new RenderPass::FrameBuffer();
 
         // Init Sync Primitives
         sync_primitives = new SyncPrimitives::SyncPrimitives();
         sync_primitives->createSemaphore();
-        sync_primitives->createFences(render_pass->getSwapChain()->getImageCount());
+        sync_primitives->createFences(frame_buffer->getImageCount());
 
         // Init Command Buffers
-        command_buffer = new CommandBuffers(render_pass->getSwapChain()->getImageCount());
+        command_buffer = new CommandBuffers(frame_buffer->getImageCount());
     }
 
     void Application::addObjData(uint program_id, const GymnureObjData& data)
@@ -239,8 +225,8 @@ namespace Engine
 
     uint Application::createPhongProgram()
     {
-        auto program = new Programs::Phong(render_pass->getSwapChain()->getGraphicQueue());
-        program->init(render_pass->getRenderPass());
+        auto program = new Programs::Phong(frame_buffer->getSwapChain()->getGraphicQueue());
+        program->init(frame_buffer->getRenderPass());
 
         programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);
@@ -248,8 +234,8 @@ namespace Engine
 
     uint Application::createSkyboxProgram()
     {
-        auto program = new Programs::Skybox(render_pass->getSwapChain()->getGraphicQueue());
-        program->init(render_pass->getRenderPass());
+        auto program = new Programs::Skybox(frame_buffer->getSwapChain()->getGraphicQueue());
+        program->init(frame_buffer->getRenderPass());
 
         programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);
@@ -257,8 +243,8 @@ namespace Engine
 
     uint Application::createDefaultProgram()
     {
-        auto program = new Programs::Default(render_pass->getSwapChain()->getGraphicQueue());
-        program->init(render_pass->getRenderPass());
+        auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue());
+        program->init(frame_buffer->getRenderPass());
 
         programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);

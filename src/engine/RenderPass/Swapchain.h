@@ -24,7 +24,7 @@ namespace Engine
 			vk::SwapchainKHR  					swap_chain_ = nullptr;
 			vk::Queue 							graphics_queue_{}, present_queue_{};
 			vk::Format 							format_;
-			vk::ColorSpaceKHR						colorSpace_;
+			vk::ColorSpaceKHR					colorSpace_;
 
 			std::vector<std::unique_ptr<Memory::BufferImage>> 	swap_chain_buffer_ = {};
 

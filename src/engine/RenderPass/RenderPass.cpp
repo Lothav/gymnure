@@ -2,6 +2,7 @@
 // Created by luizorv on 9/3/17.
 //
 
+#include <ApplicationData.hpp>
 #include "RenderPass.h"
 
 namespace Engine
@@ -10,10 +11,10 @@ namespace Engine
     {
         RenderPass::~RenderPass()
         {
-            vkDestroyRenderPass(ApplicationData::data->device, _render_pass, nullptr);
+            vkDestroyRenderPass(ApplicationData::data->device, render_pass_, nullptr);
         }
 
-        void RenderPass::create(std::vector<struct rpAttachments> att_vector)
+        RenderPass::RenderPass(std::vector<struct rpAttachments> att_vector)
         {
             std::array<vk::AttachmentDescription, 2> attachments = {};
             attachments[0].format 						= att_vector[0].format;
@@ -81,13 +82,12 @@ namespace Engine
             rp_info.dependencyCount 					= dependencies.size();
             rp_info.pDependencies 						= dependencies.data();
 
-            _render_pass = ApplicationData::data->device.createRenderPass(rp_info);
-            this->createFrameBuffer(_render_pass);
+            render_pass_ = ApplicationData::data->device.createRenderPass(rp_info);
         }
 
         vk::RenderPass RenderPass::getRenderPass() const
         {
-            return _render_pass;
+            return render_pass_;
         }
     }
 }

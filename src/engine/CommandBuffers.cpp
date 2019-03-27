@@ -1,3 +1,4 @@
+#include <RenderPass/FrameBuffer.h>
 #include "CommandBuffers.h"
 
 namespace Engine
@@ -22,10 +23,10 @@ namespace Engine
                                             static_cast<uint32_t>(command_buffers_.size()), command_buffers_.data());
     }
 
-    void CommandBuffers::bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::RenderPass* render_pass, uint32_t width, uint32_t height)
+    void CommandBuffers::bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::FrameBuffer* frame_buffer, uint32_t width, uint32_t height)
     {
-        auto frame_buffers = render_pass->getFrameBuffers();
-        auto image_count = render_pass->getSwapChain()->getImageCount();
+        auto frame_buffers = frame_buffer->getFrameBuffers();
+        auto image_count = frame_buffer->getImageCount();
 
         if(frame_buffers.size() != image_count) assert(false);
 
@@ -41,7 +42,7 @@ namespace Engine
 
         vk::RenderPassBeginInfo rp_begin = {};
         rp_begin.pNext 				= nullptr;
-        rp_begin.renderPass 		= render_pass->getRenderPass();
+        rp_begin.renderPass 		= frame_buffer->getRenderPass();
         rp_begin.renderArea.offset 	= vk::Offset2D{0, 0};
         rp_begin.renderArea.extent  = vk::Extent2D{width, height};
         rp_begin.clearValueCount 	= 2;
