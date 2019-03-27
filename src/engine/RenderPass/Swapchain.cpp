@@ -212,7 +212,7 @@ namespace Engine
             for(short i = 0; i < presentation_modes_count; i++) {
                 // Use MailBox if supported
                 if (presentation_modes[i] == vk::PresentModeKHR::eMailbox) {
-                    //swapchainPresentMode = presentation_modes[i];
+                    swapchainPresentMode = presentation_modes[i];
                     break;
                 }
             }
