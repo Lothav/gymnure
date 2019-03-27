@@ -90,9 +90,9 @@ namespace Engine
 
             std::array<vk::PipelineColorBlendAttachmentState, 1> att_state = {};
             att_state[0].colorWriteMask 			= vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB;
-            att_state[0].blendEnable 				= VK_FALSE;
-            att_state[0].srcColorBlendFactor        = vk::BlendFactor::eZero;
-            att_state[0].dstColorBlendFactor        = vk::BlendFactor::eZero;
+            att_state[0].blendEnable 				= VK_TRUE;
+            att_state[0].srcColorBlendFactor        = vk::BlendFactor::eSrcAlpha;
+            att_state[0].dstColorBlendFactor        = vk::BlendFactor::eOneMinusSrcAlpha;
             att_state[0].colorBlendOp               = vk::BlendOp::eAdd;
             att_state[0].alphaBlendOp               = vk::BlendOp::eAdd;
             att_state[0].srcAlphaBlendFactor        = vk::BlendFactor::eZero;

@@ -1,6 +1,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include <Util/Debug.hpp>
+#include <unordered_map>
 #include "tinyobjloader/tiny_obj_loader.h"
 
 #include "VertexBuffer.h"
@@ -58,20 +59,21 @@ namespace Engine
             std::vector<VertexData> vertexBuffer =
             {
                 //     POSITION              UV              NORMAL
-                { { 1.0f,  1.0f, 0.0f}, {1.0f, 1.0f} /*, {0.0f, 0.0f, -1.0f}*/ },
-                { {-1.0f,  1.0f, 0.0f}, {1.0f, 1.0f} /*, {0.0f, 0.0f, -1.0f}*/ },
-                { { 0.0f, -1.0f, 0.0f}, {1.0f, 1.0f} /*, {0.0f, 0.0f, -1.0f}*/ }
+                { { 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f} /*, {0.0f, 0.0f, -1.0f}*/ },
+                { {-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f} /*, {0.0f, 0.0f, -1.0f}*/ },
+                { { 0.0f, -1.0f, 0.0f}, {0.5f, 1.0f} /*, {0.0f, 0.0f, -1.0f}*/ }
             };
 
             // Setup indices
             std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
 
-            this->initBuffers(vertexBuffer);
+            this->initBuffers(vertexBuffer, indexBuffer);
         }
 
         void VertexBuffer::loadObjModelVertices(const std::string &model_path, const std::string& obj_mtl)
         {
             std::vector <VertexData> vertex_data = {};
+            std::vector <uint32_t> index_data = {};
 
             auto assets_model_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + model_path;
             auto assets_obj_mtl    = std::string(ASSETS_FOLDER_PATH_STR) + "/" + obj_mtl;
@@ -87,34 +89,44 @@ namespace Engine
                 throw std::runtime_error(err);
             }
 
+            std::unordered_map<VertexData, uint32_t> uniqueVertices = {};
+
             for (const auto &shape : shapes) {
                 for (const auto &index : shape.mesh.indices) {
-                    struct VertexData vertex =
-                        {
-                            {
-                                attrib.vertices[3 * index.vertex_index + 0],
-                                attrib.vertices[3 * index.vertex_index + 1],
-                                attrib.vertices[3 * index.vertex_index + 2]
-                            },
-                            {
-                                !attrib.texcoords.empty() ? attrib.texcoords[2 * index.texcoord_index + 0] : 1.0f,
-                                !attrib.texcoords.empty() ? 1.0f - attrib.texcoords[2 * index.texcoord_index + 1] : 1.0f
-                            }/*,
-                            {
-                                index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 0] : 1.0f,
-                                index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 1] : 1.0f,
-                                index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 2] : 1.0f
-                            }*/
 
-                        };
+                    glm::vec3 pos = {
+                        attrib.vertices[3 * index.vertex_index + 0],
+                        attrib.vertices[3 * index.vertex_index + 1],
+                        attrib.vertices[3 * index.vertex_index + 2]
+                    };
 
-                    vertex_data.push_back(vertex);
+                    glm::vec2 uv = {
+                        !attrib.texcoords.empty() ? attrib.texcoords[2 * index.texcoord_index + 0] : 1.0f,
+                        !attrib.texcoords.empty() ? 1.0f - attrib.texcoords[2 * index.texcoord_index + 1] : 1.0f
+                    };
+
+                    glm::vec3 normal = {
+                        index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 0] : 1.0f,
+                        index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 1] : 1.0f,
+                        index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 2] : 1.0f
+                    };
+
+                    struct VertexData vertex = { pos, uv };
+
+                    if (uniqueVertices.count(vertex) == 0) {
+                        uniqueVertices[vertex] = static_cast<uint32_t>(vertex_data.size());
+                        vertex_data.push_back(vertex);
+                    }
+
+                    index_data.push_back(uniqueVertices[vertex]);
                 }
             }
 
-            this->initBuffers(vertex_data);
+            this->initBuffers(vertex_data, index_data);
 
-            Debug::logInfo(assets_model_path + " object loaded! Vertex count: " +  std::to_string(vertex_data.size()));
+            Debug::logInfo(assets_model_path + " object loaded! "
+                "Vertex count: " +  std::to_string(vertex_data.size()) + " / " +
+                "Index count: " +  std::to_string(index_data.size()) );
         }
     }
 }

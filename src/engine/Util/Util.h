@@ -29,12 +29,27 @@
 #include <memancpp/Provider.hpp>
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 
 struct VertexData
 {
-    glm::vec3 pos;
-    glm::vec2 uv;
+	glm::vec3 pos;
+	glm::vec2 uv;
 	//glm::vec3 normal;
+
+	bool operator ==(const VertexData& other) const
+	{
+		return pos == other.pos && uv == other.uv;
+	}
+};
+
+template<> struct std::hash<VertexData>
+{
+	size_t operator()(VertexData const& vertex) const
+	{
+		return std::hash<glm::vec3>()(vertex.pos) ^ (std::hash<glm::vec2>()(vertex.uv) << 1);
+	}
 };
 
 namespace Engine
