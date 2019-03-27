@@ -10,8 +10,6 @@ namespace Engine
 
             device.destroyPipelineLayout(pipeline_layout_);
             device.destroyDescriptorSetLayout(desc_layout_);
-
-            delete uniform_buffer_;
         }
 
         void DescriptorSet::create()
@@ -52,38 +50,6 @@ namespace Engine
             pPipelineLayoutCreateInfo.pSetLayouts            = &desc_layout_;
 
             pipeline_layout_ = app_data->device.createPipelineLayout(pPipelineLayoutCreateInfo);
-
-            //  Create Uniform Buffer
-            uniform_buffer_ = new UniformBuffer();
-            uniform_buffer_->initModelView(app_data->view_width, app_data->view_height);
-        }
-
-        void DescriptorSet::updateDescriptorSet(Texture* texture, vk::DescriptorSet desc_set)
-        {
-            std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
-
-            if(uniform_buffer_ != nullptr)
-                writes.push_back(uniform_buffer_->getWrite(desc_set));
-
-            if (texture_count_ > 0) {
-
-                vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
-                texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-                texture_info->imageView   = texture->getImageView();
-                texture_info->sampler 	  = texture->getSampler();
-
-                vk::WriteDescriptorSet write = {};
-                write.dstArrayElement 	 = 0;
-                write.descriptorCount 	 = 1;
-                write.descriptorType 	 = vk::DescriptorType::eCombinedImageSampler;
-                write.dstBinding 		 = 1;
-                write.pImageInfo 		 = texture_info;
-                write.dstSet 			 = desc_set;
-                writes.push_back(write);
-            }
-
-            if(!writes.empty())
-                ApplicationData::data->device.updateDescriptorSets(writes, {});
         }
 
         vk::DescriptorPool DescriptorSet::createDescriptorPool()
@@ -123,11 +89,6 @@ namespace Engine
         vk::PipelineLayout DescriptorSet::getPipelineLayout() const
         {
             return pipeline_layout_;
-        }
-
-        UniformBuffer* DescriptorSet::getUniformBuffer() const
-        {
-            return uniform_buffer_;
         }
     }
 }

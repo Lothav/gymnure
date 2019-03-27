@@ -28,15 +28,13 @@ namespace Engine
         auto frame_buffers = frame_buffer->getFrameBuffers();
         auto image_count = frame_buffer->getImageCount();
 
-        if(frame_buffers.size() != image_count) assert(false);
-
         vk::CommandBufferBeginInfo cmd_buf_info = {};
         cmd_buf_info.pNext 				= nullptr;
         cmd_buf_info.flags 				= vk::CommandBufferUsageFlagBits::eSimultaneousUse;
         cmd_buf_info.pInheritanceInfo 	= nullptr;
 
         vk::ClearValue clear_values[2];
-        std::array<float,4> clear_values_arr = { 0.2f, 0.8f, 0.2f, 1.0f };
+        std::array<float,4> clear_values_arr = { 0.4f, 0.4f, 0.4f, 1.0f };
         clear_values[0].color = vk::ClearColorValue(clear_values_arr);
         clear_values[1].depthStencil = vk::ClearDepthStencilValue{1.0f, 0u};
 

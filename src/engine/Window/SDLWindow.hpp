@@ -100,8 +100,8 @@ namespace Engine
                             }
 
                             for (auto program : programs) {
-                                auto uniform_buffer = program->descriptor_set->getUniformBuffer();
-                                uniform_buffer->zoomCamera(zoom);
+                                //auto uniform_buffer = program->descriptor_set->getUniformBuffer();
+                                //uniform_buffer->zoomCamera(zoom);
                             }
                             break;
                         }

@@ -35,13 +35,14 @@ namespace Engine
 
         protected:
 
-            vk::Queue                               queue_{};
+            vk::Queue                                   queue_{};
+            std::unique_ptr<Descriptors::UniformBuffer> uniform_buffer_ = nullptr;
 
         public:
 
-            Descriptors::DescriptorSet*             descriptor_set   = nullptr;
-            std::vector<ProgramData*>               data             = {};
-            GraphicsPipeline::GraphicsPipeline*     graphic_pipeline = nullptr;
+            Descriptors::DescriptorSet*                 descriptor_set   = nullptr;
+            std::vector<ProgramData*>                   data             = {};
+            GraphicsPipeline::GraphicsPipeline*         graphic_pipeline = nullptr;
 
             ~Program()
             {

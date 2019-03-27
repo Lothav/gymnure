@@ -28,10 +28,7 @@ namespace Engine
 
 			Texture(const std::string &texture_path, vk::Queue graphicQueue);
 
-			~Texture()
-			{
-				vkDestroySampler(ApplicationData::data->device, sampler_, nullptr);
-			}
+			~Texture();
 
 			void* operator new(std::size_t size)
 			{

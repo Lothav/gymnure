@@ -28,7 +28,6 @@ namespace Engine
                     vk::DescriptorSetLayoutBinding>>    layout_bindings_    = {};
             vk::DescriptorSetLayout 		            desc_layout_        = {};
             vk::PipelineLayout 						    pipeline_layout_    = nullptr;
-            Descriptors::UniformBuffer*                 uniform_buffer_     = nullptr;
 
             uint32_t                                    texture_count_      = 0;
 
@@ -48,11 +47,9 @@ namespace Engine
             }
 
             void create();
-            void updateDescriptorSet(Texture* texture, vk::DescriptorSet desc_set);
             vk::DescriptorPool createDescriptorPool();
             vk::DescriptorSet createDescriptorSet(vk::DescriptorPool desc_pool);
             vk::PipelineLayout getPipelineLayout() const;
-            UniformBuffer* getUniformBuffer() const;
         };
     }
 }

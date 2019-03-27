@@ -76,6 +76,11 @@ namespace Engine
             this->sampler_ = ApplicationData::data->device.createSampler(sampler_);
         }
 
+        Texture::~Texture()
+        {
+            vkDestroySampler(ApplicationData::data->device, sampler_, nullptr);
+        }
+
         vk::CommandBuffer Texture::beginSingleTimeCommands()
         {
             auto app_data = ApplicationData::data;
