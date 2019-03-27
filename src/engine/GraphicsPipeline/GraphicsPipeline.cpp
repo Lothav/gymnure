@@ -14,14 +14,14 @@ namespace Engine
     {
         GraphicsPipeline::GraphicsPipeline(const std::vector<Shader>& shaders)
         {
-            _shader_stages.resize(shaders.size());
+            shader_stages_.resize(shaders.size());
 
             // Set shader stages
             for (int i = 0; i < shaders.size(); ++i) {
-                _shader_stages[i].stage  = shaders[i].type;
-                _shader_stages[i].module = Util::Util::loadSPIRVShader(shaders[i].path);
-                _shader_stages[i].pName  = "main";
-                assert(_shader_stages[i].module);
+                shader_stages_[i].stage  = shaders[i].type;
+                shader_stages_[i].module = Util::Util::loadSPIRVShader(shaders[i].path);
+                shader_stages_[i].pName  = "main";
+                assert(shader_stages_[i].module);
             }
         }
 
@@ -29,46 +29,42 @@ namespace Engine
         {
             vk::Device device = ApplicationData::data->device;
 
-            device.destroyPipeline(_vk_pipeline);
-            device.destroyPipelineCache(_pipeline_cache);
+            device.destroyPipeline(pipeline_);
+            device.destroyPipelineCache(pipeline_cache_);
         }
 
         vk::Pipeline GraphicsPipeline::getPipeline() const
         {
-            return _vk_pipeline;
-        }
-
-        void GraphicsPipeline::addViAttributes(const vk::VertexInputAttributeDescription& vi_attr)
-        {
-            _vi_attributes.push_back(vi_attr);
+            return pipeline_;
         }
 
         void GraphicsPipeline::addViAttributes(const std::vector<vk::VertexInputAttributeDescription>& vi_attrs)
         {
-            for (auto& vi_attr: vi_attrs) _vi_attributes.push_back(vi_attr);
-        }
-
-        void GraphicsPipeline::setViBinding(vk::VertexInputBindingDescription vi_binding)
-        {
-            _vi_binding = vi_binding;
+            for (auto& vi_attr: vi_attrs)
+                vi_attributes_.push_back(vi_attr);
         }
 
         void GraphicsPipeline::create(vk::PipelineLayout pipeline_layout, vk::RenderPass render_pass, vk::CullModeFlagBits cull_mode)
         {
             vk::Device device = ApplicationData::data->device;
 
+            vk::VertexInputBindingDescription vi_binding = {};
+            vi_binding.binding 					    = 0;
+            vi_binding.inputRate 				    = vk::VertexInputRate::eVertex;
+            vi_binding.stride 					    = sizeof(VertexData);
+
             vk::PipelineVertexInputStateCreateInfo vi = {};
             vi.pNext 								= nullptr;
             vi.vertexBindingDescriptionCount 		= 1;
-            vi.pVertexBindingDescriptions 			= &_vi_binding;
-            vi.vertexAttributeDescriptionCount 		= static_cast<uint32_t>(_vi_attributes.size());
-            vi.pVertexAttributeDescriptions 		= _vi_attributes.data();
+            vi.pVertexBindingDescriptions 			= &vi_binding;
+            vi.vertexAttributeDescriptionCount 		= static_cast<uint32_t>(vi_attributes_.size());
+            vi.pVertexAttributeDescriptions 		= vi_attributes_.data();
 
             vk::PipelineCacheCreateInfo pipelineCache = {};
             pipelineCache.pNext 					= nullptr;
             pipelineCache.initialDataSize 			= 0;
             pipelineCache.pInitialData 				= nullptr;
-            _pipeline_cache = device.createPipelineCache(pipelineCache);
+            pipeline_cache_ = device.createPipelineCache(pipelineCache);
 
             vk::PipelineInputAssemblyStateCreateInfo ia = {};
             ia.pNext 								= nullptr;
@@ -169,14 +165,14 @@ namespace Engine
             pipeline_info.pDynamicState 			= &dynamicState;
             pipeline_info.pViewportState 			= &vp;
             pipeline_info.pDepthStencilState 		= &ds;
-            pipeline_info.pStages 					= this->_shader_stages.data();
-            pipeline_info.stageCount 				= static_cast<uint32_t>(this->_shader_stages.size());
+            pipeline_info.pStages 					= this->shader_stages_.data();
+            pipeline_info.stageCount 				= static_cast<uint32_t>(this->shader_stages_.size());
             pipeline_info.renderPass 				= render_pass;
             pipeline_info.subpass 					= 0;
 
-            _vk_pipeline = device.createGraphicsPipeline(_pipeline_cache, pipeline_info, nullptr);
+            pipeline_ = device.createGraphicsPipeline(pipeline_cache_, pipeline_info, nullptr);
 
-            for (auto &shader_stage : _shader_stages) {
+            for (auto &shader_stage : shader_stages_) {
                 device.destroyShaderModule(shader_stage.module, nullptr);
             }
         }

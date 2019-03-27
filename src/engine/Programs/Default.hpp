@@ -33,40 +33,45 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
-                auto vert = Engine::GraphicsPipeline::Shader{};
-                vert.type = vk::ShaderStageFlagBits::eVertex;
-                vert.path = "default.vert.spv";
+                // Create Descriptor Set
+                {
+                    descriptor_set = new Descriptors::DescriptorSet(1);
+                    descriptor_set->create();
+                }
 
-                auto frag = Engine::GraphicsPipeline::Shader{};
-                frag.type = vk::ShaderStageFlagBits::eFragment;
-                frag.path = "default.frag.spv";
+                // Create Graphics Pipeline
+                {
+                    {
+                        auto vert = Engine::GraphicsPipeline::Shader{};
+                        vert.type = vk::ShaderStageFlagBits::eVertex;
+                        vert.path = "default.vert.spv";
 
-                descriptor_set = new Descriptors::DescriptorSet(1);
-                graphic_pipeline = new GraphicsPipeline::GraphicsPipeline({vert, frag});
+                        auto frag = Engine::GraphicsPipeline::Shader{};
+                        frag.type = vk::ShaderStageFlagBits::eFragment;
+                        frag.path = "default.frag.spv";
 
-                descriptor_set->create();
+                        graphic_pipeline = new GraphicsPipeline::GraphicsPipeline({vert, frag});
+                    }
 
-                vk::VertexInputBindingDescription vi_binding = {};
-                vi_binding.binding 					= 0;
-                vi_binding.inputRate 				= vk::VertexInputRate::eVertex;
-                vi_binding.stride 					= sizeof(VertexData);
+                    {
+                        std::vector<vk::VertexInputAttributeDescription> vi_attribs;
+                        vi_attribs.resize(2);
 
-                std::vector<vk::VertexInputAttributeDescription> vi_attribs;
-                vi_attribs.resize(2);
+                        vi_attribs[0].binding 			    = 0;
+                        vi_attribs[0].location 			    = 0;
+                        vi_attribs[0].format 			    = vk::Format::eR32G32B32Sfloat;
+                        vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
 
-                vi_attribs[0].binding 			    = 0;
-                vi_attribs[0].location 			    = 0;
-                vi_attribs[0].format 			    = vk::Format::eR32G32B32Sfloat;
-                vi_attribs[0].offset 			    = static_cast<uint32_t>(offsetof(VertexData, pos));
+                        vi_attribs[1].binding 			    = 0;
+                        vi_attribs[1].location 			    = 1;
+                        vi_attribs[1].format 			    = vk::Format::eR32G32Sfloat;
+                        vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
 
-                vi_attribs[1].binding 			    = 0;
-                vi_attribs[1].location 			    = 1;
-                vi_attribs[1].format 			    = vk::Format::eR32G32Sfloat;
-                vi_attribs[1].offset 			    = static_cast<uint32_t>(offsetof(VertexData, uv));
+                        graphic_pipeline->addViAttributes(vi_attribs);
+                    }
 
-                graphic_pipeline->addViAttributes(vi_attribs);
-                graphic_pipeline->setViBinding(vi_binding);
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eNone);
+                    graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eNone);
+                }
             }
 
             void addObjData(const GymnureObjData& obj_data) override

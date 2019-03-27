@@ -25,13 +25,12 @@ namespace Engine
 
 		private:
 
-            vk::PipelineCache 						                _pipeline_cache{};
-			vk::Pipeline 								            _vk_pipeline{};
+            vk::PipelineCache 						                pipeline_cache_{};
+			vk::Pipeline 								            pipeline_{};
 			std::vector<vk::PipelineShaderStageCreateInfo,
 					mem::StdAllocator<
-					        vk::PipelineShaderStageCreateInfo>> 	_shader_stages;
-            vk::VertexInputBindingDescription                       _vi_binding{};
-            std::vector<vk::VertexInputAttributeDescription>        _vi_attributes;
+					        vk::PipelineShaderStageCreateInfo>> 	shader_stages_;
+            std::vector<vk::VertexInputAttributeDescription>        vi_attributes_;
 
 		public:
 
@@ -51,11 +50,7 @@ namespace Engine
 
 			vk::Pipeline getPipeline() const;
 
-			void addViAttributes(const vk::VertexInputAttributeDescription& vi_attr);
-
 			void addViAttributes(const std::vector<vk::VertexInputAttributeDescription>& vi_attrs);
-
-			void setViBinding(vk::VertexInputBindingDescription vi_binding);
 
 			void create(vk::PipelineLayout pipeline_layout, vk::RenderPass render_pass, vk::CullModeFlagBits cull_mode);
 
