@@ -176,15 +176,5 @@ namespace Engine
 
             endSingleTimeCommands(commandBuffer, graphicsQueue);
         }
-
-        vk::ImageView Texture::getImageView() const
-        {
-            return this->buffer_image_->view;
-        }
-
-        vk::Sampler Texture::getSampler() const
-        {
-            return this->sampler_;
-        }
     }
 }

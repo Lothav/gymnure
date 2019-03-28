@@ -40,9 +40,23 @@ namespace Engine
 				// Do not free memory here!
 			}
 
-			vk::ImageView getImageView() const;
+			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
+			{
+				vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
+				texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+				texture_info->imageView   = buffer_image_->view;
+				texture_info->sampler 	  = sampler_;
 
-			vk::Sampler getSampler() const;
+				vk::WriteDescriptorSet write = {};
+				write.dstArrayElement = 0;
+				write.descriptorCount = 1;
+				write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+				write.dstBinding 	  = dst_binding;
+				write.pImageInfo 	  = texture_info;
+				write.dstSet 		  = dst_set;
+
+				return write;
+			}
 
 		private:
 

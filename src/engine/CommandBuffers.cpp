@@ -25,12 +25,13 @@ namespace Engine
 
     void CommandBuffers::bindGraphicCommandBuffer(
         std::vector<std::shared_ptr<Programs::Program>> programs,
-        std::shared_ptr<RenderPass::FrameBuffer> frame_buffer,
-        uint32_t width,
-        uint32_t height)
+        std::shared_ptr<RenderPass::FrameBuffer> frame_buffer)
     {
         auto frame_buffers = frame_buffer->getFrameBuffers();
         auto image_count = frame_buffer->getImageCount();
+
+        uint32_t width = ApplicationData::data->view_width;
+        uint32_t height = ApplicationData::data->view_height;
 
         vk::CommandBufferBeginInfo cmd_buf_info = {};
         cmd_buf_info.pNext 				= nullptr;

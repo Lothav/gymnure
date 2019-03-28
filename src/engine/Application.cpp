@@ -111,7 +111,7 @@ namespace Engine
         for (auto &program : programs)
             program->prepare();
         
-        command_buffer->bindGraphicCommandBuffer(programs, frame_buffer, ApplicationData::data->view_width, ApplicationData::data->view_height);
+        command_buffer->bindGraphicCommandBuffer(programs, frame_buffer);
     }
 
     void Application::setupSurface(const uint32_t& width, const uint32_t& height)

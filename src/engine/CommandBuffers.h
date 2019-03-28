@@ -42,9 +42,7 @@ namespace Engine
 
         void bindGraphicCommandBuffer(
             std::vector<std::shared_ptr<Programs::Program>> programs,
-            std::shared_ptr<RenderPass::FrameBuffer> frame_buffer,
-            uint32_t width,
-            uint32_t height);
+            std::shared_ptr<RenderPass::FrameBuffer> frame_buffer);
 
         std::vector<vk::CommandBuffer> getCommandBuffers();
 

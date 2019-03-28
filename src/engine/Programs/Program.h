@@ -101,23 +101,12 @@ namespace Engine
 
                     for (uint32_t j = 0; j < data[i]->textures.size(); ++j)
                     {
-                        vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
-                        texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-                        texture_info->imageView   = data[i]->textures[j]->getImageView();
-                        texture_info->sampler 	  = data[i]->textures[j]->getSampler();
-
-                        vk::WriteDescriptorSet write = {};
-                        write.dstArrayElement = 0;
-                        write.descriptorCount = 1;
-                        write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-                        write.dstBinding 	  = j;
-                        write.pImageInfo 	  = texture_info;
-                        write.dstSet 		  = data[i]->descriptor_set;
-                        writes.push_back(write);
+                        auto texture_bind = data[i]->textures[j]->getWrite(data[i]->descriptor_set, j);
+                        writes.push_back(texture_bind);
                     }
 
-                    auto uniform_bind = uniform_buffer_->getWrite(data[i]->descriptor_set);
-                    uniform_bind.dstBinding = static_cast<uint32_t>(data[i]->textures.size());
+                    auto uniform_bind = uniform_buffer_->getWrite(
+                        data[i]->descriptor_set, static_cast<uint32_t>(data[i]->textures.size()));
                     writes.push_back(uniform_bind);
                 }
 

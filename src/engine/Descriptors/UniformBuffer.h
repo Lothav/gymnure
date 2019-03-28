@@ -80,7 +80,7 @@ namespace Engine
 				this->buffer_->updateBuffer({this->model, this->view, this->projection});
 			}
 
-			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set)
+			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind)
 			{
                 vk::DescriptorBufferInfo *buffer_info = new vk::DescriptorBufferInfo();
 				buffer_info->offset 	= 0;
@@ -94,7 +94,7 @@ namespace Engine
                 write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
                 write.pBufferInfo 		= buffer_info;
 				// Binds this uniform buffer to binding point 0
-                write.dstBinding 		= 0;
+                write.dstBinding 		= dst_bind;
 
                 return write;
 			}
