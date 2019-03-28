@@ -36,16 +36,6 @@ public:
         mem::Provider::destroyPool();
     }
 
-    uint initPhongProgram()
-    {
-        return Engine::Application::createPhongProgram();
-    }
-
-    uint initSkyboxProgram()
-    {
-        return Engine::Application::createSkyboxProgram();
-    }
-
     uint initDefaultProgram()
     {
         return Engine::Application::createDefaultProgram();

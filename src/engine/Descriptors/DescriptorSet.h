@@ -26,14 +26,14 @@ namespace Engine
             std::vector<vk::DescriptorSetLayoutBinding,
                 mem::StdAllocator<
                     vk::DescriptorSetLayoutBinding>>    layout_bindings_    = {};
-            vk::DescriptorSetLayout 		            desc_layout_        = {};
-            vk::PipelineLayout 						    pipeline_layout_    = nullptr;
 
-            uint32_t                                    texture_count_      = 0;
+            vk::DescriptorSetLayout 		            desc_layout_        = {};
+            vk::PipelineLayout 						    pipeline_layout_    = {};
+            vk::DescriptorPool                          desc_pool_          = {};
 
         public:
 
-            explicit DescriptorSet(uint32_t texture_count) : texture_count_(texture_count) {}
+            explicit DescriptorSet(uint32_t texture_count, uint32_t vertex_uniform_count, uint32_t fragment_uniform_count);
             ~DescriptorSet();
 
             void* operator new(std::size_t size)
@@ -46,9 +46,8 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            void create();
-            vk::DescriptorPool createDescriptorPool();
-            vk::DescriptorSet createDescriptorSet(vk::DescriptorPool desc_pool);
+            vk::DescriptorSet createDescriptorSet() const;
+
             vk::PipelineLayout getPipelineLayout() const;
         };
     }

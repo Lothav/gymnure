@@ -1,7 +1,5 @@
 #include "Application.hpp"
 
-#include <Programs/Phong.h>
-#include <Programs/Skybox.h>
 #include <Programs/Default.hpp>
 #include <Util/Debug.hpp>
 
@@ -112,6 +110,9 @@ namespace Engine
 
     void Application::prepare()
     {
+        for (auto &program : programs)
+            program->prepare();
+        
         command_buffer->bindGraphicCommandBuffer(programs, frame_buffer, ApplicationData::data->view_width, ApplicationData::data->view_height);
     }
 
@@ -229,24 +230,6 @@ namespace Engine
     uint Application::createDefaultProgram()
     {
         auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue());
-        program->init(frame_buffer->getRenderPass());
-
-        programs.push_back(program);
-        return static_cast<uint>(programs.size() - 1);
-    }
-
-    uint Application::createPhongProgram()
-    {
-        auto program = new Programs::Phong(frame_buffer->getSwapChain()->getGraphicQueue());
-        program->init(frame_buffer->getRenderPass());
-
-        programs.push_back(program);
-        return static_cast<uint>(programs.size() - 1);
-    }
-
-    uint Application::createSkyboxProgram()
-    {
-        auto program = new Programs::Skybox(frame_buffer->getSwapChain()->getGraphicQueue());
         program->init(frame_buffer->getRenderPass());
 
         programs.push_back(program);

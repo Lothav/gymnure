@@ -27,11 +27,8 @@ namespace Engine
         static void setupSurface(const uint32_t& width, const uint32_t& height);
         static void prepare();
         static void draw();
-
         static void destroy();
 
-        static uint createPhongProgram();
-        static uint createSkyboxProgram();
         static uint createDefaultProgram();
         static void addObjData(uint, GymnureObjData&&);
         static std::vector<Programs::Program*> getPrograms()

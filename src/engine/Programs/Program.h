@@ -24,8 +24,9 @@ namespace Engine
     {
         struct ProgramData
         {
-            std::vector<std::unique_ptr<Descriptors::Texture>>  textures         = nullptr;
+            std::vector<std::unique_ptr<Descriptors::Texture>>  textures        = {};
             std::unique_ptr<Vertex::VertexBuffer>               vertex_buffer   = nullptr;
+            vk::DescriptorSet                                   descriptor_set  = {};
         };
 
         class Program
@@ -33,7 +34,7 @@ namespace Engine
 
         protected:
 
-            vk::Queue                                   queue_{};
+            vk::Queue                                   transfer_queue_{};
             std::unique_ptr<Descriptors::UniformBuffer> uniform_buffer_ = nullptr;
 
         public:
@@ -64,6 +65,8 @@ namespace Engine
             virtual void init(vk::RenderPass render_pass) = 0;
 
             virtual void addObjData(GymnureObjData&& obj_data) = 0;
+
+            virtual void prepare() const = 0;
         };
     }
 }

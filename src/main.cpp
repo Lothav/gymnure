@@ -14,8 +14,8 @@ int main(int argc, char** argv)
 
         {
             auto room2 = GymnureObjData{};
-            room2.obj_path      = "room.obj";
-            room2.path_texture  = "room.png";
+            room2.obj_path       = "room.obj";
+            room2.paths_textures = {"room.png"};
             gymnure->addObjData(default_id, std::move(room2));
         }
 

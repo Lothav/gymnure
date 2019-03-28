@@ -16,7 +16,7 @@ namespace Engine
 
             explicit Default(vk::Queue queue)
             {
-                queue_ = queue;
+                transfer_queue_ = queue;
             }
 
             void* operator new(std::size_t size)
@@ -34,8 +34,7 @@ namespace Engine
                 auto app_data = ApplicationData::data;
 
                 // Create Descriptor Set
-                descriptor_set = new Descriptors::DescriptorSet(1);
-                descriptor_set->create();
+                descriptor_set = new Descriptors::DescriptorSet(1, 1, 0);
 
                 //  Create Uniform Buffer
                 uniform_buffer_ = std::make_unique<Descriptors::UniformBuffer>();
@@ -82,7 +81,7 @@ namespace Engine
                 for (std::string& texture_path : obj_data.paths_textures) {
                     if(!texture_path.empty())
                         program_data->textures.push_back(
-                            std::make_unique<Descriptors::Texture>(texture_path, queue_)) ;
+                            std::make_unique<Descriptors::Texture>(texture_path, transfer_queue_)) ;
                 }
 
                 // Load Vertex
@@ -94,9 +93,44 @@ namespace Engine
                     // Empty obj_path. Use triangle as default vertex data.
                     program_data->vertex_buffer->createPrimitiveTriangle();
 
-                data.push_back(program_data);
+                // Create program Descriptor Set.
+                program_data->descriptor_set = descriptor_set->createDescriptorSet();
+
+                data.push_back(std::move(program_data));
             }
 
+            void prepare() const override
+            {
+                auto app_data = ApplicationData::data;
+
+                std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
+
+                for (auto& d : data)
+                {
+                    for (uint32_t i = 0; i < d->textures.size(); ++i)
+                    {
+                        vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
+                        texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+                        texture_info->imageView   = d->textures[i]->getImageView();
+                        texture_info->sampler 	  = d->textures[i]->getSampler();
+
+                        vk::WriteDescriptorSet write = {};
+                        write.dstArrayElement 	 = 0;
+                        write.descriptorCount 	 = 1;
+                        write.descriptorType 	 = vk::DescriptorType::eCombinedImageSampler;
+                        write.dstBinding 		 = i;
+                        write.pImageInfo 		 = texture_info;
+                        write.dstSet 			 = d->descriptor_set;
+                        writes.push_back(write);
+                    }
+
+                    auto uniform_bind = uniform_buffer_->getWrite(d->descriptor_set);
+                    uniform_bind.dstBinding = static_cast<uint32_t>(d->textures.size());
+                    writes.push_back(uniform_bind);
+                }
+
+                app_data->device.updateDescriptorSets(writes, {});
+            }
         };
     }
 }
