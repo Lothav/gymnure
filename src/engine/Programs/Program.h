@@ -13,9 +13,9 @@
 
 struct GymnureObjData
 {
-    std::string path_obj     = "";
-    std::string path_texture = "";
-    std::string obj_mtl      = "";
+    std::string              obj_path       = "";
+    std::string              obj_mtl        = "";
+    std::vector<std::string> paths_textures = {};
 };
 
 namespace Engine
@@ -24,10 +24,8 @@ namespace Engine
     {
         struct ProgramData
         {
-            Descriptors::Texture* texture         = {};
-            Vertex::VertexBuffer* vertex_buffer   = nullptr;
-            vk::DescriptorPool    descriptor_pool = nullptr;
-            vk::DescriptorSet     descriptor_set  = nullptr;
+            std::vector<std::unique_ptr<Descriptors::Texture>>  textures         = nullptr;
+            std::unique_ptr<Vertex::VertexBuffer>               vertex_buffer   = nullptr;
         };
 
         class Program
@@ -41,7 +39,7 @@ namespace Engine
         public:
 
             Descriptors::DescriptorSet*                 descriptor_set   = nullptr;
-            std::vector<ProgramData*>                   data             = {};
+            std::vector<std::unique_ptr<ProgramData>>   data             = {};
             GraphicsPipeline::GraphicsPipeline*         graphic_pipeline = nullptr;
 
             ~Program()
@@ -50,11 +48,7 @@ namespace Engine
 
                 delete graphic_pipeline;
                 delete descriptor_set;
-                for(auto &d : data) {
-                    vkDestroyDescriptorPool(device, d->descriptor_pool, nullptr);
-                    delete d->vertex_buffer;
-                    delete d->texture;
-                }
+                data.clear();
             }
 
             void* operator new (std::size_t size)
@@ -69,7 +63,7 @@ namespace Engine
 
             virtual void init(vk::RenderPass render_pass) = 0;
 
-            virtual void addObjData(const GymnureObjData& obj_data) = 0;
+            virtual void addObjData(GymnureObjData&& obj_data) = 0;
         };
     }
 }

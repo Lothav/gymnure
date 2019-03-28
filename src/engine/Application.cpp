@@ -115,7 +115,7 @@ namespace Engine
         command_buffer->bindGraphicCommandBuffer(programs, frame_buffer, ApplicationData::data->view_width, ApplicationData::data->view_height);
     }
 
-    void Application::setupSurface(const uint32_t width, const uint32_t height)
+    void Application::setupSurface(const uint32_t& width, const uint32_t& height)
     {
         auto app_data = ApplicationData::data;
 
@@ -216,11 +216,23 @@ namespace Engine
         command_buffer = new CommandBuffers(frame_buffer->getImageCount());
     }
 
-    void Application::addObjData(uint program_id, const GymnureObjData& data)
+    void Application::addObjData(uint program_id, GymnureObjData&& data)
     {
-        if(program_id >= programs.size()) assert(false);
+        if(program_id >= programs.size()) {
+            Debug::logInfo("Invalid program id! Object discarded!");
+            return;
+        }
 
-        programs[program_id]->addObjData(data);
+        programs[program_id]->addObjData(std::move(data));
+    }
+
+    uint Application::createDefaultProgram()
+    {
+        auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue());
+        program->init(frame_buffer->getRenderPass());
+
+        programs.push_back(program);
+        return static_cast<uint>(programs.size() - 1);
     }
 
     uint Application::createPhongProgram()
@@ -235,15 +247,6 @@ namespace Engine
     uint Application::createSkyboxProgram()
     {
         auto program = new Programs::Skybox(frame_buffer->getSwapChain()->getGraphicQueue());
-        program->init(frame_buffer->getRenderPass());
-
-        programs.push_back(program);
-        return static_cast<uint>(programs.size() - 1);
-    }
-
-    uint Application::createDefaultProgram()
-    {
-        auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue());
         program->init(frame_buffer->getRenderPass());
 
         programs.push_back(program);

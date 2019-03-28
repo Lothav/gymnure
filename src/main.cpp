@@ -11,25 +11,26 @@ int main(int argc, char** argv)
 		auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
         auto default_id = gymnure->initDefaultProgram();
-		//auto phong_id = gymnure->initPhongProgram();
 
-        auto room2 = GymnureObjData{};
-        room2.path_obj = "room.obj";
-        room2.path_texture = "room.png";
-        gymnure->addObjData(default_id, room2);
+        {
+            auto room2 = GymnureObjData{};
+            room2.obj_path      = "room.obj";
+            room2.path_texture  = "room.png";
+            gymnure->addObjData(default_id, std::move(room2));
+        }
 
 		//auto room3 = GymnureObjData{};
 		//room3.path_texture 	= "chalet.jpg";
-		//room3.path_obj 		= "chalet.obj";
+		//room3.obj_path 		= "chalet.obj";
 		//gymnure->addObjData(default_id, room3);
 
 		//auto chalet = GymnureObjData{};
 		//chalet.path_texture = "chalet.jpg";
-		//chalet.path_obj 	= "chalet.obj";
+		//chalet.obj_path 	= "chalet.obj";
 		//gymnure->addObjData(phong_id, chalet);
 
 		//auto cube = GymnureObjData{};
-		//cube.path_obj 		= "cube.obj";
+		//cube.obj_path 		= "cube.obj";
 		//cube.path_texture 	= "sky.jpg";
 		//cube.obj_mtl 		= "cube.mtl";
 		//gymnure->addObjData(skybox_id, cube);

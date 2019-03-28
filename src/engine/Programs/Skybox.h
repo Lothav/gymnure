@@ -76,7 +76,7 @@ namespace Engine
                 graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, VK_CULL_MODE_FRONT_BIT);*/
             }
 
-            void addObjData(const GymnureObjData& obj_data) override
+            void addObjData(GymnureObjData&& obj_data) override
             {
                /* auto app_data = ApplicationData::data;
                 auto* program_data = new ProgramData();
@@ -90,7 +90,7 @@ namespace Engine
 
                 // Load Vertex
                 std::vector<VertexData> vertexData = {};
-                if(!obj_data.path_obj.empty()) vertexData = Vertex::VertexBuffer::loadObjModelVertices(obj_data.path_obj, obj_data.obj_mtl);
+                if(!obj_data.obj_path.empty()) vertexData = Vertex::VertexBuffer::loadObjModelVertices(obj_data.obj_path, obj_data.obj_mtl);
                 for(auto v_data : obj_data.vertex_data) vertexData.push_back(v_data);
 
                 struct BufferData vbData = {};

@@ -51,9 +51,9 @@ public:
         return Engine::Application::createDefaultProgram();
     }
 
-    void addObjData(uint program_id, const GymnureObjData& gymnure_data)
+    void addObjData(uint program_id, GymnureObjData&& gymnure_data)
     {
-        Engine::Application::addObjData(program_id, gymnure_data);
+        Engine::Application::addObjData(program_id, std::move(gymnure_data));
     }
 
     void prepare()

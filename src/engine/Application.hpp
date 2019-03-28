@@ -24,7 +24,7 @@ namespace Engine
     public:
 
         static void create(const std::vector<const char *>& instance_extension_names);
-        static void setupSurface(const uint32_t width, const uint32_t height);
+        static void setupSurface(const uint32_t& width, const uint32_t& height);
         static void prepare();
         static void draw();
 
@@ -33,7 +33,7 @@ namespace Engine
         static uint createPhongProgram();
         static uint createSkyboxProgram();
         static uint createDefaultProgram();
-        static void addObjData(uint, const GymnureObjData&);
+        static void addObjData(uint, GymnureObjData&&);
         static std::vector<Programs::Program*> getPrograms()
         {
             return programs;
