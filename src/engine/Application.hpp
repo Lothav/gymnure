@@ -14,12 +14,12 @@ namespace Engine
     {
     private:
 
-        static SyncPrimitives::SyncPrimitives* 		    sync_primitives;
-        static CommandBuffers*                          command_buffer;
-        static std::vector<Programs::Program*>          programs;
-        static RenderPass::FrameBuffer* 				frame_buffer;
+        static std::vector<std::shared_ptr<Programs::Program>>  programs;
+        static std::unique_ptr<SyncPrimitives::SyncPrimitives> 	sync_primitives;
+        static std::shared_ptr<RenderPass::FrameBuffer>			frame_buffer;
+        static std::unique_ptr<CommandBuffers>                  command_buffer;
 
-        static uint32_t 								current_buffer_;
+        static uint32_t 								        current_buffer_;
 
     public:
 
@@ -31,10 +31,6 @@ namespace Engine
 
         static uint createDefaultProgram();
         static void addObjData(uint, GymnureObjData&&);
-        static std::vector<Programs::Program*> getPrograms()
-        {
-            return programs;
-        }
     };
 
 }

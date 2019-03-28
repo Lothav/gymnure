@@ -5,11 +5,12 @@
 
 namespace Engine
 {
-    std::vector<Programs::Program*> Application::programs = {};
-    SyncPrimitives::SyncPrimitives* Application::sync_primitives = nullptr;
-    CommandBuffers*                 Application::command_buffer = nullptr;
-    uint32_t 						Application::current_buffer_ = 0;
-    RenderPass::FrameBuffer* 		Application::frame_buffer = nullptr;
+    uint32_t 						                Application::current_buffer_ = 0;
+
+    std::vector<std::shared_ptr<Programs::Program>> Application::programs = {};
+    std::unique_ptr<SyncPrimitives::SyncPrimitives> Application::sync_primitives = nullptr;
+    std::unique_ptr<CommandBuffers>                 Application::command_buffer = nullptr;
+    std::shared_ptr<RenderPass::FrameBuffer> 		Application::frame_buffer = nullptr;
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -41,13 +42,12 @@ namespace Engine
         auto app_data = ApplicationData::data;
 
         app_data->device.waitIdle();
-        for(auto &program: programs)
-            delete program;
-        delete sync_primitives;
-        delete frame_buffer;
+        programs.clear();
+        sync_primitives.reset();
+        frame_buffer.reset();
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
-        delete command_buffer;
+        command_buffer.reset();
         app_data->device.destroyCommandPool(app_data->graphic_command_pool, nullptr);
         app_data->device.destroy();
         Debug::destroy();
@@ -104,8 +104,6 @@ namespace Engine
         }
 
         DEBUG_CALL(frame_buffer->getSwapChain()->getGraphicQueue().presentKHR(&present));
-
-        DEBUG_CALL(device.waitIdle());
     }
 
     void Application::prepare()
@@ -206,15 +204,15 @@ namespace Engine
         app_data->view_height = height;
 
         // Init Frame Buffer
-        frame_buffer = new RenderPass::FrameBuffer();
+        frame_buffer = std::make_shared<RenderPass::FrameBuffer>();
 
         // Init Sync Primitives
-        sync_primitives = new SyncPrimitives::SyncPrimitives();
+        sync_primitives = std::make_unique<SyncPrimitives::SyncPrimitives>();
         sync_primitives->createSemaphore();
         sync_primitives->createFences(frame_buffer->getImageCount());
 
         // Init Command Buffers
-        command_buffer = new CommandBuffers(frame_buffer->getImageCount());
+        command_buffer = std::make_unique<CommandBuffers>(frame_buffer->getImageCount());
     }
 
     void Application::addObjData(uint program_id, GymnureObjData&& data)
@@ -229,9 +227,9 @@ namespace Engine
 
     uint Application::createDefaultProgram()
     {
-        auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue(), frame_buffer->getRenderPass());
+        auto program = std::make_unique<Programs::Default>(frame_buffer->getSwapChain()->getGraphicQueue(), frame_buffer->getRenderPass());
+        programs.push_back(std::move(program));
 
-        programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);
     }
 

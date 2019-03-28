@@ -20,7 +20,7 @@ namespace Engine
 
         private:
 
-            SDL_SysWMinfo info;
+            SDL_SysWMinfo info{};
             SDL_Window* window_ = nullptr;
             std::vector<const char *> instance_extension_names_ = {};
 
@@ -44,9 +44,7 @@ namespace Engine
 
                 SDL_VERSION(&info.version);   // initialize info structure with SDL version info
                 if(!SDL_GetWindowWMInfo(window_, &info))
-                {
                     Debug::logErrorAndDie(std::string("Couldn't get window information: ") + SDL_GetError());
-                }
 
                 uint32_t extensions_count = 0;
                 SDL_Vulkan_GetInstanceExtensions(window_, &extensions_count, nullptr);
@@ -79,14 +77,12 @@ namespace Engine
                 while (SDL_PollEvent(&event))
                 {
                     //ImGui_ImplSDL2_ProcessEvent(&event);
-                    switch( event.type ) {
+                    switch(event.type)
+                    {
                         case SDL_QUIT:
                             return false;
 
                         case SDL_KEYDOWN:
-
-                            auto programs = Application::getPrograms();
-
                             auto zoom = 0.0f;
                             switch (event.key.keysym.sym) {
                                 case SDLK_UP:
@@ -99,10 +95,8 @@ namespace Engine
                                     break;
                             }
 
-                            for (auto program : programs) {
-                                //auto uniform_buffer = program->descriptor_set->getUniformBuffer();
-                                //uniform_buffer->zoomCamera(zoom);
-                            }
+                            //auto uniform_buffer = program->descriptor_set->getUniformBuffer();
+                            //uniform_buffer->zoomCamera(zoom);
                             break;
                         }
                     //if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(window_))

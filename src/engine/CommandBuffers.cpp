@@ -23,7 +23,11 @@ namespace Engine
                                             static_cast<uint32_t>(command_buffers_.size()), command_buffers_.data());
     }
 
-    void CommandBuffers::bindGraphicCommandBuffer(std::vector<Programs::Program*> programs, RenderPass::FrameBuffer* frame_buffer, uint32_t width, uint32_t height)
+    void CommandBuffers::bindGraphicCommandBuffer(
+        std::vector<std::shared_ptr<Programs::Program>> programs,
+        std::shared_ptr<RenderPass::FrameBuffer> frame_buffer,
+        uint32_t width,
+        uint32_t height)
     {
         auto frame_buffers = frame_buffer->getFrameBuffers();
         auto image_count = frame_buffer->getImageCount();

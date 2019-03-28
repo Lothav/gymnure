@@ -19,23 +19,12 @@ int main(int argc, char** argv)
             gymnure->addObjData(default_id, std::move(room2));
         }
 
-		//auto room3 = GymnureObjData{};
-		//room3.path_texture 	= "chalet.jpg";
-		//room3.obj_path 		= "chalet.obj";
-		//gymnure->addObjData(default_id, room3);
-
-        {
-            auto chalet = GymnureObjData{};
-            chalet.paths_textures = {"chalet.jpg"};
-            chalet.obj_path 	  = "chalet.obj";
-            gymnure->addObjData(default_id, std::move(chalet));
-        }
-
-		//auto cube = GymnureObjData{};
-		//cube.obj_path 		= "cube.obj";
-		//cube.path_texture 	= "sky.jpg";
-		//cube.obj_mtl 		= "cube.mtl";
-		//gymnure->addObjData(skybox_id, cube);
+        //{
+        //    auto chalet = GymnureObjData{};
+        //    chalet.paths_textures = {"chalet.jpg"};
+        //    chalet.obj_path 	  = "chalet.obj";
+        //    gymnure->addObjData(default_id, std::move(chalet));
+        //}
 
         gymnure->prepare();
 

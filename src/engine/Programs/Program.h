@@ -107,12 +107,12 @@ namespace Engine
                         texture_info->sampler 	  = data[i]->textures[j]->getSampler();
 
                         vk::WriteDescriptorSet write = {};
-                        write.dstArrayElement 	 = 0;
-                        write.descriptorCount 	 = 1;
-                        write.descriptorType 	 = vk::DescriptorType::eCombinedImageSampler;
-                        write.dstBinding 		 = j;
-                        write.pImageInfo 		 = texture_info;
-                        write.dstSet 			 = data[i]->descriptor_set;
+                        write.dstArrayElement = 0;
+                        write.descriptorCount = 1;
+                        write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+                        write.dstBinding 	  = j;
+                        write.pImageInfo 	  = texture_info;
+                        write.dstSet 		  = data[i]->descriptor_set;
                         writes.push_back(write);
                     }
 
