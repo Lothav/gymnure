@@ -24,10 +24,12 @@ int main(int argc, char** argv)
 		//room3.obj_path 		= "chalet.obj";
 		//gymnure->addObjData(default_id, room3);
 
-		//auto chalet = GymnureObjData{};
-		//chalet.path_texture = "chalet.jpg";
-		//chalet.obj_path 	= "chalet.obj";
-		//gymnure->addObjData(phong_id, chalet);
+        {
+            auto chalet = GymnureObjData{};
+            chalet.paths_textures = {"chalet.jpg"};
+            chalet.obj_path 	  = "chalet.obj";
+            gymnure->addObjData(default_id, std::move(chalet));
+        }
 
 		//auto cube = GymnureObjData{};
 		//cube.obj_path 		= "cube.obj";

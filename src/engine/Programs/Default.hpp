@@ -14,23 +14,10 @@ namespace Engine
 
         public:
 
-            explicit Default(vk::Queue queue)
+            explicit Default(vk::Queue queue, vk::RenderPass render_pass)
             {
                 transfer_queue_ = queue;
-            }
 
-            void* operator new(std::size_t size)
-            {
-                return mem::Provider::getMemory(size);
-            }
-
-            void operator delete(void* ptr)
-            {
-                // Do not free memory here!
-            }
-
-            void init(vk::RenderPass render_pass) override
-            {
                 auto app_data = ApplicationData::data;
 
                 // Create Descriptor Set
@@ -71,6 +58,17 @@ namespace Engine
 
                 graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eNone);
             }
+
+            void* operator new(std::size_t size)
+            {
+                return mem::Provider::getMemory(size);
+            }
+
+            void operator delete(void* ptr)
+            {
+                // Do not free memory here!
+            }
+
         };
     }
 }

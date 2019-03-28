@@ -62,8 +62,6 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            virtual void init(vk::RenderPass render_pass) = 0;
-
             virtual void addObjData(GymnureObjData&& obj_data)
             {
                 auto app_data = ApplicationData::data;
@@ -85,9 +83,6 @@ namespace Engine
                     // Empty obj_path. Use triangle as default vertex data.
                     program_data->vertex_buffer->createPrimitiveTriangle();
 
-                // Create program Descriptor Set.
-                program_data->descriptor_set = descriptor_set->createDescriptorSet();
-
                 data.push_back(std::move(program_data));
             }
 
@@ -97,27 +92,32 @@ namespace Engine
 
                 std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
 
-                for (auto& d : data)
+                // Create program Descriptor Set.
+                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 1, 0);
+
+                for (uint32_t i = 0; i < data.size(); i++)
                 {
-                    for (uint32_t i = 0; i < d->textures.size(); ++i)
+                    data[i]->descriptor_set = descriptors_sets[i];
+
+                    for (uint32_t j = 0; j < data[i]->textures.size(); ++j)
                     {
                         vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
                         texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-                        texture_info->imageView   = d->textures[i]->getImageView();
-                        texture_info->sampler 	  = d->textures[i]->getSampler();
+                        texture_info->imageView   = data[i]->textures[j]->getImageView();
+                        texture_info->sampler 	  = data[i]->textures[j]->getSampler();
 
                         vk::WriteDescriptorSet write = {};
                         write.dstArrayElement 	 = 0;
                         write.descriptorCount 	 = 1;
                         write.descriptorType 	 = vk::DescriptorType::eCombinedImageSampler;
-                        write.dstBinding 		 = i;
+                        write.dstBinding 		 = j;
                         write.pImageInfo 		 = texture_info;
-                        write.dstSet 			 = d->descriptor_set;
+                        write.dstSet 			 = data[i]->descriptor_set;
                         writes.push_back(write);
                     }
 
-                    auto uniform_bind = uniform_buffer_->getWrite(d->descriptor_set);
-                    uniform_bind.dstBinding = static_cast<uint32_t>(d->textures.size());
+                    auto uniform_bind = uniform_buffer_->getWrite(data[i]->descriptor_set);
+                    uniform_bind.dstBinding = static_cast<uint32_t>(data[i]->textures.size());
                     writes.push_back(uniform_bind);
                 }
 

@@ -229,8 +229,7 @@ namespace Engine
 
     uint Application::createDefaultProgram()
     {
-        auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue());
-        program->init(frame_buffer->getRenderPass());
+        auto program = new Programs::Default(frame_buffer->getSwapChain()->getGraphicQueue(), frame_buffer->getRenderPass());
 
         programs.push_back(program);
         return static_cast<uint>(programs.size() - 1);
