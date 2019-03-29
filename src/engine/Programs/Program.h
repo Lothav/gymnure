@@ -27,6 +27,7 @@ namespace Engine
             std::vector<std::unique_ptr<Descriptors::Texture>>  textures        = {};
             std::unique_ptr<Vertex::VertexBuffer>               vertex_buffer   = nullptr;
             vk::DescriptorSet                                   descriptor_set  = {};
+            glm::mat4                                           model_matrix    = glm::mat4(1.0f);
         };
 
         class Program
@@ -34,21 +35,21 @@ namespace Engine
 
         protected:
 
-            vk::Queue                                   transfer_queue_{};
-            std::unique_ptr<Descriptors::UniformBuffer> uniform_buffer_ = nullptr;
+            vk::Queue                                           transfer_queue_ {};
+            std::unique_ptr<Descriptors::UniformBuffer>         uniform_buffer_ = nullptr;
 
         public:
 
-            Descriptors::DescriptorSet*                 descriptor_set   = nullptr;
-            std::vector<std::unique_ptr<ProgramData>>   data             = {};
-            GraphicsPipeline::GraphicsPipeline*         graphic_pipeline = nullptr;
+            std::unique_ptr<Descriptors::DescriptorSet>         descriptor_set   = nullptr;
+            std::vector<std::unique_ptr<ProgramData>>           data             = {};
+            std::unique_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline = nullptr;
 
             ~Program()
             {
                 auto device = Engine::ApplicationData::data->device;
 
-                delete graphic_pipeline;
-                delete descriptor_set;
+                graphic_pipeline.reset();
+                descriptor_set.reset();
                 data.clear();
             }
 
@@ -93,20 +94,20 @@ namespace Engine
                 std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
 
                 // Create program Descriptor Set.
-                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 1, 0);
+                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 1);
 
                 for (uint32_t i = 0; i < data.size(); i++)
                 {
                     data[i]->descriptor_set = descriptors_sets[i];
 
+                    uint32_t bind_count = 0;
                     for (uint32_t j = 0; j < data[i]->textures.size(); ++j)
                     {
-                        auto texture_bind = data[i]->textures[j]->getWrite(data[i]->descriptor_set, j);
+                        auto texture_bind = data[i]->textures[j]->getWrite(data[i]->descriptor_set, bind_count++);
                         writes.push_back(texture_bind);
                     }
 
-                    auto uniform_bind = uniform_buffer_->getWrite(
-                        data[i]->descriptor_set, static_cast<uint32_t>(data[i]->textures.size()));
+                    auto uniform_bind = uniform_buffer_->getWrite(data[i]->descriptor_set, bind_count);
                     writes.push_back(uniform_bind);
                 }
 

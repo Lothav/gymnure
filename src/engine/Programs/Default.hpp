@@ -21,7 +21,7 @@ namespace Engine
                 auto app_data = ApplicationData::data;
 
                 // Create Descriptor Set
-                descriptor_set = new Descriptors::DescriptorSet(1, 1, 0);
+                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(1, 1, 0);
 
                 //  Create Uniform Buffer
                 uniform_buffer_ = std::make_unique<Descriptors::UniformBuffer>();
@@ -37,7 +37,8 @@ namespace Engine
                     frag.type = vk::ShaderStageFlagBits::eFragment;
                     frag.path = "default.frag.spv";
 
-                    graphic_pipeline = new GraphicsPipeline::GraphicsPipeline({vert, frag});
+                    std::vector<Engine::GraphicsPipeline::Shader> shaders = {vert, frag};
+                    graphic_pipeline = std::make_unique<GraphicsPipeline::GraphicsPipeline>(std::move(shaders));
                 }
                 {
                     std::vector<vk::VertexInputAttributeDescription> vi_attribs;

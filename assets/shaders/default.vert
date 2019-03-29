@@ -4,9 +4,7 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (binding = 1) uniform UBO{
-    mat4 m;
-    mat4 v;
-    mat4 p;
+    mat4 vp;
 } ubu;
 
 layout (location = 0) in vec3 inPos;
@@ -17,5 +15,5 @@ layout (location = 0) out vec2 outUV;
 void main()
 {
     outUV       = inUV;
-    gl_Position = ubu.p * ubu.v * ubu.m * vec4(inPos.xyz, 1.0);
+    gl_Position = ubu.vp * vec4(inPos.xyz, 1.0);
 }

@@ -46,7 +46,7 @@ namespace Engine
                 // Do not free memory here!
             }
 
-            std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t vertex_uniform_count, uint32_t fragment_uniform_count);
+            std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t uniform_count);
 
             vk::PipelineLayout getPipelineLayout() const;
         };

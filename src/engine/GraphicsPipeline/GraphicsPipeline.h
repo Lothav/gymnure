@@ -34,7 +34,7 @@ namespace Engine
 
 		public:
 
-			GraphicsPipeline(const std::vector<Shader>& shaders);
+			explicit GraphicsPipeline(std::vector<Shader>&& shaders);
 
             ~GraphicsPipeline();
 

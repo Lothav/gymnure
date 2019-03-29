@@ -12,7 +12,7 @@ namespace Engine
 {
     namespace GraphicsPipeline
     {
-        GraphicsPipeline::GraphicsPipeline(const std::vector<Shader>& shaders)
+        GraphicsPipeline::GraphicsPipeline(std::vector<Shader>&& shaders)
         {
             shader_stages_.resize(shaders.size());
 

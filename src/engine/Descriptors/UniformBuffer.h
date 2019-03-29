@@ -19,7 +19,6 @@ namespace Engine
 
 		public:
 
-			glm::mat4 model{};
 			glm::mat4 view{};
 			glm::mat4 projection{};
 
@@ -28,11 +27,11 @@ namespace Engine
                 struct BufferData buffer_data = {};
                 buffer_data.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
                 buffer_data.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-                buffer_data.count      = 3;
+                buffer_data.count      = 1;
 
             	buffer_  = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
 				zoom 	 = -7.0f;
-				rotation = { 0.0f,  0.0f, 0.0f };
+				rotation = {0.0f, 0.0f, 0.0f};
 			}
 
             void* operator new(std::size_t size)
@@ -69,7 +68,6 @@ namespace Engine
 
 			void updateUniform()
 			{
-				this->model = glm::mat4x4(1.0f);
 				this->view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
 
 				this->updateMVP();
@@ -77,7 +75,7 @@ namespace Engine
 
 			void updateMVP()
 			{
-				this->buffer_->updateBuffer({this->model, this->view, this->projection});
+				this->buffer_->updateBuffer({this->projection * this->view});
 			}
 
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind)
@@ -93,7 +91,6 @@ namespace Engine
                 write.descriptorCount 	= 1;
                 write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
                 write.pBufferInfo 		= buffer_info;
-				// Binds this uniform buffer to binding point 0
                 write.dstBinding 		= dst_bind;
 
                 return write;

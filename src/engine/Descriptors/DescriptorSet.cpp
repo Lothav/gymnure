@@ -74,15 +74,15 @@ namespace Engine
             pipeline_layout_ = app_data->device.createPipelineLayout(pPipelineLayoutCreateInfo);
         }
 
-        std::vector<vk::DescriptorSet> DescriptorSet::createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t vertex_uniform_count, uint32_t fragment_uniform_count)
+        std::vector<vk::DescriptorSet> DescriptorSet::createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t uniform_count)
         {
             // Create Descriptor Set
             {
                 std::vector<vk::DescriptorPoolSize> poolSizes = {};
 
                 vk::DescriptorPoolSize poolSize = {};
-                poolSize.type = vk::DescriptorType::eUniformBuffer;
-                poolSize.descriptorCount = objects_count * (vertex_uniform_count + fragment_uniform_count);
+                poolSize.type = vk::DescriptorType::eUniformBufferDynamic;
+                poolSize.descriptorCount = 2 + uniform_count; // M and VP matrices + uniform_count.
                 poolSizes.push_back(poolSize);
 
                 if(texture_count > 0) {
