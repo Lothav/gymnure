@@ -12,6 +12,9 @@ class Gymnure
 private:
 
     Engine::Window::SDLWindow* window_;
+    uint32_t frame_count = 0;
+    float frame_duration = 0.f;
+
 
 public:
 
@@ -55,8 +58,26 @@ public:
     {
         if(!window_->poolEvent())
             return false;
+#if DEBUG
+        auto start = std::chrono::high_resolution_clock::now();
+        TRY_CATCH_BLOCK_FN(Engine::Application::draw());
+        auto end = std::chrono::high_resolution_clock::now();
 
+        frame_count += 1;
+        frame_duration += std::chrono::duration<double, std::milli>(end - start).count();
+
+        // Update FPS every sec
+        if (frame_duration >= 1e3) {
+            auto fps = std::abs((float)frame_count * (1.e3 / frame_duration));
+
+            Engine::Debug::logInfo("FPS: " + std::to_string(std::round(fps)));
+
+            frame_count     = 0;
+            frame_duration  = 0.f;
+        }
+#elif
         Engine::Application::draw();
+#endif
         return true;
     }
 
