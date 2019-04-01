@@ -1,9 +1,9 @@
 #version 420
 
-#extension GL_ARB_separate_shader_objects : enable
+#extension GL_ARB_separate_shader_objects  : enable
 #extension GL_ARB_shading_language_420pack : enable
 
-layout (binding = 1) uniform UBO{
+layout (binding = 1) uniform UBO {
     mat4 vp;
 } ubu;
 

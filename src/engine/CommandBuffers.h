@@ -44,7 +44,7 @@ namespace Engine
             std::vector<std::shared_ptr<Programs::Program>> programs,
             std::shared_ptr<RenderPass::FrameBuffer> frame_buffer);
 
-        std::vector<vk::CommandBuffer> getCommandBuffers();
+        vk::CommandBuffer getCommandBuffer(uint32_t index) const;
 
     };
 }

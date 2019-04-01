@@ -90,9 +90,9 @@ namespace Engine
         }
     }
 
-    std::vector<vk::CommandBuffer> CommandBuffers::getCommandBuffers()
+    vk::CommandBuffer CommandBuffers::getCommandBuffer(uint32_t index) const
     {
-        return command_buffers_;
+        return command_buffers_[index];
     }
 
 }

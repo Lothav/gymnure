@@ -67,8 +67,8 @@ namespace Engine
         assert(res == vk::Result::eSuccess);
 
         vk::PipelineStageFlags pipe_stage_flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-        //for(auto& program_obj: programs) program_obj->descriptor_set->getUniformBuffer()->updateMVP();
-        vk::CommandBuffer current_command_buffer = command_buffer->getCommandBuffers()[current_buffer_];
+
+        vk::CommandBuffer current_command_buffer = command_buffer->getCommandBuffer(current_buffer_);
 
         vk::Fence current_buffer_fence = sync_primitives->getFence(current_buffer_);
         do {
