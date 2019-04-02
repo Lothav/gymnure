@@ -23,6 +23,8 @@ namespace Engine
             SDL_SysWMinfo info{};
             SDL_Window* window_ = nullptr;
             std::vector<const char *> instance_extension_names_ = {};
+            uint32_t width;
+            uint32_t height;
 
         public:
 
@@ -34,6 +36,9 @@ namespace Engine
                     printf("Error trying to init SDL window: %s\n", SDL_GetError());
                     return;
                 }
+
+                this->width = width;
+                this->height = height;
 
                 // Setup window
                 SDL_DisplayMode current;
@@ -71,25 +76,60 @@ namespace Engine
                 return instance_extension_names_;
             }
 
+            bool mouse_down = false;
+
             bool poolEvent()
             {
                 SDL_Event event;
                 while (SDL_PollEvent(&event))
                 {
                     //ImGui_ImplSDL2_ProcessEvent(&event);
+
+                    if(event.type == SDL_MOUSEBUTTONDOWN)
+                        mouse_down = true;
+
+                    if(event.type == SDL_MOUSEBUTTONUP)
+                        mouse_down = false;
+
+                    if(mouse_down && event.type == SDL_MOUSEMOTION)
+                    {
+                        //Get the mouse offsets
+                        float x = (float) event.motion.xrel / width;
+                        float y = (float) event.motion.yrel / height;
+                        std::cout << std::to_string(x) << " " << std::to_string(y) << std::endl;
+
+                        if(x != 0 && y != 0)
+                        {
+                            Application::getMainCamera()->rotateCamera(glm::vec3(-y, -x, 0));
+                        }
+                    }
+
+                    if(event.type == SDL_MOUSEWHEEL)
+                    {
+                        //Get the mouse offsets
+                        float zoom = -event.wheel.y;
+                        Application::getMainCamera()->zoomCamera(zoom);
+                    }
+
+
                     switch(event.type)
                     {
                         case SDL_QUIT:
                             return false;
 
                         case SDL_KEYDOWN:
-                            auto zoom = 0.0f;
                             switch (event.key.keysym.sym) {
                                 case SDLK_UP:
-                                    zoom = 0.1f;
+                                    Application::getMainCamera()->moveCamera(glm::vec3(0.0f, 0.1f, 0));
                                     break;
                                 case SDLK_DOWN:
-                                    zoom = -0.1f;
+                                    Application::getMainCamera()->moveCamera(glm::vec3(0.0f, -0.1f, 0));
+                                    break;
+                                case SDLK_LEFT:
+                                    Application::getMainCamera()->moveCamera(glm::vec3(-0.1f, 0.0f, 0));
+                                    break;
+                                case SDLK_RIGHT:
+                                    Application::getMainCamera()->moveCamera(glm::vec3(0.1f, 0.0f, 0));
                                     break;
                                 default:
                                     break;
@@ -98,7 +138,10 @@ namespace Engine
                             //auto uniform_buffer = program->descriptor_set->getUniformBuffer();
                             //uniform_buffer->zoomCamera(zoom);
                             break;
-                        }
+
+                        default:
+                            break;
+                    }
                     //if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED && event.window.windowID == SDL_GetWindowID(window_))
                     //    ImGui_ImplVulkanH_CreateWindowDataSwapChainAndFramebuffer(g_PhysicalDevice, g_Device, &g_WindowData, g_Allocator, (int)event.window.data1, (int)event.window.data2);
                     }

@@ -12,12 +12,12 @@ int main(int argc, char** argv)
 
         auto default_id = gymnure->initDefaultProgram();
 
-        {
-            auto room2 = GymnureObjData{};
-            room2.obj_path       = "room.obj";
-            room2.paths_textures = {"room.png"};
-            gymnure->addObjData(default_id, std::move(room2));
-        }
+      // {
+      //     auto room2 = GymnureObjData{};
+      //     room2.obj_path       = "room.obj";
+      //     room2.paths_textures = {"room.png"};
+      //     gymnure->addObjData(default_id, std::move(room2));
+      // }
 
         {
             auto chalet = GymnureObjData{};

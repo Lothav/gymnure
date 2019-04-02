@@ -30,6 +30,7 @@ namespace Engine
         static void draw();
         static void destroy();
 
+        static std::shared_ptr<Descriptors::Camera> getMainCamera();
         static uint createDefaultProgram();
         static void addObjData(uint, GymnureObjData&&);
     };

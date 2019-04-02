@@ -18,8 +18,9 @@ namespace Engine
 			std::unique_ptr<Memory::Buffer<glm::mat4>> buffer_;
 
             glm::vec3 rotation = glm::vec3(0.0f);
+			glm::vec3 pos = glm::vec3(0, 0, -10.0f);
+			glm::vec3 center = glm::vec3(0.0f);
 			vk::DescriptorBufferInfo buffer_info_ {};
-
 
 		public:
 
@@ -34,9 +35,9 @@ namespace Engine
                 buffer_data.count      = 1;
             	buffer_  = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
 
-                this->projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 1000.0f);
-                this->view = glm::lookAt(glm::vec3(0, 0, -10.0f), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
-                this->updateMVP();
+                projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 1000.0f);
+                view = glm::lookAt(pos, center, glm::vec3(0, -1, 0));
+                updateMVP();
 
 				buffer_info_.offset = 0;
 				buffer_info_.range  = VK_WHOLE_SIZE;
@@ -55,13 +56,31 @@ namespace Engine
 
 			void moveCamera(const glm::vec3& direction)
 			{
-                this->view = glm::translate(this->view, direction);
-				this->updateMVP();
+				pos += direction;
+				view = glm::lookAt(pos, center, glm::vec3(0, -1, 0));
+				updateMVP();
+			}
+
+            void zoomCamera(float zoom)
+            {
+                auto factor = zoom * 0.2f + 1.0f;
+
+                view[3][0] *= factor;
+                view[3][1] *= factor;
+                view[3][2] *= factor;
+
+                updateMVP();
+            }
+
+			void rotateCamera(const glm::vec3& axis)
+			{
+				this->view = glm::rotate(this->view, 0.05f, axis);
+				updateMVP();
 			}
 
 			void updateMVP()
 			{
-				this->buffer_->updateBuffer({this->projection * this->view});
+				buffer_->updateBuffer({projection * view});
 			}
 
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind)

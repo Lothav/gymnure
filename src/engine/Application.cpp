@@ -38,6 +38,11 @@ namespace Engine
         DEBUG_CALL(app_data->instance = vk::createInstance(inst_info_));
     }
 
+    std::shared_ptr<Descriptors::Camera> Application::getMainCamera()
+    {
+        return main_camera;
+    }
+
     void Application::destroy()
     {
         auto app_data = ApplicationData::data;

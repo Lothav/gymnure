@@ -11,17 +11,17 @@ class Gymnure
 {
 private:
 
-    Engine::Window::SDLWindow* window_;
+    std::unique_ptr<Engine::Window::SDLWindow>   window_      = nullptr;
+
     uint32_t frame_count = 0;
     float frame_duration = 0.f;
-
 
 public:
 
     Gymnure(unsigned int windowWidth, unsigned int windowHeight)
     {
         mem::Provider::initPool(1*MB);
-        window_ = new Engine::Window::SDLWindow(windowWidth, windowHeight);
+        window_ = std::make_unique<Engine::Window::SDLWindow>(windowWidth, windowHeight);
         Engine::Application::create(window_->getInstanceExtensionNames());
 #ifdef DEBUG
         Engine::Debug::init();
@@ -35,7 +35,6 @@ public:
     #ifdef DEBUG
         Engine::Application::destroy();
     #endif
-        delete window_;
         mem::Provider::destroyPool();
     }
 
