@@ -14,18 +14,12 @@ namespace Engine
 
         public:
 
-            explicit Default(vk::Queue queue, vk::RenderPass render_pass)
+            explicit Default(vk::RenderPass render_pass)
             {
-                transfer_queue_ = queue;
-
                 auto app_data = ApplicationData::data;
 
                 // Create Descriptor Set
                 descriptor_set = std::make_unique<Descriptors::DescriptorSet>(1, 1, 0);
-
-                //  Create Uniform Buffer
-                uniform_buffer_ = std::make_unique<Descriptors::UniformBuffer>();
-                uniform_buffer_->initModelView(app_data->view_width, app_data->view_height);
 
                 // Create Graphics Pipeline
                 {

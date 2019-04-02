@@ -171,6 +171,9 @@ namespace Engine
                 present_queue_ = app_data->device.getQueue(present_queue_family_index_, 0);
             }
 
+            // @TODO set an proper transfer queue
+            app_data->transfer_queue = graphics_queue_;
+
             vk::SurfaceCapabilitiesKHR surfCapabilities;
             surfCapabilities = app_data->gpu.getSurfaceCapabilitiesKHR(app_data->surface);
 

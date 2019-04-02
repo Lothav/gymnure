@@ -33,9 +33,8 @@ namespace Engine
         class Program
         {
 
-        protected:
+        private:
 
-            vk::Queue                                           transfer_queue_ {};
             std::unique_ptr<Descriptors::UniformBuffer>         uniform_buffer_ = nullptr;
 
         public:
@@ -43,6 +42,15 @@ namespace Engine
             std::unique_ptr<Descriptors::DescriptorSet>         descriptor_set   = nullptr;
             std::vector<std::unique_ptr<ProgramData>>           data             = {};
             std::unique_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline = nullptr;
+
+            Program()
+            {
+                auto app_data = ApplicationData::data;
+
+                //  Create Uniform Buffer
+                uniform_buffer_ = std::make_unique<Descriptors::UniformBuffer>();
+                uniform_buffer_->initModelView(app_data->view_width, app_data->view_height);
+            }
 
             ~Program()
             {
@@ -72,7 +80,7 @@ namespace Engine
                 for (std::string& texture_path : obj_data.paths_textures) {
                     if(!texture_path.empty())
                         program_data->textures.push_back(
-                            std::make_unique<Descriptors::Texture>(texture_path, transfer_queue_)) ;
+                            std::make_unique<Descriptors::Texture>(texture_path)) ;
                 }
 
                 // Load Vertex

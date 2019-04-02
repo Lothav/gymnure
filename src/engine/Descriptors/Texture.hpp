@@ -26,7 +26,7 @@ namespace Engine
 
 		public:
 
-			Texture(const std::string &texture_path, vk::Queue graphicQueue);
+			Texture(const std::string &texture_path);
 
 			~Texture();
 

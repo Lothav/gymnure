@@ -22,6 +22,7 @@ namespace Engine
         vk::PhysicalDevice                      gpu;
         vk::CommandPool                         graphic_command_pool;
 
+        vk::Queue                               transfer_queue;
         uint32_t							 	queue_family_count;
         vk::PhysicalDeviceMemoryProperties 		memory_properties;
         std::vector<vk::QueueFamilyProperties,

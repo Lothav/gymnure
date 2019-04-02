@@ -19,12 +19,12 @@ namespace Engine
         std::vector<const char *> _layer_names = Util::Layers::getLayerNames();
 
         vk::ApplicationInfo app_info_ = {};
-        app_info_.pNext 				= nullptr;
-        app_info_.pApplicationName 		= APP_NAME;
-        app_info_.applicationVersion 	= 1;
-        app_info_.pEngineName 			= APP_NAME;
-        app_info_.engineVersion 		= 1;
-        app_info_.apiVersion 			= VK_MAKE_VERSION(1, 1, 101);
+        app_info_.pNext 				    = nullptr;
+        app_info_.pApplicationName 		    = APP_NAME;
+        app_info_.applicationVersion 	    = 1;
+        app_info_.pEngineName 			    = APP_NAME;
+        app_info_.engineVersion 		    = 1;
+        app_info_.apiVersion 			    = VK_MAKE_VERSION(1, 1, 101);
 
         vk::InstanceCreateInfo inst_info_ = {};
         inst_info_.pNext 					= nullptr;
@@ -227,7 +227,7 @@ namespace Engine
 
     uint Application::createDefaultProgram()
     {
-        auto program = std::make_unique<Programs::Default>(frame_buffer->getSwapChain()->getGraphicQueue(), frame_buffer->getRenderPass());
+        auto program = std::make_unique<Programs::Default>(frame_buffer->getRenderPass());
         programs.push_back(std::move(program));
 
         return static_cast<uint>(programs.size() - 1);

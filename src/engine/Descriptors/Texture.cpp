@@ -10,7 +10,7 @@ namespace Engine
 {
     namespace Descriptors
     {
-        Texture::Texture(const std::string& texture_path, vk::Queue queue)
+        Texture::Texture(const std::string& texture_path)
         {
             if(texture_path.empty())
                 Debug::logErrorAndDie("Fail to create Texture: string path is empty!");
@@ -47,6 +47,8 @@ namespace Engine
             img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
             buffer_image_ = std::make_unique<Memory::BufferImage>(img_view_props, img_props);
+
+            vk::Queue queue = ApplicationData::data->transfer_queue;
 
             transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
 
