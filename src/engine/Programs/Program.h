@@ -10,6 +10,7 @@
 #include <memancpp/Provider.hpp>
 #include <ApplicationData.hpp>
 #include <GraphicsPipeline/GraphicsPipeline.h>
+#include "ModelBuffer.hpp"
 
 struct GymnureObjData
 {
@@ -35,8 +36,7 @@ namespace Engine
             };
 
             std::unique_ptr<Descriptors::Camera>                camera_          = nullptr;
-            glm::mat4*                                          models_          = nullptr;
-            std::unique_ptr<Memory::Buffer<glm::mat4>>          buffer_          = nullptr;
+            std::unique_ptr<ModelBuffer>                        model_buffer_    = nullptr;
 
         public:
 
@@ -100,44 +100,18 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
-                size_t dynamicAlignment = Memory::Memory::getDynamicAlignment();
-                size_t bufferSize = data.size() * dynamicAlignment;
-                models_ = (glm::mat4 *) Memory::Memory::alignedAlloc(bufferSize, dynamicAlignment);
-
-                for (int i = 0 ; i < data.size(); i ++)
-                    models_[i] = glm::mat4(1.0f);
-
-                models_[1] = glm::translate(models_[1], glm::vec3(2, 2, 2));
-
-                struct BufferData buffer_data = {};
-                buffer_data.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
-                buffer_data.properties = vk::MemoryPropertyFlagBits::eHostVisible;
-                buffer_data.count      = bufferSize / sizeof(glm::mat4);
-
-                buffer_ = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
-                buffer_->updateBuffer(models_);
+                model_buffer_ = std::make_unique<ModelBuffer>(data.size());
 
                 std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
 
                 // Create program Descriptor Set.
                 auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 0);
 
-                vk::DescriptorBufferInfo *buffer_info = new vk::DescriptorBufferInfo();
-                buffer_info->offset = 0;
-                buffer_info->range  = VK_WHOLE_SIZE;
-                buffer_info->buffer = buffer_->getBuffer();
-
                 for (uint32_t i = 0; i < data.size(); i++)
                 {
                     data[i]->descriptor_set = descriptors_sets[i];
 
-                    vk::WriteDescriptorSet model_bind = {};
-                    model_bind.pNext 			= nullptr;
-                    model_bind.dstSet 			= data[i]->descriptor_set;
-                    model_bind.descriptorCount 	= 1;
-                    model_bind.descriptorType 	= vk::DescriptorType::eUniformBufferDynamic;
-                    model_bind.pBufferInfo 		= buffer_info;
-                    model_bind.dstBinding 		= 0;
+                    auto model_bind = model_buffer_->getWrite(data[i]->descriptor_set, 0);
                     writes.push_back(model_bind);
 
                     auto camera_bind = camera_->getWrite(data[i]->descriptor_set, 1);

@@ -51,7 +51,7 @@ namespace Engine
         rp_begin.clearValueCount 	= 2;
         rp_begin.pClearValues 		= clear_values;
 
-        size_t dynamicAlignment = Memory::Memory::getDynamicAlignment();
+        size_t dynamicAlignment = Memory::Memory::getDynamicAlignment<glm::mat4>();
 
         for(uint32_t i = 0; i < image_count; i++)
         {
