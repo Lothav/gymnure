@@ -11,6 +11,7 @@ namespace Engine
     std::unique_ptr<SyncPrimitives::SyncPrimitives> Application::sync_primitives = nullptr;
     std::unique_ptr<CommandBuffers>                 Application::command_buffer = nullptr;
     std::shared_ptr<RenderPass::FrameBuffer> 		Application::frame_buffer = nullptr;
+    std::shared_ptr<Descriptors::Camera>            Application::main_camera = nullptr;
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -48,6 +49,7 @@ namespace Engine
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
         command_buffer.reset();
+        main_camera.reset();
         app_data->device.destroyCommandPool(app_data->graphic_command_pool, nullptr);
         app_data->device.destroy();
         Debug::destroy();
@@ -109,7 +111,7 @@ namespace Engine
     void Application::prepare()
     {
         for (auto &program : programs)
-            program->prepare();
+            program->prepare(main_camera);
         
         command_buffer->bindGraphicCommandBuffer(programs, frame_buffer);
     }
@@ -213,6 +215,9 @@ namespace Engine
 
         // Init Command Buffers
         command_buffer = std::make_unique<CommandBuffers>(frame_buffer->getImageCount());
+
+        // Init Main Camera
+        main_camera = std::make_shared<Descriptors::Camera>(app_data->view_width, app_data->view_height);
     }
 
     void Application::addObjData(uint program_id, GymnureObjData&& data)

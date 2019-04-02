@@ -18,6 +18,7 @@ namespace Engine
         static std::unique_ptr<SyncPrimitives::SyncPrimitives> 	sync_primitives;
         static std::shared_ptr<RenderPass::FrameBuffer>			frame_buffer;
         static std::unique_ptr<CommandBuffers>                  command_buffer;
+        static std::shared_ptr<Descriptors::Camera>             main_camera;
 
         static uint32_t 								        current_buffer_;
 
