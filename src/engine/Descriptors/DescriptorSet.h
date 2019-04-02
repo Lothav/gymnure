@@ -9,7 +9,7 @@
 #include <Allocator.hpp>
 #include <ApplicationData.hpp>
 #include <Util/Debug.hpp>
-#include "Descriptors/UniformBuffer.h"
+#include "Descriptors/Camera.h"
 #include "Descriptors/Texture.hpp"
 #include "Memory/BufferImage.h"
 

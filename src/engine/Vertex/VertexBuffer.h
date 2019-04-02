@@ -11,7 +11,7 @@
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 #include <memory>
-#include <Descriptors/UniformBuffer.h>
+#include <Descriptors/Camera.h>
 
 namespace Engine
 {

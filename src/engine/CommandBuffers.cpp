@@ -51,6 +51,8 @@ namespace Engine
         rp_begin.clearValueCount 	= 2;
         rp_begin.pClearValues 		= clear_values;
 
+        size_t dynamicAlignment = Memory::Memory::getDynamicAlignment();
+
         for(uint32_t i = 0; i < image_count; i++)
         {
             command_buffers_[i].begin(cmd_buf_info);
@@ -59,7 +61,7 @@ namespace Engine
             command_buffers_[i].beginRenderPass(rp_begin, vk::SubpassContents::eInline);
 
             for(auto& program_obj : programs) {
-
+                uint32_t j = 0;
                 for(auto &data : program_obj->data) {
 
                     Util::Util::initViewport(command_buffers_[i], width, height);
@@ -68,9 +70,11 @@ namespace Engine
                     command_buffers_[i].bindPipeline(vk::PipelineBindPoint::eGraphics,
                                                      program_obj->graphic_pipeline->getPipeline());
 
+                    uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
+
                     command_buffers_[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
                                                            program_obj->descriptor_set->getPipelineLayout(), 0,
-                                                           {data->descriptor_set}, {});
+                                                           {data->descriptor_set}, {dynamicOffset});
 
                     command_buffers_[i].bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()}, {0});
 
@@ -81,6 +85,8 @@ namespace Engine
                     } else {
                         command_buffers_[i].draw(data->vertex_buffer->getVertexCount(), 1, 0, 0);
                     }
+
+                    j++;
                 }
             }
 

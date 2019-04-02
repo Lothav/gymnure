@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <ApplicationData.hpp>
+#include <glm/glm.hpp>
 
 namespace Engine
 {
@@ -18,9 +19,20 @@ namespace Engine
 		{
 		public:
 
-			static void copyMemory(vk::DeviceMemory device_memory, const void * object, size_t object_size);
-
 			static uint32_t findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask);
+
+			static void* alignedAlloc(size_t size, size_t alignment);
+
+			static size_t getDynamicAlignment()
+			{
+				// Calculate required alignment based on minimum device offset alignment
+				size_t minUboAlignment = ApplicationData::data->gpu.getProperties().limits.minUniformBufferOffsetAlignment;
+				size_t dynamicAlignment = sizeof(glm::mat4);
+				if (minUboAlignment > 0) {
+					dynamicAlignment = (dynamicAlignment + minUboAlignment - 1) & ~(minUboAlignment - 1);
+				}
+				return dynamicAlignment;
+			}
 		};
 	}
 }

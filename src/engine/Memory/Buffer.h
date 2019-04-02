@@ -40,12 +40,8 @@ namespace Engine
 
                 // Create Buffer
                 vk::BufferCreateInfo bufferInfo = {};
-                bufferInfo.size 				 = buffer_data.count * sizeof(T);
-                bufferInfo.usage 				 = buffer_data.usage;
-                bufferInfo.queueFamilyIndexCount = 0;
-                bufferInfo.pQueueFamilyIndices 	 = nullptr;
-                bufferInfo.sharingMode 			 = vk::SharingMode::eExclusive;
-                bufferInfo.pNext 				 = nullptr;
+                bufferInfo.size  = buffer_data.count * sizeof(T);
+                bufferInfo.usage = buffer_data.usage;
                 this->buf = device.createBuffer(bufferInfo);
 
                 // Create Memory

@@ -20,23 +20,26 @@ namespace Engine
             // Create Layouts
             vk::DescriptorSetLayoutBinding l_bind = {};
 
-            uint32_t binding_count = 0;
+            l_bind.binding 			    = 0;
+            l_bind.descriptorType 	    = vk::DescriptorType::eUniformBufferDynamic;
+            l_bind.descriptorCount 	    = 1;
+            l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
+            l_bind.pImmutableSamplers   = nullptr;
+            layout_bindings_.push_back(l_bind);
+
+            l_bind.binding 			    = 1;
+            l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
+            l_bind.descriptorCount 	    = 1;
+            l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
+            l_bind.pImmutableSamplers   = nullptr;
+            layout_bindings_.push_back(l_bind);
+
+            uint32_t binding_count = 2;
 
             for (uint32_t i = 0; i < texture_count; ++i)
             {
                 l_bind.binding 			    = binding_count++;
                 l_bind.descriptorType 	    = vk::DescriptorType::eCombinedImageSampler;
-                l_bind.descriptorCount 	    = 1;
-                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eFragment;
-                l_bind.pImmutableSamplers   = nullptr;
-
-                layout_bindings_.push_back(l_bind);
-            }
-
-            for (uint32_t i = 0; i < fragment_uniform_count; ++i)
-            {
-                l_bind.binding 			    = binding_count++;
-                l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
                 l_bind.descriptorCount 	    = 1;
                 l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eFragment;
                 l_bind.pImmutableSamplers   = nullptr;
@@ -50,6 +53,17 @@ namespace Engine
                 l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
                 l_bind.descriptorCount 	    = 1;
                 l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
+                l_bind.pImmutableSamplers   = nullptr;
+
+                layout_bindings_.push_back(l_bind);
+            }
+
+            for (uint32_t i = 0; i < fragment_uniform_count; ++i)
+            {
+                l_bind.binding 			    = binding_count++;
+                l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
+                l_bind.descriptorCount 	    = 1;
+                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eFragment;
                 l_bind.pImmutableSamplers   = nullptr;
 
                 layout_bindings_.push_back(l_bind);
@@ -82,7 +96,11 @@ namespace Engine
 
                 vk::DescriptorPoolSize poolSize = {};
                 poolSize.type = vk::DescriptorType::eUniformBufferDynamic;
-                poolSize.descriptorCount = 2 + uniform_count; // M and VP matrices + uniform_count.
+                poolSize.descriptorCount = objects_count; // M matrix.
+                poolSizes.push_back(poolSize);
+
+                poolSize.type = vk::DescriptorType::eUniformBuffer;
+                poolSize.descriptorCount = objects_count * (1 +  uniform_count); // VP matrix + uniform_count.
                 poolSizes.push_back(poolSize);
 
                 if(texture_count > 0) {

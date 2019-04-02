@@ -10,7 +10,7 @@ namespace Engine
 {
 	namespace Descriptors
 	{
-		class UniformBuffer
+		class Camera
 		{
 
 		private:
@@ -22,7 +22,7 @@ namespace Engine
 			glm::mat4 view{};
 			glm::mat4 projection{};
 
-            explicit UniformBuffer()
+            explicit Camera()
 			{
                 struct BufferData buffer_data = {};
                 buffer_data.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
