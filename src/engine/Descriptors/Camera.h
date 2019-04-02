@@ -17,22 +17,31 @@ namespace Engine
 
 			std::unique_ptr<Memory::Buffer<glm::mat4>> buffer_;
 
+            glm::vec3 rotation = glm::vec3(0.0f);
+			vk::DescriptorBufferInfo buffer_info_ {};
+
+
 		public:
 
 			glm::mat4 view{};
 			glm::mat4 projection{};
 
-            explicit Camera()
+            explicit Camera(u_int32_t width, u_int32_t height)
 			{
                 struct BufferData buffer_data = {};
                 buffer_data.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
                 buffer_data.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
                 buffer_data.count      = 1;
-
             	buffer_  = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
-				zoom 	 = -7.0f;
-				rotation = {0.0f, 0.0f, 0.0f};
-			}
+
+                this->projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 1000.0f);
+                this->view = glm::lookAt(glm::vec3(0, 0, -10.0f), glm::vec3(0, 0, 0), glm::vec3(0, -1, 0));
+                this->updateMVP();
+
+				buffer_info_.offset = 0;
+				buffer_info_.range  = VK_WHOLE_SIZE;
+				buffer_info_.buffer = buffer_->getBuffer();
+            }
 
             void* operator new(std::size_t size)
 			{
@@ -44,32 +53,9 @@ namespace Engine
 				// Do not free memory here!
 			}
 
-		private:
-
-			glm::vec3 rotation  = glm::vec3();
-			float zoom = 0;
-
-		public:
-
-			void initModelView(u_int32_t width, u_int32_t height)
+			void moveCamera(const glm::vec3& direction)
 			{
-				this->projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 1000.0f);
-				this->updateUniform();
-			}
-
-			void zoomCamera(double _zoom)
-			{
-				this->zoom += _zoom;
-				if (this->zoom > -2) this->zoom = -2;
-
-				std::cout << "Camera Zoom: " << this->zoom << std::endl;
-				this->updateUniform();
-			}
-
-			void updateUniform()
-			{
-				this->view  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, zoom));
-
+                this->view = glm::translate(this->view, direction);
 				this->updateMVP();
 			}
 
@@ -80,17 +66,12 @@ namespace Engine
 
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind)
 			{
-                vk::DescriptorBufferInfo *buffer_info = new vk::DescriptorBufferInfo();
-				buffer_info->offset 	= 0;
-                buffer_info->range  	= buffer_->getSize();
-                buffer_info->buffer 	= buffer_->getBuffer();
-
                 vk::WriteDescriptorSet write = {};
                 write.pNext 			= nullptr;
                 write.dstSet 			= desc_set;
                 write.descriptorCount 	= 1;
                 write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
-                write.pBufferInfo 		= buffer_info;
+                write.pBufferInfo 		= &buffer_info_;
                 write.dstBinding 		= dst_bind;
 
                 return write;

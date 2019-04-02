@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "Memory/Buffer.h"
 
 namespace Engine
@@ -15,6 +16,7 @@ namespace Engine
 
         glm::mat4*                                  data_    = nullptr;
         std::unique_ptr<Memory::Buffer<glm::mat4>>  buffer_  = nullptr;
+        vk::DescriptorBufferInfo                    buffer_info_ {};
 
     public:
 
@@ -34,6 +36,10 @@ namespace Engine
 
             buffer_ = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
             buffer_->updateBuffer(data_);
+
+            buffer_info_.offset = 0;
+            buffer_info_.range  = VK_WHOLE_SIZE;
+            buffer_info_.buffer = buffer_->getBuffer();
         }
 
         ~ModelBuffer()
@@ -43,17 +49,12 @@ namespace Engine
 
         vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind)
         {
-            vk::DescriptorBufferInfo *buffer_info = new vk::DescriptorBufferInfo();
-            buffer_info->offset 	= 0;
-            buffer_info->range  	= VK_WHOLE_SIZE;
-            buffer_info->buffer 	= buffer_->getBuffer();
-
             vk::WriteDescriptorSet write = {};
             write.pNext 			= nullptr;
             write.dstSet 			= desc_set;
             write.descriptorCount 	= 1;
             write.descriptorType 	= vk::DescriptorType::eUniformBufferDynamic;
-            write.pBufferInfo 		= buffer_info;
+            write.pBufferInfo 		= &buffer_info_;
             write.dstBinding 		= dst_bind;
 
             return write;

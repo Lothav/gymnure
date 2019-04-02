@@ -60,22 +60,26 @@ namespace Engine
                 Debug::logErrorAndDie("Fail to create Texture: unable to create TextureImage!");
 
             // Create sampler
-            vk::SamplerCreateInfo sampler_ = {};
-            sampler_.maxAnisotropy 		= 1.0f;
-            sampler_.magFilter 			= vk::Filter::eLinear;
-            sampler_.minFilter 			= vk::Filter::eLinear;
-            sampler_.mipmapMode 		= vk::SamplerMipmapMode::eLinear;
-            sampler_.addressModeU 		= vk::SamplerAddressMode::eRepeat;
-            sampler_.addressModeV 		= vk::SamplerAddressMode::eRepeat;
-            sampler_.addressModeW 		= vk::SamplerAddressMode::eRepeat;
-            sampler_.mipLodBias 		= 0.0f;
-            sampler_.compareOp 			= vk::CompareOp::eNever;
-            sampler_.minLod 			= 0.0f;
-            sampler_.maxLod 			= 0.0f;
-            sampler_.maxAnisotropy 		= 1.0;
-            sampler_.anisotropyEnable 	= VK_FALSE;
-            sampler_.borderColor 		= vk::BorderColor::eFloatOpaqueWhite;
-            this->sampler_ = ApplicationData::data->device.createSampler(sampler_);
+            vk::SamplerCreateInfo sampler_ci = {};
+            sampler_ci.maxAnisotropy 		= 1.0f;
+            sampler_ci.magFilter 			= vk::Filter::eLinear;
+            sampler_ci.minFilter 			= vk::Filter::eLinear;
+            sampler_ci.mipmapMode 		    = vk::SamplerMipmapMode::eLinear;
+            sampler_ci.addressModeU 		= vk::SamplerAddressMode::eRepeat;
+            sampler_ci.addressModeV 		= vk::SamplerAddressMode::eRepeat;
+            sampler_ci.addressModeW 		= vk::SamplerAddressMode::eRepeat;
+            sampler_ci.mipLodBias 		    = 0.0f;
+            sampler_ci.compareOp 			= vk::CompareOp::eNever;
+            sampler_ci.minLod 			    = 0.0f;
+            sampler_ci.maxLod 			    = 0.0f;
+            sampler_ci.maxAnisotropy 		= 1.0;
+            sampler_ci.anisotropyEnable 	= VK_FALSE;
+            sampler_ci.borderColor 		    = vk::BorderColor::eFloatOpaqueWhite;
+            this->sampler_ = ApplicationData::data->device.createSampler(sampler_ci);
+
+            buffer_info_.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+            buffer_info_.imageView   = buffer_image_->view;
+            buffer_info_.sampler 	 = sampler_;
         }
 
         Texture::~Texture()

@@ -23,6 +23,7 @@ namespace Engine
 
 			std::unique_ptr<Memory::BufferImage> buffer_image_;
 			vk::Sampler sampler_ = {};
+			vk::DescriptorImageInfo buffer_info_{};
 
 		public:
 
@@ -42,17 +43,12 @@ namespace Engine
 
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
 			{
-				vk::DescriptorImageInfo *texture_info = new vk::DescriptorImageInfo();
-				texture_info->imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
-				texture_info->imageView   = buffer_image_->view;
-				texture_info->sampler 	  = sampler_;
-
 				vk::WriteDescriptorSet write = {};
 				write.dstArrayElement = 0;
 				write.descriptorCount = 1;
 				write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
 				write.dstBinding 	  = dst_binding;
-				write.pImageInfo 	  = texture_info;
+				write.pImageInfo 	  = &buffer_info_;
 				write.dstSet 		  = dst_set;
 
 				return write;
