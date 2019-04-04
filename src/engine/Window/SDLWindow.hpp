@@ -93,24 +93,20 @@ namespace Engine
 
                     if(mouse_down && event.type == SDL_MOUSEMOTION)
                     {
-                        //Get the mouse offsets
+                        // Get the mouse offsets
                         float x = (float) event.motion.xrel / width;
                         float y = (float) event.motion.yrel / height;
-                        std::cout << std::to_string(x) << " " << std::to_string(y) << std::endl;
 
-                        if(x != 0 && y != 0)
-                        {
-                            Application::getMainCamera()->rotateCamera(glm::vec3(-y, -x, 0));
-                        }
+                        if (x != 0 && y != 0)
+                            Application::getMainCamera()->rotateCamera3(x, y);
                     }
 
                     if(event.type == SDL_MOUSEWHEEL)
                     {
-                        //Get the mouse offsets
+                        // Get the mouse offsets
                         float zoom = -event.wheel.y;
                         Application::getMainCamera()->zoomCamera(zoom);
                     }
-
 
                     switch(event.type)
                     {
@@ -120,16 +116,16 @@ namespace Engine
                         case SDL_KEYDOWN:
                             switch (event.key.keysym.sym) {
                                 case SDLK_UP:
-                                    Application::getMainCamera()->moveCamera(glm::vec3(0.0f, 0.1f, 0));
+                                    Application::getMainCamera()->moveCamera(glm::vec3(0.0f, 1.f, 0));
                                     break;
                                 case SDLK_DOWN:
-                                    Application::getMainCamera()->moveCamera(glm::vec3(0.0f, -0.1f, 0));
+                                    Application::getMainCamera()->moveCamera(glm::vec3(0.0f, -1.f, 0));
                                     break;
                                 case SDLK_LEFT:
-                                    Application::getMainCamera()->moveCamera(glm::vec3(-0.1f, 0.0f, 0));
+                                    Application::getMainCamera()->moveCamera(glm::vec3(1.f, 0.0f, 0));
                                     break;
                                 case SDLK_RIGHT:
-                                    Application::getMainCamera()->moveCamera(glm::vec3(0.1f, 0.0f, 0));
+                                    Application::getMainCamera()->moveCamera(glm::vec3(-1.f, 0.0f, 0));
                                     break;
                                 default:
                                     break;
