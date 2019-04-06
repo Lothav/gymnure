@@ -44,7 +44,7 @@ namespace Engine
 
 			void moveCamera(const glm::vec3& direction);
             void zoomCamera(float zoom);
-            void rotateCamera3(float delta_phi, float delta_theta);
+            void rotateArcballCamera(float delta_phi, float delta_theta);
 			void updateMVP();
 
             glm::quat rotateBetweenVectors(glm::vec3 start, glm::vec3 dest);

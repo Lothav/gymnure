@@ -98,7 +98,7 @@ namespace Engine
                         float y = (float) event.motion.yrel / height;
 
                         if (x != 0 && y != 0)
-                            Application::getMainCamera()->rotateCamera3(x, y);
+                            Application::getMainCamera()->rotateArcballCamera(x, y);
                     }
 
                     if(event.type == SDL_MOUSEWHEEL)

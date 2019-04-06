@@ -75,7 +75,7 @@ namespace Engine
             return glm::quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
         }
 
-        void Camera::rotateCamera3(float delta_phi, float delta_theta)
+        void Camera::rotateArcballCamera(float delta_phi, float delta_theta)
         {
             glm::vec3 right = glm::normalize(view[0]);
             glm::vec3 up    = glm::normalize(view[1]);
