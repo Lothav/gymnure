@@ -69,6 +69,13 @@ namespace Engine
         #endif
         };
 
+        static inline void logInfo(const float &log_msg)
+        {
+        #ifdef DEBUG
+            std::cout << std::to_string(log_msg) << std::endl;
+        #endif
+        };
+
         static inline void logErrorAndDie(const std::string &log_msg)
         {
         #ifdef DEBUG

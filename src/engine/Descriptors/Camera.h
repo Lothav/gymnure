@@ -21,11 +21,14 @@ namespace Engine
 			std::unique_ptr<Memory::Buffer<glm::mat4>> buffer_;
 
             glm::vec3 rotation = glm::vec3(0.0f);
-			glm::vec3 pos = glm::vec3(10.f, 0, -10.f);
+			glm::vec3 pos = glm::vec3(0.f, 0.f, 10.f);
 			glm::vec3 center = glm::vec3(0.0f);
 			vk::DescriptorBufferInfo buffer_info_ {};
 
-		public:
+            float phi_ = 0.f;
+            float theta_ = glm::radians(90.f);
+
+        public:
 
 			glm::mat4 view{};
 			glm::mat4 projection{};
@@ -47,7 +50,6 @@ namespace Engine
             void rotateArcballCamera(float delta_phi, float delta_theta);
 			void updateMVP();
 
-            glm::quat rotateBetweenVectors(glm::vec3 start, glm::vec3 dest);
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind);
 		};
 	}

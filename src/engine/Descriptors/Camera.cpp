@@ -47,43 +47,26 @@ namespace Engine
             updateMVP();
         }
 
-        glm::quat Camera::rotateBetweenVectors(glm::vec3 start, glm::vec3 dest)
-        {
-            start = glm::normalize(start);
-            dest = glm::normalize(dest);
-
-            float cosTheta = glm::dot(start, dest);
-            glm::vec3 rotationAxis;
-
-            if (cosTheta < -1 + 0.001f){
-                // special case when vectors in opposite directions:
-                // there is no "ideal" rotation axis
-                // So guess one; any will do as long as it's perpendicular to start
-                rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
-                if (glm::length2(rotationAxis) < 0.01 ) // bad luck, they were parallel, try again!
-                    rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
-
-                rotationAxis = glm::normalize(rotationAxis);
-                return glm::angleAxis(glm::radians(180.0f), rotationAxis);
-            }
-
-            rotationAxis = glm::cross(start, dest);
-
-            float s = glm::sqrt( (1+cosTheta)*2 );
-            float invs = 1 / s;
-
-            return glm::quat(s * 0.5f, rotationAxis.x * invs, rotationAxis.y * invs, rotationAxis.z * invs);
-        }
-
         void Camera::rotateArcballCamera(float delta_phi, float delta_theta)
         {
-            glm::vec3 right = glm::normalize(view[0]);
-            glm::vec3 up    = glm::normalize(view[1]);
+            theta_ += delta_theta;
+            if(theta_ > glm::radians(180.f))
+                theta_ = glm::radians(180.f);
+            else if (theta_ < 0.f)
+                theta_ = 0.f;
 
-            glm::vec3 p1 = glm::normalize(view[3]);
-            glm::vec3 p2 = glm::normalize(p1 + 5 * (right*delta_phi - up*delta_theta));
+            phi_ += delta_phi;
 
-            view = glm::toMat4(rotateBetweenVectors(p1, p2)) * view;
+            float x = glm::sin(theta_) * glm::sin(phi_);
+            float y = glm::cos(theta_);
+            float z = glm::cos(phi_) * glm::sin(theta_);
+
+            glm::vec3 pos    = glm::vec3(x, y, z);
+            glm::vec3 center = glm::vec3(0.f, 0.f, 0.f);
+            glm::vec3 right  = glm::cross(pos, glm::vec3(0, -1, 0));
+
+            glm::vec3 up = glm::cross(pos, right);
+            view = glm::lookAt(10 * pos, center, up);
 
             updateMVP();
         }
