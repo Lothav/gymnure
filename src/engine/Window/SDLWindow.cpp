@@ -64,22 +64,11 @@ namespace Engine
 
                 if(event.type == SDL_MOUSEBUTTONUP)
                 {
-                    last_mx = cur_mx = 0.f;
-                    last_my = cur_my = 0.f;
-
                     mouse_down = false;
                 }
 
                 if(mouse_down && event.type == SDL_MOUSEMOTION)
                 {
-                    cur_mx = event.motion.x;
-                    cur_my = event.motion.y;
-
-                    if(last_mx == 0.0f && last_my == 0.0f) {
-                        last_mx = event.motion.x;
-                        last_my = event.motion.y;
-                    }
-
                     float dx = event.motion.xrel / static_cast<float>(width);
                     float dy = event.motion.yrel / static_cast<float>(height);
 
