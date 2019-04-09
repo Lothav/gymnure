@@ -12,8 +12,8 @@ namespace Engine
             buffer_data.count      = 1;
             buffer_  = std::make_unique<Memory::Buffer<glm::mat4>>(buffer_data);
 
-            projection = glm::perspective(glm::radians(60.0f), (float)width / (float)height, 0.001f, 1000.0f);
-            view = glm::lookAt(pos, center, glm::vec3(0, -1, 0));
+            projection = glm::perspective(glm::radians(40.0f), (float)width / (float)height, 0.001f, 1000.0f);
+            view = glm::lookAt(glm::vec3(0.f, 0.f, -zoom_), center, glm::vec3(0, -1, 0));
             updateMVP();
 
             buffer_info_.offset = 0;
@@ -38,11 +38,12 @@ namespace Engine
 
         void Camera::zoomCamera(float zoom)
         {
-            auto factor = zoom * 0.2f + 1.0f;
+            zoom_ += zoom;
 
-            view[3][0] *= factor;
-            view[3][1] *= factor;
-            view[3][2] *= factor;
+            if(zoom_ < 2.f)
+                zoom_ = 2.f;
+
+            view[3] = glm::normalize(view[3]) * zoom_;
 
             updateMVP();
         }
@@ -50,10 +51,7 @@ namespace Engine
         void Camera::rotateArcballCamera(float delta_phi, float delta_theta)
         {
             theta_ += delta_theta;
-            if(theta_ > glm::radians(180.f))
-                theta_ = glm::radians(180.f);
-            else if (theta_ < 0.f)
-                theta_ = 0.f;
+            theta_ = glm::clamp(theta_, glm::radians(5.f), glm::radians(175.f));
 
             phi_ += delta_phi;
 
@@ -66,7 +64,7 @@ namespace Engine
             glm::vec3 right  = glm::cross(pos, glm::vec3(0, -1, 0));
 
             glm::vec3 up = glm::cross(pos, right);
-            view = glm::lookAt(10 * pos, center, up);
+            view = glm::lookAt(zoom_ * pos, center, up);
 
             updateMVP();
         }

@@ -21,10 +21,10 @@ namespace Engine
 			std::unique_ptr<Memory::Buffer<glm::mat4>> buffer_;
 
             glm::vec3 rotation = glm::vec3(0.0f);
-			glm::vec3 pos = glm::vec3(0.f, 0.f, 10.f);
 			glm::vec3 center = glm::vec3(0.0f);
 			vk::DescriptorBufferInfo buffer_info_ {};
 
+			float zoom_ = 10.f;
             float phi_ = 0.f;
             float theta_ = glm::radians(90.f);
 
