@@ -123,7 +123,7 @@ namespace Engine
             vk::PipelineDepthStencilStateCreateInfo ds = {};
             ds.pNext 								= nullptr;
 
-            ds.depthTestEnable 						= VK_FALSE;
+            ds.depthTestEnable 						= VK_TRUE;
             ds.depthWriteEnable 					= VK_TRUE;
             ds.depthCompareOp 						= vk::CompareOp::eLess;
             ds.depthBoundsTestEnable 				= VK_FALSE;
