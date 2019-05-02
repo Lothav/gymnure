@@ -23,9 +23,22 @@ void main()
 	vec3 N = normalize(inNormal);
 	vec3 L = normalize(pos.lightPos.xyz  - inFragWorldPos);
 	vec3 V = normalize(pos.cameraPos.xyz - inFragWorldPos);
-	vec3 R = reflect(-L, N);
-	float diffuse = max(dot(N, L), 0.0);
-	float specular = pow(max(dot(R, V), 0.0), 5.0);
+	vec3 R = normalize(reflect(-L, N));
 
-	outFragColor = vec4(diffuse * color.rgb + specular, 1.0);
+	float inv_pi = 0.318309886;
+
+	float Kd = 5.0;
+	float Ks = 1.0;
+
+	float n_dot_l = max(dot(N, L), 0.0);
+	float r_dot_v = max(dot(R, V), 0.0);
+
+	float ambient  = 0.1;
+	float diffuse  = Kd * inv_pi;
+	float specular = Ks * inv_pi * pow(r_dot_v, 5.0);
+
+	float brdf     = diffuse + specular; // Evaluate the complete Phong BRDF.
+	vec3 radiance = color.rgb * (brdf * n_dot_l + ambient); // Combine the BRDF and the irradiance.
+
+	outFragColor = vec4(radiance, color.a);
 }

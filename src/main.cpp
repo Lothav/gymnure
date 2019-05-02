@@ -20,11 +20,18 @@ int main(int argc, char** argv)
         //    gymnure->addObjData(phong_id, std::move(room2));
         //}
 
+        //{
+        //    auto chalet = GymnureObjData{};
+        //    chalet.paths_textures = {"chalet.jpg"};
+        //    chalet.obj_path 	  = "chalet.obj";
+        //    gymnure->addObjData(phong_id, std::move(chalet));
+        //}
+
         {
-            auto chalet = GymnureObjData{};
-            chalet.paths_textures = {"chalet.jpg"};
-            chalet.obj_path 	  = "chalet.obj";
-            gymnure->addObjData(phong_id, std::move(chalet));
+            auto wolf = GymnureObjData{};
+            wolf.paths_textures = {"wolf/textures/Wolf_Body.jpg"};
+            wolf.obj_path 	    = "wolf/Wolf_One_obj.obj";
+            gymnure->addObjData(phong_id, std::move(wolf));
         }
 
         gymnure->prepare();

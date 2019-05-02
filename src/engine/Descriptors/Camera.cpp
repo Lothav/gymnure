@@ -9,7 +9,7 @@ namespace Engine
             struct BufferData buffer_data = {};
 
             projection = glm::perspective(glm::radians(40.0f), (float)width / (float)height, 0.001f, 1000.0f);
-            view = glm::lookAt(glm::vec3(0.f, 0.f, -zoom_), center, glm::vec3(0, -1, 0));
+            view = glm::lookAt(glm::vec3(0.f, 0.f, zoom_), center, glm::vec3(0, -1, 0));
 
             buffer_data.usage      = vk::BufferUsageFlagBits::eUniformBuffer;
             buffer_data.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
@@ -70,7 +70,7 @@ namespace Engine
             auto spherical_pos = glm::vec3(x, y, z);
 
             glm::vec3 center = glm::vec3(0.f, 0.f, 0.f);
-            glm::vec3 right  = glm::cross(spherical_pos, glm::vec3(0, -1, 0));
+            glm::vec3 right  = glm::cross(spherical_pos, glm::vec3(0, 1, 0));
 
             glm::vec3 up = glm::cross(spherical_pos, right);
             view = glm::lookAt(zoom_ * spherical_pos, center, up);
@@ -83,7 +83,6 @@ namespace Engine
         {
             vp_buffer_->updateBuffer({projection * view});
             pos_buffer_->updateBuffer({glm::vec4(0, 10, 0, 1.f), pos});
-            std::cout << glm::to_string(pos) << std::endl;
         }
 
         std::vector<vk::WriteDescriptorSet> Camera::getWrites(vk::DescriptorSet desc_set, uint32_t dst_bind, uint32_t pos_bind)
