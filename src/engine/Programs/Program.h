@@ -85,7 +85,7 @@ namespace Engine
                     program_data->vertex_buffer->loadObjModelVertices(obj_data.obj_path, obj_data.obj_mtl);
                 else
                     // Empty obj_path. Use triangle as default vertex data.
-                    program_data->vertex_buffer->createPrimitiveTriangle();
+                    program_data->vertex_buffer->createPrimitiveQuad();
 
                 data.push_back(std::move(program_data));
             }

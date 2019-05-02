@@ -70,6 +70,23 @@ namespace Engine
             this->initBuffers(vertexBuffer, indexBuffer);
         }
 
+        void VertexBuffer::createPrimitiveQuad()
+        {
+            std::vector<VertexData> vertexBuffer =
+                {
+                    //     POSITION              UV              NORMAL
+                    { { 10.0f, 0.0f,  10.0f}, {1.0f, 1.0f}, {0.0f, 1.0f, 0.0f} },
+                    { {-10.0f, 0.0f,  10.0f}, {0.0f, 1.0f}, {0.0f, 1.0f, 0.0f} },
+                    { {-10.0f, 0.0f, -10.0f}, {0.0f, 0.0f}, {0.0f, 1.0f, 0.0f} },
+                    { { 10.0f, 0.0f, -10.0f}, {1.0f, 0.0f}, {0.0f, 1.0f, 0.0f} }
+                };
+
+            // Setup indices
+            std::vector<uint32_t> indexBuffer = { 0, 1, 2, 0, 2, 3 };
+
+            this->initBuffers(vertexBuffer, indexBuffer);
+        }
+
         void VertexBuffer::loadObjModelVertices(const std::string &model_path, const std::string& obj_mtl)
         {
             std::vector <VertexData> vertex_data = {};

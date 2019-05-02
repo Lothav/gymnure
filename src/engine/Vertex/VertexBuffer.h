@@ -53,6 +53,7 @@ namespace Engine
 
             void loadObjModelVertices(const std::string& model_path, const std::string& obj_mtl);
             void createPrimitiveTriangle();
+            void createPrimitiveQuad();
 
         };
     }
