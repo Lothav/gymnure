@@ -2,6 +2,7 @@
 
 #include <Programs/Default.hpp>
 #include <Util/Debug.hpp>
+#include <Programs/Phong.hpp>
 
 namespace Engine
 {
@@ -238,6 +239,14 @@ namespace Engine
     uint Application::createDefaultProgram()
     {
         auto program = std::make_unique<Programs::Default>(frame_buffer->getRenderPass());
+        programs.push_back(std::move(program));
+
+        return static_cast<uint>(programs.size() - 1);
+    }
+
+    uint Application::createPhongProgram()
+    {
+        auto program = std::make_unique<Programs::Phong>(frame_buffer->getRenderPass());
         programs.push_back(std::move(program));
 
         return static_cast<uint>(programs.size() - 1);

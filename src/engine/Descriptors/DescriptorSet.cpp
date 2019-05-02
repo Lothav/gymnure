@@ -1,4 +1,4 @@
-#include "DescriptorSet.h"
+ #include "DescriptorSet.h"
 
 namespace Engine
 {
@@ -20,6 +20,7 @@ namespace Engine
             // Create Layouts
             vk::DescriptorSetLayoutBinding l_bind = {};
 
+            // Model Matrix
             l_bind.binding 			    = 0;
             l_bind.descriptorType 	    = vk::DescriptorType::eUniformBufferDynamic;
             l_bind.descriptorCount 	    = 1;
@@ -27,6 +28,7 @@ namespace Engine
             l_bind.pImmutableSamplers   = nullptr;
             layout_bindings_.push_back(l_bind);
 
+            // View-Projection Matrix
             l_bind.binding 			    = 1;
             l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
             l_bind.descriptorCount 	    = 1;

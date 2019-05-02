@@ -18,15 +18,19 @@ namespace Engine
 
 		private:
 
-			std::unique_ptr<Memory::Buffer<glm::mat4>> buffer_;
+            vk::DescriptorBufferInfo vp_buffer_info_ {};
+			std::unique_ptr<Memory::Buffer<glm::mat4>> vp_buffer_;
+
+            vk::DescriptorBufferInfo pos_buffer_info_ {};
+            std::unique_ptr<Memory::Buffer<glm::vec4>> pos_buffer_;
 
             glm::vec3 rotation = glm::vec3(0.0f);
 			glm::vec3 center = glm::vec3(0.0f);
-			vk::DescriptorBufferInfo buffer_info_ {};
 
 			float zoom_ = 10.f;
             float phi_ = 0.f;
             float theta_ = glm::radians(90.f);
+            glm::vec4 pos = glm::vec4(0.f, 0.f, 0.f, 1.f);
 
         public:
 
@@ -45,12 +49,17 @@ namespace Engine
 				// Do not free memory here!
 			}
 
+			glm::vec3 getPosition() const
+			{
+            	return glm::vec3(view[3]);
+            }
+
 			void moveCamera(const glm::vec3& direction);
             void zoomCamera(float zoom);
             void rotateArcballCamera(float delta_phi, float delta_theta);
 			void updateMVP();
 
-			vk::WriteDescriptorSet getWrite(vk::DescriptorSet desc_set, uint32_t dst_bind);
+            std::vector<vk::WriteDescriptorSet> getWrites(vk::DescriptorSet desc_set, uint32_t dst_bind, uint32_t pos_bind);
 		};
 	}
 }

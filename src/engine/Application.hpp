@@ -32,6 +32,7 @@ namespace Engine
 
         static std::shared_ptr<Descriptors::Camera> getMainCamera();
         static uint createDefaultProgram();
+        static uint createPhongProgram();
         static void addObjData(uint, GymnureObjData&&);
     };
 

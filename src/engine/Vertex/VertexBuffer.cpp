@@ -59,9 +59,9 @@ namespace Engine
             std::vector<VertexData> vertexBuffer =
             {
                 //     POSITION              UV              NORMAL
-                { { 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f} /*, {0.0f, 0.0f, -1.0f}*/ },
-                { {-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f} /*, {0.0f, 0.0f, -1.0f}*/ },
-                { { 0.0f, -1.0f, 0.0f}, {0.5f, 1.0f} /*, {0.0f, 0.0f, -1.0f}*/ }
+                { { 1.0f,  1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, -1.0f} },
+                { {-1.0f,  1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, -1.0f} },
+                { { 0.0f, -1.0f, 0.0f}, {0.5f, 1.0f}, {0.0f, 0.0f, -1.0f} }
             };
 
             // Setup indices
@@ -111,7 +111,7 @@ namespace Engine
                         index.normal_index > -1 ? attrib.normals[3 * index.normal_index + 2] : 1.0f
                     };
 
-                    struct VertexData vertex = { pos, uv };
+                    struct VertexData vertex = { pos, uv, normal };
 
                     if (uniqueVertices.count(vertex) == 0) {
                         uniqueVertices[vertex] = static_cast<uint32_t>(vertex_data.size());

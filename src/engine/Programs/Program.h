@@ -35,6 +35,8 @@ namespace Engine
                 vk::DescriptorSet                                  descriptor_set = {}; // Each object must have a different DS
             };
 
+        protected:
+
             std::unique_ptr<ModelBuffer>                        model_buffer_    = nullptr;
 
         public:
@@ -43,12 +45,7 @@ namespace Engine
             std::unique_ptr<Descriptors::DescriptorSet>         descriptor_set   = nullptr;
             std::unique_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline = nullptr;
 
-            Program()
-            {
-                auto app_data = ApplicationData::data;
-
-                //  Create Camera
-            }
+            Program() = default;
 
             ~Program()
             {
@@ -93,7 +90,7 @@ namespace Engine
                 data.push_back(std::move(program_data));
             }
 
-            void prepare(const std::shared_ptr<Descriptors::Camera>& camera)
+            virtual void prepare(const std::shared_ptr<Descriptors::Camera>& camera)
             {
                 auto app_data = ApplicationData::data;
 
@@ -111,8 +108,8 @@ namespace Engine
                     auto model_bind = model_buffer_->getWrite(descriptors_sets[i], 0);
                     writes.push_back(model_bind);
 
-                    auto camera_bind = camera->getWrite(descriptors_sets[i], 1);
-                    writes.push_back(camera_bind);
+                    //auto camera_bind = camera->getWrite(descriptors_sets[i], 1);
+                    //writes.push_back(camera_bind);
 
                     for (uint32_t j = 0; j < data[i]->textures.size(); ++j)
                     {

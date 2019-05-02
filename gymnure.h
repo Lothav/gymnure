@@ -32,9 +32,9 @@ public:
 
     ~Gymnure()
     {
-    #ifdef DEBUG
+#ifdef DEBUG
         Engine::Application::destroy();
-    #endif
+#endif
         mem::Provider::destroyPool();
     }
 
@@ -42,6 +42,12 @@ public:
     {
         return Engine::Application::createDefaultProgram();
     }
+
+    uint initPhongProgram()
+    {
+        return Engine::Application::createPhongProgram();
+    }
+
 
     void addObjData(uint program_id, GymnureObjData&& gymnure_data)
     {
