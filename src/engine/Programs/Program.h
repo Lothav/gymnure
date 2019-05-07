@@ -7,7 +7,6 @@
 
 #include <Descriptors/DescriptorSet.h>
 #include <Vertex/VertexBuffer.h>
-#include <memancpp/Provider.hpp>
 #include <ApplicationData.hpp>
 #include <GraphicsPipeline/GraphicsPipeline.h>
 #include "ModelBuffer.hpp"
@@ -56,16 +55,6 @@ namespace Engine
                 data.clear();
             }
 
-            void* operator new (std::size_t size)
-            {
-                return mem::Provider::getMemory(size);
-            }
-
-            void operator delete(void* ptr)
-            {
-                // Do not free memory here!
-            }
-
             void addObjData(GymnureObjData&& obj_data)
             {
                 auto app_data = ApplicationData::data;
@@ -96,7 +85,7 @@ namespace Engine
 
                 model_buffer_ = std::make_unique<ModelBuffer>(data.size());
 
-                std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
+                std::vector<vk::WriteDescriptorSet> writes = {};
 
                 // Create program Descriptor Set.
                 auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 0);

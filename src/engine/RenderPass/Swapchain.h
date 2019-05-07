@@ -5,11 +5,11 @@
 #ifndef OBSIDIAN2D_SWAPCHAIN_H
 #define OBSIDIAN2D_SWAPCHAIN_H
 
-#include <vulkan/vulkan.hpp>
+#include <vector>
 #include <iostream>
+#include <vulkan/vulkan.hpp>
 #include "Descriptors/Texture.hpp"
 #include "Memory/BufferImage.h"
-#include <vector>
 #include <Util/Debug.hpp>
 
 namespace Engine
@@ -34,26 +34,11 @@ namespace Engine
 
 			~SwapChain();
 
-			void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
-
 			uint32_t getImageCount() const;
-
 			vk::ImageView getSwapChainImageView(uint32_t i) const;
-
 			vk::Format getSwapChainFormat() const;
-
 			vk::SwapchainKHR getSwapChainKHR() const;
-
 			vk::Queue getGraphicQueue() const;
-
 			vk::Queue getPresentQueue() const;
 
 		private:

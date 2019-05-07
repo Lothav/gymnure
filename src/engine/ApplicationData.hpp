@@ -25,9 +25,7 @@ namespace Engine
         vk::Queue                               transfer_queue;
         uint32_t							 	queue_family_count;
         vk::PhysicalDeviceMemoryProperties 		memory_properties;
-        std::vector<vk::QueueFamilyProperties,
-            mem::StdAllocator<
-                vk::QueueFamilyProperties>>     queue_family_props;
+        std::vector<vk::QueueFamilyProperties>  queue_family_props;
     };
 
     class ApplicationData

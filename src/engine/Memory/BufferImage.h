@@ -67,16 +67,6 @@ namespace Engine
 
             ~BufferImage();
 
-            void* operator new(std::size_t size)
-            {
-                return mem::Provider::getMemory(size);
-            }
-
-            void operator delete(void* ptr)
-            {
-                // Do not free memory here!
-            }
-
         private:
 
             vk::Image createImage(const struct ImageProps& img_props, vk::Format format);

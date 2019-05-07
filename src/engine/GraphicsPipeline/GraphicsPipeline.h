@@ -7,7 +7,6 @@
 
 #include <vulkan/vulkan.hpp>
 #include <array>
-#include <Provider.hpp>
 #include <Allocator.hpp>
 #include "Util/Util.h"
 
@@ -27,9 +26,7 @@ namespace Engine
 
             vk::PipelineCache 						                pipeline_cache_{};
 			vk::Pipeline 								            pipeline_{};
-			std::vector<vk::PipelineShaderStageCreateInfo,
-					mem::StdAllocator<
-					        vk::PipelineShaderStageCreateInfo>> 	shader_stages_;
+			std::vector<vk::PipelineShaderStageCreateInfo> 			shader_stages_;
             std::vector<vk::VertexInputAttributeDescription>        vi_attributes_;
 
 		public:
@@ -37,16 +34,6 @@ namespace Engine
 			explicit GraphicsPipeline(std::vector<Shader>&& shaders);
 
             ~GraphicsPipeline();
-
-			void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
 
 			vk::Pipeline getPipeline() const;
 

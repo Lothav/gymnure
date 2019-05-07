@@ -5,12 +5,12 @@
 #ifndef OBSIDIAN2D_VERTEX_BUFFER_H
 #define OBSIDIAN2D_VERTEX_BUFFER_H
 
+#include <memory>
 #include <utility>
 #include <vector>
 #include <Util/Util.h>
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
-#include <memory>
 #include <Descriptors/Camera.h>
 
 namespace Engine
@@ -34,16 +34,6 @@ namespace Engine
 
             VertexBuffer() = default;
             ~VertexBuffer() = default;
-
-            void* operator new(std::size_t size)
-            {
-                return mem::Provider::getMemory(size);
-            }
-
-            void operator delete(void* ptr)
-            {
-                // Do not free memory here!
-            }
 
             uint32_t getVertexCount() const;
             vk::Buffer getVertexBuffer() const;

@@ -7,7 +7,6 @@
 #include "vulkan/vulkan.h"
 
 #include <vector>
-#include <memancpp/Allocator.hpp>
 #include <Memory/BufferImage.h>
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
@@ -30,16 +29,6 @@ namespace Engine
 			Texture(const std::string &texture_path);
 
 			~Texture();
-
-			void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
 
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
 			{

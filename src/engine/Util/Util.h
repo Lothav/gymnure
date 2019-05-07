@@ -26,7 +26,6 @@
 #include <iostream>
 #include <chrono>
 
-#include <memancpp/Provider.hpp>
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL

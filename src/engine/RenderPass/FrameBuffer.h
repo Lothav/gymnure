@@ -30,16 +30,6 @@ namespace Engine
 
 			virtual ~FrameBuffer();
 
-			void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
-
 			uint32_t getImageCount() const;
 			const vk::Format getDepthBufferFormat() const;
 			std::shared_ptr<SwapChain> getSwapChain() const;

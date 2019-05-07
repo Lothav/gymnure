@@ -9,7 +9,6 @@
 #include <cassert>
 #include <vector>
 #include <zconf.h>
-#include <memancpp/Provider.hpp>
 #include <ApplicationData.hpp>
 
 namespace Engine
@@ -29,16 +28,6 @@ namespace Engine
 
 			SyncPrimitives() = default;
 			~SyncPrimitives();
-
-            void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
 
 			void createSemaphore();
 			void createFences(uint32_t size);

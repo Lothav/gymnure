@@ -105,8 +105,7 @@ namespace Engine
             cb.blendConstants[2] 				    = 1.0f;
             cb.blendConstants[3] 				    = 1.0f;
 
-            std::vector<vk::DynamicState, mem::StdAllocator<vk::DynamicState>>
-                dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+            std::vector<vk::DynamicState> dynamicStateEnables = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
 
             vk::PipelineViewportStateCreateInfo vp = {};
             vp.pNext 								= nullptr;

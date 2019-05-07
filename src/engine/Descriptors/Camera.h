@@ -39,16 +39,6 @@ namespace Engine
 
             explicit Camera(u_int32_t width, u_int32_t height);
 
-            void* operator new(std::size_t size)
-			{
-				return mem::Provider::getMemory(size);
-			}
-
-			void operator delete(void* ptr)
-			{
-				// Do not free memory here!
-			}
-
 			glm::vec3 getPosition() const
 			{
             	return glm::vec3(view[3]);

@@ -5,7 +5,6 @@
 #ifndef OBSIDIAN2D_DESCRIPTORSET_H
 #define OBSIDIAN2D_DESCRIPTORSET_H
 
-#include <Provider.hpp>
 #include <Allocator.hpp>
 #include <ApplicationData.hpp>
 #include <Util/Debug.hpp>
@@ -23,10 +22,7 @@ namespace Engine
 
         private:
 
-            std::vector<vk::DescriptorSetLayoutBinding,
-                mem::StdAllocator<
-                    vk::DescriptorSetLayoutBinding>>    layout_bindings_    = {};
-
+            std::vector<vk::DescriptorSetLayoutBinding> layout_bindings_    = {};
             vk::DescriptorSetLayout 		            desc_layout_        = {};
             vk::PipelineLayout 						    pipeline_layout_    = {};
             vk::DescriptorPool                          desc_pool_          = {};
@@ -36,18 +32,7 @@ namespace Engine
             explicit DescriptorSet(uint32_t texture_count, uint32_t vertex_uniform_count, uint32_t fragment_uniform_count);
             ~DescriptorSet();
 
-            void* operator new(std::size_t size)
-            {
-                return mem::Provider::getMemory(size);
-            }
-
-            void operator delete(void* ptr)
-            {
-                // Do not free memory here!
-            }
-
             std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t uniform_count);
-
             vk::PipelineLayout getPipelineLayout() const;
         };
     }

@@ -65,7 +65,7 @@ namespace Engine
 
                 model_buffer_ = std::make_unique<ModelBuffer>(data.size());
 
-                std::vector<vk::WriteDescriptorSet, mem::StdAllocator<vk::WriteDescriptorSet>> writes = {};
+                std::vector<vk::WriteDescriptorSet> writes = {};
 
                 // Create program Descriptor Set.
                 auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 1);
