@@ -88,7 +88,7 @@ namespace Engine
                 std::vector<vk::WriteDescriptorSet> writes = {};
 
                 // Create program Descriptor Set.
-                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 0);
+                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()));
 
                 for (uint32_t i = 0; i < data.size(); i++)
                 {

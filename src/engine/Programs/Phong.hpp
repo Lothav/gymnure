@@ -18,8 +18,12 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
+                auto ds_data = Descriptors::DescriptorSetData{};
+                ds_data.fragment_texture_count = 1;
+                ds_data.fragment_uniform_count = 1;
+
                 // Create Descriptor Set
-                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(1, 0, 1);
+                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(ds_data);
 
                 // Create Graphics Pipeline
                 {
@@ -68,7 +72,7 @@ namespace Engine
                 std::vector<vk::WriteDescriptorSet> writes = {};
 
                 // Create program Descriptor Set.
-                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()), 1, 1);
+                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()));
 
                 for (uint32_t i = 0; i < data.size(); i++)
                 {
@@ -77,10 +81,10 @@ namespace Engine
                     auto model_bind = model_buffer_->getWrite(descriptors_sets[i], 0);
                     writes.push_back(model_bind);
 
-                    auto camera_binds = camera->getWrites(descriptors_sets[i], 1, 3);
+                    auto camera_binds = camera->getWrites(descriptors_sets[i], 1, 2);
                     writes.push_back(camera_binds[0]);
 
-                    auto texture_bind = data[i]->textures[0]->getWrite(descriptors_sets[i], 2);
+                    auto texture_bind = data[i]->textures[0]->getWrite(descriptors_sets[i], 3);
                     writes.push_back(texture_bind);
 
                     writes.push_back(camera_binds[1]);

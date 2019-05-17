@@ -9,6 +9,13 @@ namespace Engine
 {
     namespace Programs
     {
+        struct ProgramData
+        {
+            std::vector<Engine::GraphicsPipeline::Shader> shaders;
+            std::vector<vk::VertexInputAttributeDescription> vi_attribs;
+            vk::CullModeFlagBits cull_mode;
+        };
+
         class Default : public Program
         {
 
@@ -18,8 +25,11 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
+                auto ds_data = Descriptors::DescriptorSetData{};
+                ds_data.fragment_texture_count = 1;
+
                 // Create Descriptor Set
-                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(1, 0, 0);
+                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(ds_data);
 
                 // Create Graphics Pipeline
                 {

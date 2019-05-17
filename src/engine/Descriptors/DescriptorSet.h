@@ -16,6 +16,17 @@ namespace Engine
 {
     namespace Descriptors
     {
+        struct DescriptorSetData
+        {
+            bool has_model_matrix           = true;
+            bool has_view_projection_matrix = true;
+
+            uint32_t vertex_uniform_count   = 0;
+            uint32_t vertex_texture_count   = 0;
+
+            uint32_t fragment_texture_count = 0;
+            uint32_t fragment_uniform_count = 0;
+        };
 
         class DescriptorSet
         {
@@ -27,12 +38,14 @@ namespace Engine
             vk::PipelineLayout 						    pipeline_layout_    = {};
             vk::DescriptorPool                          desc_pool_          = {};
 
+            DescriptorSetData                           ds_data_ = {};
+
         public:
 
-            explicit DescriptorSet(uint32_t texture_count, uint32_t vertex_uniform_count, uint32_t fragment_uniform_count);
+            explicit DescriptorSet(const DescriptorSetData& descriptor_set_data);
             ~DescriptorSet();
 
-            std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t uniform_count);
+            std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count);
             vk::PipelineLayout getPipelineLayout() const;
         };
     }

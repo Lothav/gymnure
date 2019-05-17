@@ -13,43 +13,36 @@ namespace Engine
             device.destroyDescriptorPool(desc_pool_);
         }
 
-        DescriptorSet::DescriptorSet(uint32_t texture_count, uint32_t vertex_uniform_count, uint32_t fragment_uniform_count)
+        DescriptorSet::DescriptorSet(const DescriptorSetData& ds_data) : ds_data_(ds_data)
         {
             auto app_data = ApplicationData::data;
+
+            uint32_t binding_count = 0;
 
             // Create Layouts
             vk::DescriptorSetLayoutBinding l_bind = {};
 
-            // Model Matrix
-            l_bind.binding 			    = 0;
-            l_bind.descriptorType 	    = vk::DescriptorType::eUniformBufferDynamic;
-            l_bind.descriptorCount 	    = 1;
-            l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
-            l_bind.pImmutableSamplers   = nullptr;
-            layout_bindings_.push_back(l_bind);
-
-            // View-Projection Matrix
-            l_bind.binding 			    = 1;
-            l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
-            l_bind.descriptorCount 	    = 1;
-            l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
-            l_bind.pImmutableSamplers   = nullptr;
-            layout_bindings_.push_back(l_bind);
-
-            uint32_t binding_count = 2;
-
-            for (uint32_t i = 0; i < texture_count; ++i)
-            {
+            if(ds_data.has_model_matrix) {
+                // Model Matrix
                 l_bind.binding 			    = binding_count++;
-                l_bind.descriptorType 	    = vk::DescriptorType::eCombinedImageSampler;
+                l_bind.descriptorType 	    = vk::DescriptorType::eUniformBufferDynamic;
                 l_bind.descriptorCount 	    = 1;
-                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eFragment;
+                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
                 l_bind.pImmutableSamplers   = nullptr;
-
                 layout_bindings_.push_back(l_bind);
             }
 
-            for (uint32_t i = 0; i < vertex_uniform_count; ++i)
+            if(ds_data.has_view_projection_matrix) {
+                // View-Projection Matrix
+                l_bind.binding 			    = binding_count++;
+                l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
+                l_bind.descriptorCount 	    = 1;
+                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
+                l_bind.pImmutableSamplers   = nullptr;
+                layout_bindings_.push_back(l_bind);
+            }
+
+            for (uint32_t i = 0; i < ds_data.vertex_uniform_count; ++i)
             {
                 l_bind.binding 			    = binding_count++;
                 l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
@@ -60,10 +53,32 @@ namespace Engine
                 layout_bindings_.push_back(l_bind);
             }
 
-            for (uint32_t i = 0; i < fragment_uniform_count; ++i)
+            for (uint32_t i = 0; i < ds_data.vertex_texture_count; ++i)
+            {
+                l_bind.binding 			    = binding_count++;
+                l_bind.descriptorType 	    = vk::DescriptorType::eCombinedImageSampler;
+                l_bind.descriptorCount 	    = 1;
+                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eVertex;
+                l_bind.pImmutableSamplers   = nullptr;
+
+                layout_bindings_.push_back(l_bind);
+            }
+
+            for (uint32_t i = 0; i < ds_data.fragment_uniform_count; ++i)
             {
                 l_bind.binding 			    = binding_count++;
                 l_bind.descriptorType 	    = vk::DescriptorType::eUniformBuffer;
+                l_bind.descriptorCount 	    = 1;
+                l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eFragment;
+                l_bind.pImmutableSamplers   = nullptr;
+
+                layout_bindings_.push_back(l_bind);
+            }
+
+            for (uint32_t i = 0; i < ds_data.fragment_texture_count; ++i)
+            {
+                l_bind.binding 			    = binding_count++;
+                l_bind.descriptorType 	    = vk::DescriptorType::eCombinedImageSampler;
                 l_bind.descriptorCount 	    = 1;
                 l_bind.stageFlags 		    = vk::ShaderStageFlagBits::eFragment;
                 l_bind.pImmutableSamplers   = nullptr;
@@ -90,21 +105,29 @@ namespace Engine
             pipeline_layout_ = app_data->device.createPipelineLayout(pPipelineLayoutCreateInfo);
         }
 
-        std::vector<vk::DescriptorSet> DescriptorSet::createDescriptorSets(uint32_t objects_count, uint32_t texture_count, uint32_t uniform_count)
+        std::vector<vk::DescriptorSet> DescriptorSet::createDescriptorSets(uint32_t objects_count)
         {
             // Create Descriptor Set
             {
                 std::vector<vk::DescriptorPoolSize> poolSizes = {};
 
                 vk::DescriptorPoolSize poolSize = {};
-                poolSize.type = vk::DescriptorType::eUniformBufferDynamic;
-                poolSize.descriptorCount = objects_count; // M matrix.
-                poolSizes.push_back(poolSize);
 
-                poolSize.type = vk::DescriptorType::eUniformBuffer;
-                poolSize.descriptorCount = objects_count * (1 +  uniform_count); // VP matrix + uniform_count.
-                poolSizes.push_back(poolSize);
+                if(ds_data_.has_model_matrix){
+                    poolSize.type = vk::DescriptorType::eUniformBufferDynamic;
+                    poolSize.descriptorCount = objects_count; // M matrix.
+                    poolSizes.push_back(poolSize);
+                }
 
+                uint32_t uniform_count = ds_data_.vertex_uniform_count + ds_data_.fragment_uniform_count;
+                if(uniform_count > 0){
+                    uint32_t vp_mat_count = ds_data_.has_view_projection_matrix ? 1 : 0;
+                    poolSize.type = vk::DescriptorType::eUniformBuffer;
+                    poolSize.descriptorCount = objects_count * (vp_mat_count + uniform_count); // VP matrix + uniform_count.
+                    poolSizes.push_back(poolSize);
+                }
+
+                uint32_t texture_count = ds_data_.vertex_texture_count + ds_data_.fragment_texture_count;
                 if(texture_count > 0) {
                     poolSize.type = vk::DescriptorType::eCombinedImageSampler;
                     poolSize.descriptorCount = objects_count * texture_count;
@@ -123,8 +146,6 @@ namespace Engine
             std::vector<vk::DescriptorSetLayout> layouts = {};
             for (int i = 0; i < objects_count; ++i)
                 layouts.push_back(desc_layout_);
-
-            std::vector<vk::DescriptorSet> desc_sets_;
 
             vk::DescriptorSetAllocateInfo alloc_info_;
             alloc_info_.pNext 				= nullptr;
