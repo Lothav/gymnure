@@ -16,39 +16,54 @@ layout (location = 2) in vec3 inNormal;
 
 layout (location = 0) out vec4 outFragColor;
 
+struct LightData
+{
+	vec3 pos;
+	vec3 color;
+};
+
+const LightData[2] lights = LightData[2](
+	LightData(vec3(10,  0, 0), vec3(1, 0, 0)),
+	LightData(vec3( 0, 10, 0), vec3(0, 1, 0)));
+
+const float inv_pi = 0.318309886;
+
 void main()
 {
+	int LIGHT_COUNT = 2;
+
 	vec4 diffuse_color = texture(samplerColor, inUV, 0.0);
-	vec3 light_color = vec3(1, 1 ,1);
-	vec3 ambient_color = vec3(1, 1, 1);
+	vec3 radiance = vec3(0, 0, 0);
 
-	vec3 light_dir = pos.lightPos.xyz - inFragWorldPos;
-	float distance = length(light_dir);
-
-	vec3 L = light_dir / distance;
-	vec3 N = normalize(inNormal);
-	vec3 V = normalize(pos.cameraPos.xyz - inFragWorldPos);
-	vec3 R = normalize(reflect(-L, N));
-	vec3 H = normalize(L + V);
-
-	distance *= distance;
-
-	float inv_pi = 0.318309886;
-
+	float Ka = 0.2;
 	float Kd = 100.0;
-	float Ks = 20.0;
+	float Ks = 40.0;
 
-	float n_dot_l = max(dot(N, L), 0.0);
-	float r_dot_v = max(dot(R, V), 0.0);
-	float n_dot_h = max(dot(N, H), 0.0);
+	for(int i = 0; i < lights.length(); i++)
+	{
+		vec3 light_dir = lights[i].pos - inFragWorldPos;
+		vec3 light_color = lights[i].color;
+		float distance = length(light_dir);
 
-	float ambient  = 0.2;
-	float diffuse  = Kd * n_dot_l / distance;
-	float specular = Ks * pow(n_dot_h, 15.0) / distance;
+		vec3 L = light_dir / distance;
+		vec3 N = normalize(inNormal);
+		vec3 V = normalize(pos.cameraPos.xyz - inFragWorldPos);
+		vec3 R = normalize(reflect(-L, N));
+		vec3 H = normalize(L + V);
 
-	vec3 radiance  = diffuse_color.rgb * ambient +
-					 diffuse_color.rgb * diffuse +
-					 light_color * specular;
+		distance *= distance;
+
+		float n_dot_l = max(dot(N, L), 0.0);
+		float r_dot_v = max(dot(R, V), 0.0);
+		float n_dot_h = max(dot(N, H), 0.0);
+
+		float diffuse  = Kd * inv_pi * n_dot_l / distance;
+		float specular = Ks * inv_pi * pow(n_dot_h, 15.0) / distance;
+
+		radiance += diffuse_color.rgb * Ka +
+					diffuse_color.rgb * diffuse +
+					light_color.rgb   * specular;
+	}
 
 	outFragColor = vec4(radiance, diffuse_color.a);
 }

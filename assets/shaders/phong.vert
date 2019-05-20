@@ -22,7 +22,9 @@ layout (location = 2) out vec3 outNormal;
 void main()
 {
    	outUV           = inUV;
-    outFragWorldPos = (m.data * vec4(inPos, 1.0)).xyz;
+    outFragWorldPos = (/*m.data **/ vec4(inPos, 1.0)).xyz;
 	gl_Position     = vp.data * vec4(outFragWorldPos, 1.0);
-	outNormal       = vec4(mat4(inverse(transpose(m.data))) * vec4(inNormal, 1.0)).xyz;
+
+    vec4 tNormal    = vec4(/*inverse(transpose(m.data)) * */vec4(inNormal, 1.0));
+    outNormal       = tNormal.xyz / tNormal.w;
 }
