@@ -34,12 +34,12 @@ int main(int argc, char** argv)
             gymnure->addObjData(phong_id, std::move(wolf));
         }
 
-        //{
-        //    auto quad = GymnureObjData{};
-        //    quad.paths_textures = {"baleog.jpg"};
-        //    gymnure->addObjData(phong_id, std::move(quad));
-        //}
-//
+        {
+            auto quad = GymnureObjData{};
+            quad.paths_textures = {"baleog.jpg"};
+            gymnure->addObjData(phong_id, std::move(quad));
+        }
+
         gymnure->prepare();
 
 		while(true) {

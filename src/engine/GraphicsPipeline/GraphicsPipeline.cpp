@@ -75,7 +75,7 @@ namespace Engine
             rs.pNext 								= nullptr;
             rs.polygonMode 							= vk::PolygonMode::eFill;
             rs.cullMode 							= cull_mode;
-            rs.frontFace 							= vk::FrontFace::eCounterClockwise;
+            rs.frontFace 							= vk::FrontFace::eClockwise;
             rs.depthClampEnable 					= VK_FALSE;
             rs.rasterizerDiscardEnable 				= VK_FALSE;
             rs.depthBiasEnable 						= VK_FALSE;

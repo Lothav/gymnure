@@ -23,8 +23,8 @@ struct LightData
 };
 
 const LightData[2] lights = LightData[2](
-	LightData(vec3(10,  0, 0), vec3(1, 0, 0)),
-	LightData(vec3( 0, 10, 0), vec3(0, 1, 0)));
+	LightData(vec3(1,  5, 10), vec3(1, 0, 0)),
+	LightData(vec3(3, 3, 3), vec3(0, 1, 0)));
 
 const float inv_pi = 0.318309886;
 
@@ -58,7 +58,7 @@ void main()
 		float n_dot_h = max(dot(N, H), 0.0);
 
 		float diffuse  = Kd * inv_pi * n_dot_l / distance;
-		float specular = Ks * inv_pi * pow(n_dot_h, 15.0) / distance;
+		float specular = Ks * inv_pi * pow(n_dot_h, 3.0) / distance;
 
 		radiance += diffuse_color.rgb * Ka +
 					diffuse_color.rgb * diffuse +

@@ -60,7 +60,7 @@ namespace Engine
                     graphic_pipeline->addViAttributes(vi_attribs);
                 }
 
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eFront);
+                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eBack);
             }
 
             void prepare(const std::shared_ptr<Descriptors::Camera>& camera) override
