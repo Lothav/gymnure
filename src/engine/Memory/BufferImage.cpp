@@ -8,27 +8,6 @@ namespace Engine
 {
     namespace Memory
     {
-        vk::ImageView BufferImage::createImageView(const struct ImageViewProps& image_view_props) const
-        {
-            vk::ImageView image_view{};
-
-            // Create Image View
-            vk::ImageViewCreateInfo viewInfo = {};
-            viewInfo.image 							 = this->image;
-            viewInfo.viewType 						 = vk::ImageViewType::e2D;
-            viewInfo.format 						 = image_view_props.format;
-            viewInfo.components                      = image_view_props.component;
-            viewInfo.subresourceRange.aspectMask 	 = image_view_props.aspectMask;
-            viewInfo.subresourceRange.baseMipLevel 	 = 0;
-            viewInfo.subresourceRange.levelCount 	 = 1;
-            viewInfo.subresourceRange.baseArrayLayer = 0;
-            viewInfo.subresourceRange.layerCount 	 = 1;
-
-            DEBUG_CALL(image_view = ApplicationData::data->device.createImageView(viewInfo));
-
-            return image_view;
-        }
-
         BufferImage::~BufferImage()
         {
             auto device = ApplicationData::data->device;
@@ -41,7 +20,32 @@ namespace Engine
             if(view) device.destroyImageView(view, nullptr);
         }
 
-        vk::Image BufferImage::createImage(const struct ImageProps& img_props, vk::Format format)
+        vk::ImageView BufferImage::createImageView(const struct ImageProps& img_props) const
+        {
+            vk::ImageAspectFlags aspectMask = vk::ImageAspectFlagBits::eColor;
+            if (img_props.usage & vk::ImageUsageFlagBits::eDepthStencilAttachment)
+                aspectMask = vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
+
+            vk::ImageView image_view{};
+
+            // Create Image View
+            vk::ImageViewCreateInfo viewInfo = {};
+            viewInfo.image 							 = this->image;
+            viewInfo.viewType 						 = vk::ImageViewType::e2D;
+            viewInfo.format 						 = img_props.format;
+            viewInfo.components                      = img_props.component;
+            viewInfo.subresourceRange.aspectMask 	 = aspectMask;
+            viewInfo.subresourceRange.baseMipLevel 	 = 0;
+            viewInfo.subresourceRange.levelCount 	 = 1;
+            viewInfo.subresourceRange.baseArrayLayer = 0;
+            viewInfo.subresourceRange.layerCount 	 = 1;
+
+            DEBUG_CALL(image_view = ApplicationData::data->device.createImageView(viewInfo));
+
+            return image_view;
+        }
+
+        vk::Image BufferImage::createImage(const struct ImageProps& img_props)
         {
             auto app_data = ApplicationData::data;
 
@@ -53,7 +57,7 @@ namespace Engine
             imageInfo.extent.depth 	= 1;
             imageInfo.mipLevels 	= 1;
             imageInfo.arrayLayers 	= 1;
-            imageInfo.format 		= format;
+            imageInfo.format 		= img_props.format;
             imageInfo.tiling 		= img_props.tiling;
             imageInfo.initialLayout = vk::ImageLayout::eUndefined;
             imageInfo.usage 		= img_props.usage;

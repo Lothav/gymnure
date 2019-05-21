@@ -35,18 +35,15 @@ namespace Engine
 
             stbi_image_free(pixels);
 
-            Memory::ImageViewProps img_view_props = {};
-            img_view_props.format = vk::Format::eR8G8B8A8Unorm;
-            img_view_props.aspectMask = vk::ImageAspectFlagBits::eColor;
-
             Memory::ImageProps img_props = {};
             img_props.width             = static_cast<uint32_t>(texWidth);
             img_props.height            = static_cast<uint32_t>(texHeight);
+            img_props.format            = vk::Format::eR8G8B8A8Unorm;
             img_props.usage             = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
             img_props.tiling            = vk::ImageTiling::eOptimal;
             img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
-            buffer_image_ = std::make_unique<Memory::BufferImage>(img_view_props, img_props);
+            buffer_image_ = std::make_unique<Memory::BufferImage>(img_props);
 
             vk::Queue queue = ApplicationData::data->transfer_queue;
 

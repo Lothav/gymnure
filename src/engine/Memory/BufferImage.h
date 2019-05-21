@@ -17,16 +17,15 @@ namespace Engine
         {
             uint32_t                width = 0;
             uint32_t                height = 0;
+            vk::Format              format = vk::Format::eUndefined;
             vk::ImageTiling         tiling{};
             vk::ImageUsageFlags     usage{};
             vk::MemoryPropertyFlags image_props_flags;
+            vk::ComponentMapping    component{};
         };
 
         struct ImageViewProps
         {
-            vk::Format              format = vk::Format::eUndefined;
-            vk::ImageAspectFlags    aspectMask = vk::ImageAspectFlagBits::eColor;
-            vk::ComponentMapping    component{};
         };
 
         class BufferImage
@@ -45,24 +44,24 @@ namespace Engine
             /**
              * Create an Image, Memory and ImageView buffers.
              * */
-            BufferImage(const struct ImageViewProps& image_view_props, const struct ImageProps& img_props)
-                : image(createImage(img_props, image_view_props.format)), view(createImageView(image_view_props)),
+            explicit BufferImage(const struct ImageProps& img_props)
+                : image(createImage(img_props)), view(createImageView(img_props)),
                 // 'image_created = true' marks that Image has been created by this class.
                 // If it wont (came from another resource, e.g. swapchain) we cant destroy it here! (see destructor)
-                  image_created(true) {};
+                image_created(true) {};
 
             /**
              * Create a image buffer using an external Image/Memory resources.
              * */
-            BufferImage(const struct ImageViewProps& image_view_props, vk::Image image_ptr)
-                : image(image_ptr), view(createImageView(image_view_props)) {};
+            explicit BufferImage(const struct ImageProps& img_props, vk::Image image_ptr)
+                : image(image_ptr), view(createImageView(img_props)) {};
 
             ~BufferImage();
 
         private:
 
-            vk::Image createImage(const struct ImageProps& img_props, vk::Format format);
-            vk::ImageView createImageView(const struct ImageViewProps& image_view_props) const;
+            vk::Image createImage(const struct ImageProps& img_props);
+            vk::ImageView createImageView(const struct ImageProps& img_props) const;
         };
     }
 }

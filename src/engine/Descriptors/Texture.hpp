@@ -26,7 +26,7 @@ namespace Engine
 
 		public:
 
-			Texture(const std::string &texture_path);
+			explicit Texture(const std::string &texture_path);
 
 			~Texture();
 

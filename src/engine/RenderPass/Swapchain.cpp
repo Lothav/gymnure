@@ -68,10 +68,9 @@ namespace Engine
             // Create Swapchain Buffer
             for (uint32_t i = 0; i < image_count_; i++)
             {
-                Memory::ImageViewProps img_view_props = {};
-                img_view_props.format = format_;
-                img_view_props.aspectMask = vk::ImageAspectFlagBits::eColor;
-                img_view_props.component = {
+                Memory::ImageProps img_props = {};
+                img_props.format = format_;
+                img_props.component = {
                     vk::ComponentSwizzle::eR,
                     vk::ComponentSwizzle::eG,
                     vk::ComponentSwizzle::eB,
@@ -79,7 +78,7 @@ namespace Engine
                 };
 
                 swap_chain_buffer_.push_back(
-                    std::make_unique<Memory::BufferImage>(img_view_props, swap_chain_images_[i]));
+                    std::make_unique<Memory::BufferImage>(img_props, swap_chain_images_[i]));
             }
         }
 
