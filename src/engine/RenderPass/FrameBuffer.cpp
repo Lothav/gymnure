@@ -4,11 +4,9 @@ namespace Engine
 {
     namespace RenderPass
     {
-        FrameBuffer::FrameBuffer()
-        {
+        FrameBuffer::FrameBuffer() : swap_chain_(std::make_shared<SwapChain>())
+    {
             auto app_data = ApplicationData::data;
-
-            swap_chain_ = std::make_shared<SwapChain>();
 
             // Create Depth Buffer
             {
@@ -73,19 +71,18 @@ namespace Engine
                 img_attachments[1] = depth_buffer_->view;
 
                 vk::FramebufferCreateInfo fb_info = {};
-                fb_info.pNext 					= nullptr;
-                fb_info.renderPass 				= render_pass_->getRenderPass();
-                fb_info.attachmentCount 		= 2;
-                fb_info.pAttachments 			= img_attachments;
-                fb_info.width 					= app_data->view_width;
-                fb_info.height 					= app_data->view_height;
-                fb_info.layers 					= 1;
+                fb_info.width 			= app_data->view_width;
+                fb_info.height 			= app_data->view_height;
+                fb_info.layers 			= 1;
+                fb_info.renderPass 		= render_pass_->getRenderPass();
+                fb_info.attachmentCount = 2;
+                fb_info.pAttachments 	= img_attachments;
+                fb_info.pNext 			= nullptr;
 
                 frame_buffers_.resize(swap_chain_->getImageCount());
 
                 for (uint32_t i = 0; i < swap_chain_->getImageCount(); i++) {
                     img_attachments[0] = swap_chain_->getSwapChainImageView(i);
-
                     frame_buffers_[i] = app_data->device.createFramebuffer(fb_info);
                 }
             }
@@ -116,7 +113,6 @@ namespace Engine
         {
             return frame_buffers_;
         }
-
     }
 }
 

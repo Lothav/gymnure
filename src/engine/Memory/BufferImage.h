@@ -39,31 +39,23 @@ namespace Engine
         public:
 
             vk::Image image = {};
-            vk::ImageView view  = {};
+            vk::ImageView view = {};
             vk::DeviceMemory memory = {};
-
-            /**
-             * Create a image buffer using an external Image/Memory resources.
-             * */
-            BufferImage(const struct ImageViewProps& image_view_props, vk::Image image_ptr)
-            {
-                this->image = image_ptr;
-                this->view = createImageView(image_view_props);
-            };
 
             /**
              * Create an Image, Memory and ImageView buffers.
              * */
             BufferImage(const struct ImageViewProps& image_view_props, const struct ImageProps& img_props)
-            {
-                image = createImage(img_props, image_view_props.format);
-
-                // Mark that Image has been created by this class.
+                : image(createImage(img_props, image_view_props.format)), view(createImageView(image_view_props)),
+                // 'image_created = true' marks that Image has been created by this class.
                 // If it wont (came from another resource, e.g. swapchain) we cant destroy it here! (see destructor)
-                image_created = true;
+                  image_created(true) {};
 
-                this->view = createImageView(image_view_props);
-            };
+            /**
+             * Create a image buffer using an external Image/Memory resources.
+             * */
+            BufferImage(const struct ImageViewProps& image_view_props, vk::Image image_ptr)
+                : image(image_ptr), view(createImageView(image_view_props)) {};
 
             ~BufferImage();
 

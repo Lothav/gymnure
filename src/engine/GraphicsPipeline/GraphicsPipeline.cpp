@@ -40,8 +40,7 @@ namespace Engine
 
         void GraphicsPipeline::addViAttributes(const std::vector<vk::VertexInputAttributeDescription>& vi_attrs)
         {
-            for (auto& vi_attr: vi_attrs)
-                vi_attributes_.push_back(vi_attr);
+            std::copy(vi_attrs.begin(), vi_attrs.end(), std::back_inserter(vi_attributes_));
         }
 
         void GraphicsPipeline::create(vk::PipelineLayout pipeline_layout, vk::RenderPass render_pass, vk::CullModeFlagBits cull_mode)

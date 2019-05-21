@@ -23,7 +23,7 @@ struct LightData
 };
 
 const LightData[2] lights = LightData[2](
-	LightData(vec3(1,  5, 10), vec3(1, 0, 0)),
+	LightData(vec3(-3,  5, -3), vec3(1, 0, 0)),
 	LightData(vec3(3, 3, 3), vec3(0, 1, 0)));
 
 const float inv_pi = 0.318309886;
