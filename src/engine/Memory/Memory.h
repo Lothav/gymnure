@@ -1,15 +1,11 @@
-//
-// Created by luizorv on 8/25/17.
-//
-
 #ifndef OBSIDIAN2D_MEMORY_H
 #define OBSIDIAN2D_MEMORY_H
 
-#include <vulkan/vulkan.hpp>
 #include <cassert>
 #include <cstring>
-#include <ApplicationData.hpp>
 #include <glm/glm.hpp>
+#include <vulkan/vulkan.hpp>
+#include <ApplicationData.hpp>
 
 namespace Engine
 {
@@ -20,7 +16,6 @@ namespace Engine
 		public:
 
 			static uint32_t findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask);
-
 			static void* alignedAlloc(size_t size, size_t alignment);
 
 			template <class T>
@@ -44,8 +39,6 @@ namespace Engine
                 free(data);
             #endif
             }
-
-
         };
 	}
 }

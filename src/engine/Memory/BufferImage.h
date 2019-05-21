@@ -1,7 +1,3 @@
-//
-// Created by tracksale on 8/31/17.
-//
-
 #ifndef OBSIDIAN2D_BUFFERIMAGE_H
 #define OBSIDIAN2D_BUFFERIMAGE_H
 

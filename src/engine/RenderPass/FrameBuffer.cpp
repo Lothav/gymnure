@@ -48,15 +48,19 @@ namespace Engine
 
             // Create Render Pass
             {
-                std::vector<struct rpAttachments> rp_attachments = {};
+                std::vector<RpAttachments> rp_attachments = {};
 
-                struct rpAttachments attch = {};
-                attch.format = getSwapChain()->getSwapChainFormat();
-                attch.clear  = true;
+                RpAttachments attch = {};
+                attch.format        = getSwapChain()->getSwapChainFormat();
+                attch.clear         = true;
+                attch.final_layout  = vk::ImageLayout::ePresentSrcKHR;
+                attch.usage         = vk::ImageUsageFlagBits::eColorAttachment;
                 rp_attachments.push_back(attch);
 
-                attch.format = getDepthBufferFormat();
-                attch.clear  = true;
+                attch.format        = getDepthBufferFormat();
+                attch.clear         = true;
+                attch.final_layout  = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+                attch.usage         = vk::ImageUsageFlagBits::eDepthStencilAttachment;
                 rp_attachments.push_back(attch);
 
                 render_pass_ = std::make_shared<RenderPass>(rp_attachments);

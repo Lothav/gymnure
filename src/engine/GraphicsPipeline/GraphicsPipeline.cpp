@@ -1,7 +1,3 @@
-//
-// Created by luizorv on 9/7/17.
-//
-
 #ifndef OBSIDIAN2D_GRAPHICPIPELINE_H
 #define OBSIDIAN2D_GRAPHICPIPELINE_H
 

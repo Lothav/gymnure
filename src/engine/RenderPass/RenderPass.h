@@ -8,16 +8,18 @@
 #include <array>
 #include <vulkan/vulkan.hpp>
 
-struct rpAttachments
-{
-	vk::Format format;
-	bool clear;
-};
-
 namespace Engine
 {
 	namespace RenderPass
 	{
+		struct RpAttachments
+		{
+			vk::Format format{};
+			vk::ImageUsageFlags usage{};
+			vk::ImageLayout final_layout{};
+			bool clear = true;
+		};
+
 		class RenderPass {
 
 		private:
@@ -26,7 +28,7 @@ namespace Engine
 
 		public:
 
-            RenderPass(std::vector<struct rpAttachments> att_vector);
+            explicit RenderPass(std::vector<RpAttachments> att_vector);
 
 			~RenderPass();
 

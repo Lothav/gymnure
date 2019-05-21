@@ -1,6 +1,3 @@
-//
-// Created by tracksale on 8/31/17.
-//
 #include "BufferImage.h"
 #include "Util/Debug.hpp"
 

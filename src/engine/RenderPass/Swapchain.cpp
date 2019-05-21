@@ -1,7 +1,3 @@
-//
-// Created by luizorv on 9/3/17.
-//
-
 #include "Swapchain.h"
 
 namespace Engine

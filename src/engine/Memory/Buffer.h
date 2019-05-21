@@ -1,7 +1,3 @@
-//
-// Created by luizorv on 8/27/17.
-//
-
 #ifndef OBSIDIAN2D_BUFFER_H
 #define OBSIDIAN2D_BUFFER_H
 

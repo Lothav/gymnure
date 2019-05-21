@@ -14,41 +14,40 @@ namespace Engine
             vkDestroyRenderPass(ApplicationData::data->device, render_pass_, nullptr);
         }
 
-        RenderPass::RenderPass(std::vector<struct rpAttachments> att_vector)
+        RenderPass::RenderPass(std::vector<RpAttachments> att_vector)
         {
-            std::array<vk::AttachmentDescription, 2> attachments = {};
-            attachments[0].format 						= att_vector[0].format;
-            attachments[0].samples						= vk::SampleCountFlagBits::e1;
-            attachments[0].loadOp 						= att_vector[0].clear ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eDontCare;
-            attachments[0].storeOp						= vk::AttachmentStoreOp::eStore;
-            attachments[0].stencilLoadOp 				= vk::AttachmentLoadOp::eDontCare;
-            attachments[0].stencilStoreOp 				= vk::AttachmentStoreOp::eDontCare;
-            attachments[0].initialLayout 				= vk::ImageLayout::eUndefined;
-            attachments[0].finalLayout 					= vk::ImageLayout::ePresentSrcKHR;
-
-            attachments[1].format 						= att_vector[1].format;
-            attachments[1].samples 						= vk::SampleCountFlagBits::e1;
-            attachments[1].loadOp 						= att_vector[1].clear ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eDontCare;
-            attachments[1].storeOp 						= vk::AttachmentStoreOp::eDontCare;
-            attachments[1].stencilLoadOp 				= vk::AttachmentLoadOp::eDontCare;
-            attachments[1].stencilStoreOp 				= vk::AttachmentStoreOp::eDontCare;
-            attachments[1].initialLayout 				= vk::ImageLayout::eUndefined;
-            attachments[1].finalLayout 					= vk::ImageLayout::eDepthStencilAttachmentOptimal;
-
-            vk::AttachmentReference color_reference = {};
-            color_reference.attachment 					= 0;
-            color_reference.layout 						= vk::ImageLayout::eColorAttachmentOptimal;
-
+            std::vector<vk::AttachmentDescription> attachments = {};
+            std::vector<vk::AttachmentReference> color_references = {};
             vk::AttachmentReference depth_reference = {};
-            depth_reference.attachment 					= 1;
-            depth_reference.layout 						= vk::ImageLayout::eDepthStencilAttachmentOptimal;
+
+            uint32_t idx = 0;
+            for (auto& att_vec : att_vector)
+            {
+                vk::AttachmentDescription attachment{};
+                attachment.format           = att_vec.format;
+                attachment.samples			= vk::SampleCountFlagBits::e1;
+                attachment.loadOp 			= att_vec.clear ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eDontCare;
+                attachment.storeOp			= vk::AttachmentStoreOp::eStore;
+                attachment.stencilLoadOp 	= vk::AttachmentLoadOp::eDontCare;
+                attachment.stencilStoreOp 	= vk::AttachmentStoreOp::eDontCare;
+                attachment.initialLayout 	= vk::ImageLayout::eUndefined;
+                attachment.finalLayout 		= att_vec.final_layout; //vk::ImageLayout::ePresentSrcKHR / vk::ImageLayout::eDepthStencilAttachmentOptimal;
+                attachments.push_back(std::move(attachment));
+
+                if (att_vec.usage & vk::ImageUsageFlagBits::eDepthStencilAttachment)
+                    depth_reference = {idx, vk::ImageLayout::eColorAttachmentOptimal};
+                else
+                    color_references.emplace_back(idx, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+                idx++;
+            }
 
             vk::SubpassDescription subpass = {};
             subpass.pipelineBindPoint 					= vk::PipelineBindPoint::eGraphics;
             subpass.inputAttachmentCount 				= 0;
             subpass.pInputAttachments 					= nullptr;
-            subpass.colorAttachmentCount 				= 1;
-            subpass.pColorAttachments 					= &color_reference;
+            subpass.colorAttachmentCount 				= static_cast<uint32_t>(color_references.size());
+            subpass.pColorAttachments 					= color_references.data();
             subpass.pResolveAttachments 				= nullptr;
             subpass.pDepthStencilAttachment 			= &depth_reference;
             subpass.preserveAttachmentCount 			= 0;
@@ -75,7 +74,7 @@ namespace Engine
 
             vk::RenderPassCreateInfo rp_info = {};
             rp_info.pNext 								= nullptr;
-            rp_info.attachmentCount 					= attachments.size();
+            rp_info.attachmentCount 					= static_cast<uint32_t>(attachments.size());
             rp_info.pAttachments 						= attachments.data();
             rp_info.subpassCount 						= 1;
             rp_info.pSubpasses 							= &subpass;
