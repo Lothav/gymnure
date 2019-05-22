@@ -14,13 +14,16 @@ namespace Engine
     {
     private:
 
-        static std::vector<std::shared_ptr<Programs::Program>>  programs;
-        static std::unique_ptr<SyncPrimitives::SyncPrimitives> 	sync_primitives;
-        static std::shared_ptr<RenderPass::FrameBuffer>			frame_buffer;
-        static std::unique_ptr<CommandBuffers>                  command_buffer;
-        static std::shared_ptr<Descriptors::Camera>             main_camera;
+        static std::vector<std::shared_ptr<Programs::Program>>          programs;
+        static std::unique_ptr<SyncPrimitives::SyncPrimitives> 	        sync_primitives;
+        static std::vector<std::shared_ptr<RenderPass::FrameBuffer>>	frame_buffers;
+        static std::unique_ptr<CommandBuffers>                          command_buffer;
+        static std::shared_ptr<Descriptors::Camera>                     main_camera;
+        static std::shared_ptr<RenderPass::SwapChain> 			        swap_chain;
+        static std::shared_ptr<RenderPass::RenderPass>                  render_pass_;
+        static std::shared_ptr<Memory::BufferImage>                     depth_buffer_;
 
-        static uint32_t 								        current_buffer_;
+        static uint32_t 								                current_buffer_;
 
     public:
 

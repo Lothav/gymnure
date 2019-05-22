@@ -24,12 +24,11 @@ namespace Engine
     }
 
     void CommandBuffers::bindGraphicCommandBuffer(
+        uint32_t image_count,
+        std::shared_ptr<RenderPass::RenderPass> render_pass,
         std::vector<std::shared_ptr<Programs::Program>> programs,
-        std::shared_ptr<RenderPass::FrameBuffer> frame_buffer)
+        std::vector<std::shared_ptr<RenderPass::FrameBuffer>> frame_buffers)
     {
-        auto frame_buffers = frame_buffer->getFrameBuffers();
-        auto image_count = frame_buffer->getImageCount();
-
         uint32_t width = ApplicationData::data->view_width;
         uint32_t height = ApplicationData::data->view_height;
 
@@ -45,7 +44,7 @@ namespace Engine
 
         vk::RenderPassBeginInfo rp_begin = {};
         rp_begin.pNext 				= nullptr;
-        rp_begin.renderPass 		= frame_buffer->getRenderPass();
+        rp_begin.renderPass 		= render_pass->getRenderPass();
         rp_begin.renderArea.offset 	= vk::Offset2D{0, 0};
         rp_begin.renderArea.extent  = vk::Extent2D{width, height};
         rp_begin.clearValueCount 	= 2;
@@ -57,7 +56,7 @@ namespace Engine
         {
             command_buffers_[i].begin(cmd_buf_info);
 
-            rp_begin.setFramebuffer(frame_buffers[i]);
+            rp_begin.setFramebuffer(frame_buffers[i]->getFrameBufferKHR());
             command_buffers_[i].beginRenderPass(rp_begin, vk::SubpassContents::eInline);
 
             for(auto& program_obj : programs) {

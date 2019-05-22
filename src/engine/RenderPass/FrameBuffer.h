@@ -17,27 +17,14 @@ namespace Engine
 
 		private:
 
-			std::vector<vk::Framebuffer>  		 frame_buffers_;
-
-			std::shared_ptr<SwapChain> 			 swap_chain_;
-			std::shared_ptr<RenderPass>			 render_pass_;
-			std::unique_ptr<Memory::BufferImage> depth_buffer_;
-			vk::Format 					 		 depth_format_ = vk::Format::eUndefined;
+			vk::Framebuffer frame_buffer_;
 
 		public:
 
-			FrameBuffer();
-
+			FrameBuffer(std::vector<vk::ImageView> img_attachments, std::shared_ptr<RenderPass> render_pass);
 			virtual ~FrameBuffer();
 
-			uint32_t getImageCount() const;
-			const vk::Format getDepthBufferFormat() const;
-			std::shared_ptr<SwapChain> getSwapChain() const;
-			vk::RenderPass getRenderPass() const
-			{
-				return render_pass_->getRenderPass();
-			}
-			std::vector<vk::Framebuffer> getFrameBuffers() const;
+			vk::Framebuffer getFrameBufferKHR() const;
 
 		};
 	}

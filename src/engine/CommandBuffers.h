@@ -31,8 +31,10 @@ namespace Engine
         ~CommandBuffers();
 
         void bindGraphicCommandBuffer(
+            uint32_t image_count,
+            std::shared_ptr<RenderPass::RenderPass> render_pass,
             std::vector<std::shared_ptr<Programs::Program>> programs,
-            std::shared_ptr<RenderPass::FrameBuffer> frame_buffer);
+            std::vector<std::shared_ptr<RenderPass::FrameBuffer>> frame_buffer);
 
         vk::CommandBuffer getCommandBuffer(uint32_t index) const;
 

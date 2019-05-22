@@ -3,16 +3,20 @@
 #include <Programs/Default.hpp>
 #include <Util/Debug.hpp>
 #include <Programs/Phong.hpp>
+#include <Memory/ImageFormats.hpp>
 
 namespace Engine
 {
-    uint32_t 						                Application::current_buffer_ = 0;
+    uint32_t 						                        Application::current_buffer_ = 0;
 
-    std::vector<std::shared_ptr<Programs::Program>> Application::programs = {};
-    std::unique_ptr<SyncPrimitives::SyncPrimitives> Application::sync_primitives = nullptr;
-    std::unique_ptr<CommandBuffers>                 Application::command_buffer = nullptr;
-    std::shared_ptr<RenderPass::FrameBuffer> 		Application::frame_buffer = nullptr;
-    std::shared_ptr<Descriptors::Camera>            Application::main_camera = nullptr;
+    std::vector<std::shared_ptr<Programs::Program>>         Application::programs = {};
+    std::unique_ptr<SyncPrimitives::SyncPrimitives>         Application::sync_primitives = nullptr;
+    std::unique_ptr<CommandBuffers>                         Application::command_buffer = nullptr;
+    std::vector<std::shared_ptr<RenderPass::FrameBuffer>> 	Application::frame_buffers = {};
+    std::shared_ptr<RenderPass::SwapChain> 			        Application::swap_chain = nullptr;
+    std::shared_ptr<Descriptors::Camera>                    Application::main_camera = nullptr;
+    std::shared_ptr<RenderPass::RenderPass>                 Application::render_pass_ = nullptr;
+    std::shared_ptr<Memory::BufferImage>                    Application::depth_buffer_ = nullptr;
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -51,7 +55,7 @@ namespace Engine
         app_data->device.waitIdle();
         programs.clear();
         sync_primitives.reset();
-        frame_buffer.reset();
+        frame_buffers.clear();
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
         command_buffer.reset();
@@ -67,7 +71,7 @@ namespace Engine
         vk::Result res = vk::Result::eNotReady;
 
         auto device = ApplicationData::data->device;
-        auto swapchainKHR = frame_buffer->getSwapChain()->getSwapChainKHR();
+        auto swapchainKHR = swap_chain->getSwapChainKHR();
 
         DEBUG_CALL(
             std::tie(res, current_buffer_) = device.acquireNextImageKHR(
@@ -95,7 +99,7 @@ namespace Engine
         submit_info.pWaitSemaphores           = &sync_primitives->imageAcquiredSemaphore;
         submit_info.pSignalSemaphores         = &sync_primitives->renderSemaphore;
 
-        DEBUG_CALL(frame_buffer->getSwapChain()->getGraphicQueue().submit({submit_info}, current_buffer_fence));
+        DEBUG_CALL(swap_chain->getGraphicQueue().submit({submit_info}, current_buffer_fence));
 
         vk::PresentInfoKHR present = {};
         present.pNext 				  = nullptr;
@@ -111,15 +115,15 @@ namespace Engine
             present.waitSemaphoreCount = 1;
         }
 
-        DEBUG_CALL(frame_buffer->getSwapChain()->getGraphicQueue().presentKHR(&present));
+        DEBUG_CALL(swap_chain->getGraphicQueue().presentKHR(&present));
     }
 
     void Application::prepare()
     {
         for (auto &program : programs)
             program->prepare(main_camera);
-        
-        command_buffer->bindGraphicCommandBuffer(programs, frame_buffer);
+
+        command_buffer->bindGraphicCommandBuffer(swap_chain->getImageCount(), render_pass_, programs, frame_buffers);
     }
 
     void Application::setupSurface(const uint32_t& width, const uint32_t& height)
@@ -211,16 +215,63 @@ namespace Engine
         app_data->view_width  = width;
         app_data->view_height = height;
 
-        // Init Frame Buffer
-        frame_buffer = std::make_shared<RenderPass::FrameBuffer>();
+        // Init Swapchain
+        swap_chain = std::make_shared<RenderPass::SwapChain>();
+
+        // Create Depth Buffer
+        {
+            Memory::ImageProps img_props = {};
+            img_props.width             = static_cast<uint32_t>(app_data->view_width);
+            img_props.height            = static_cast<uint32_t>(app_data->view_height);
+            img_props.format            = Memory::ImageFormats::getImageFormat(Memory::ImageType::DEPTH_STENCIL);
+            img_props.usage             = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eDepthStencilAttachment;
+            img_props.tiling            = vk::ImageTiling::eOptimal;
+            img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
+
+            // Create Depth Buffer
+            depth_buffer_ = std::make_unique<Memory::BufferImage>(img_props);
+        }
+
+        // Create Render Pass
+        {
+            std::vector<RenderPass::RpAttachments> rp_attachments = {};
+
+            RenderPass::RpAttachments attch = {};
+            attch.format        = Memory::ImageFormats::getSurfaceFormat().format;
+            attch.clear         = true;
+            attch.final_layout  = vk::ImageLayout::ePresentSrcKHR;
+            attch.usage         = vk::ImageUsageFlagBits::eColorAttachment;
+            rp_attachments.push_back(attch);
+
+            attch.format        = Memory::ImageFormats::getImageFormat(Memory::ImageType::DEPTH_STENCIL);
+            attch.clear         = true;
+            attch.final_layout  = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+            attch.usage         = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+            rp_attachments.push_back(attch);
+
+            render_pass_ = std::make_shared<RenderPass::RenderPass>(rp_attachments);
+        }
+
+        {
+            std::vector<vk::ImageView> img_attachments = {};
+            img_attachments.resize(2);
+
+            for (int j = 0; j < swap_chain->getImageCount(); ++j)
+            {
+                img_attachments[0] = swap_chain->getSwapChainImageView(j);
+                img_attachments[1] = depth_buffer_->view;
+
+                frame_buffers.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));
+            }
+        }
 
         // Init Sync Primitives
         sync_primitives = std::make_unique<SyncPrimitives::SyncPrimitives>();
         sync_primitives->createSemaphore();
-        sync_primitives->createFences(frame_buffer->getImageCount());
+        sync_primitives->createFences(swap_chain->getImageCount());
 
         // Init Command Buffers
-        command_buffer = std::make_unique<CommandBuffers>(frame_buffer->getImageCount());
+        command_buffer = std::make_unique<CommandBuffers>(swap_chain->getImageCount());
 
         // Init Main Camera
         main_camera = std::make_shared<Descriptors::Camera>(app_data->view_width, app_data->view_height);
@@ -238,7 +289,7 @@ namespace Engine
 
     uint Application::createDefaultProgram()
     {
-        auto program = std::make_unique<Programs::Default>(frame_buffer->getRenderPass());
+        auto program = std::make_unique<Programs::Default>(render_pass_->getRenderPass());
         programs.push_back(std::move(program));
 
         return static_cast<uint>(programs.size() - 1);
@@ -246,7 +297,7 @@ namespace Engine
 
     uint Application::createPhongProgram()
     {
-        auto program = std::make_unique<Programs::Phong>(frame_buffer->getRenderPass());
+        auto program = std::make_unique<Programs::Phong>(render_pass_->getRenderPass());
         programs.push_back(std::move(program));
 
         return static_cast<uint>(programs.size() - 1);
