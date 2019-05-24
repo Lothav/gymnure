@@ -26,7 +26,7 @@ namespace Engine
                 vk::AttachmentDescription attachment{};
                 attachment.format           = att_vec.format;
                 attachment.samples			= vk::SampleCountFlagBits::e1;
-                attachment.loadOp 			= att_vec.clear ? vk::AttachmentLoadOp::eClear : vk::AttachmentLoadOp::eDontCare;
+                attachment.loadOp 			= vk::AttachmentLoadOp::eClear;
                 attachment.storeOp			= vk::AttachmentStoreOp::eStore;
                 attachment.stencilLoadOp 	= vk::AttachmentLoadOp::eDontCare;
                 attachment.stencilStoreOp 	= vk::AttachmentStoreOp::eDontCare;
@@ -35,9 +35,9 @@ namespace Engine
                 attachments.push_back(std::move(attachment));
 
                 if (att_vec.usage & vk::ImageUsageFlagBits::eDepthStencilAttachment)
-                    depth_reference = {idx, vk::ImageLayout::eColorAttachmentOptimal};
+                    depth_reference = {idx, vk::ImageLayout::eDepthStencilAttachmentOptimal};
                 else
-                    color_references.emplace_back(idx, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+                    color_references.emplace_back(idx, vk::ImageLayout::eColorAttachmentOptimal);
 
                 idx++;
             }

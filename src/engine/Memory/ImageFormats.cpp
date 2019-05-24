@@ -57,32 +57,35 @@ namespace Engine
         {
             auto app_data = ApplicationData::data;
 
-            uint32_t formatCount;
+            if(surface_format == vk::SurfaceFormatKHR{})
+            {
+                uint32_t formatCount;
 
-            vk::Result res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, nullptr, {});
-            assert(res == vk::Result::eSuccess);
+                vk::Result res = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, &formatCount, nullptr, {});
+                assert(res == vk::Result::eSuccess);
 
-            std::vector<vk::SurfaceFormatKHR> surfFormats(formatCount);
-            surfFormats = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, {});
-            // If the format list includes just one entry of vk::Format::eUndefined,
-            // the surface has no preferred format.  Otherwise, at least one
-            if (formatCount == 1 && surfFormats[0].format == vk::Format::eUndefined) {
-                surface_format.format = vk::Format::eB8G8R8A8Unorm;
-                surface_format.colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
-            } else {
-                // iterate over the list of available surface format and
-                // check for the presence of vk::Format::eB8G8R8A8Unorm
-                auto B8G8R8A8Unorm_format_it = std::find_if(surfFormats.begin(), surfFormats.end(),
-                     [](vk::SurfaceFormatKHR surface_format) -> bool {
-                         return surface_format.format == vk::Format::eB8G8R8A8Unorm;
-                     });
-
-                if(B8G8R8A8Unorm_format_it != surfFormats.end()){
-                    surface_format = *B8G8R8A8Unorm_format_it;
+                std::vector<vk::SurfaceFormatKHR> surfFormats(formatCount);
+                surfFormats = app_data->gpu.getSurfaceFormatsKHR(app_data->surface, {});
+                // If the format list includes just one entry of vk::Format::eUndefined,
+                // the surface has no preferred format.  Otherwise, at least one
+                if (formatCount == 1 && surfFormats[0].format == vk::Format::eUndefined) {
+                    surface_format.format = vk::Format::eB8G8R8A8Unorm;
+                    surface_format.colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear;
                 } else {
-                    // in case vk::Format::eB8G8R8A8Unorm is not available
-                    // select the first available color format
-                    surface_format = surfFormats[0];
+                    // iterate over the list of available surface format and
+                    // check for the presence of vk::Format::eB8G8R8A8Unorm
+                    auto B8G8R8A8Unorm_format_it = std::find_if(surfFormats.begin(), surfFormats.end(),
+                         [](vk::SurfaceFormatKHR surface_format) -> bool {
+                            return surface_format.format == vk::Format::eB8G8R8A8Unorm;
+                         });
+
+                    if(B8G8R8A8Unorm_format_it != surfFormats.end()){
+                        surface_format = *B8G8R8A8Unorm_format_it;
+                    } else {
+                        // in case vk::Format::eB8G8R8A8Unorm is not available
+                        // select the first available color format
+                        surface_format = surfFormats[0];
+                    }
                 }
             }
 

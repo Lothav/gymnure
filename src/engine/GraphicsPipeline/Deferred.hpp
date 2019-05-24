@@ -3,6 +3,9 @@
 #define GYMNURE_DEFERRED_HPP
 
 #include <memory>
+#include <RenderPass/RenderPass.h>
+#include <Memory/ImageFormats.hpp>
+#include <RenderPass/FrameBuffer.h>
 #include "Memory/BufferImage.h"
 
 namespace Engine
@@ -17,6 +20,9 @@ namespace Engine
             struct {
                 std::unique_ptr<Memory::BufferImage> albedo;
             } g_buffer_;
+
+            std::vector<std::shared_ptr<RenderPass::FrameBuffer>>	frame_buffers_;
+            std::shared_ptr<RenderPass::RenderPass>                 render_pass_;
 
         public:
 
@@ -35,6 +41,22 @@ namespace Engine
                 img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
                 g_buffer_.albedo = std::make_unique<Memory::BufferImage>(img_props);
+
+                // Create Render Pass
+                {
+                    std::vector<RenderPass::RpAttachments> rp_attachments = {};
+                    render_pass_ = std::make_shared<RenderPass::RenderPass>(rp_attachments);
+                }
+
+                {
+                    std::vector<vk::ImageView> img_attachments = { g_buffer_.albedo->view };
+                    frame_buffers_.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));
+                }
+            }
+
+            ~Deferred()
+            {
+                render_pass_.reset();
             }
         };
     }

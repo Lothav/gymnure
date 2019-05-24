@@ -17,7 +17,6 @@ namespace Engine
 			vk::Format format{};
 			vk::ImageUsageFlags usage{};
 			vk::ImageLayout final_layout{};
-			bool clear = true;
 		};
 
 		class RenderPass {
