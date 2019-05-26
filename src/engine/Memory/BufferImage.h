@@ -20,10 +20,6 @@ namespace Engine
             vk::ComponentMapping    component{};
         };
 
-        struct ImageViewProps
-        {
-        };
-
         class BufferImage
         {
 

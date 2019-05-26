@@ -54,19 +54,18 @@ namespace Engine
         for(auto& program_obj : programs)
         {
             uint32_t j = 0;
+            vk::PipelineLayout pl = program_obj->descriptor_set->getPipelineLayout();
+
             for(auto &data : program_obj->data)
             {
+                uint32_t dynamicOffset = (j++) * static_cast<uint32_t>(dynamicAlignment);
+
                 Util::Util::initViewport(command_buffer_, width, height);
                 Util::Util::initScissor(command_buffer_, width, height);
 
                 command_buffer_.bindPipeline(vk::PipelineBindPoint::eGraphics, program_obj->graphic_pipeline->getPipeline());
-                uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
-
                 command_buffer_.bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics,
-                    program_obj->descriptor_set->getPipelineLayout(), 0,
-                    {data->descriptor_set}, {dynamicOffset});
-
+                    vk::PipelineBindPoint::eGraphics, pl, 0, {data->descriptor_set}, {dynamicOffset});
                 command_buffer_.bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()}, {0});
 
                 auto index_count = data->vertex_buffer->getIndexCount();
@@ -76,8 +75,6 @@ namespace Engine
                 } else {
                     command_buffer_.draw(data->vertex_buffer->getVertexCount(), 1, 0, 0);
                 }
-
-                j++;
             }
         }
 
