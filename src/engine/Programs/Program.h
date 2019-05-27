@@ -5,7 +5,7 @@
 #ifndef GYMNURE_PROGRAM_H
 #define GYMNURE_PROGRAM_H
 
-#include <Descriptors/DescriptorSet.h>
+#include <Descriptors/Layout.h>
 #include <Vertex/VertexBuffer.h>
 #include <ApplicationData.hpp>
 #include <GraphicsPipeline/GraphicsPipeline.h>
@@ -29,20 +29,20 @@ namespace Engine
 
             struct ProgramData
             {
-                std::vector<std::unique_ptr<Descriptors::Texture>> textures       = {};
-                std::unique_ptr<Vertex::VertexBuffer>              vertex_buffer  = nullptr;
-                vk::DescriptorSet                                  descriptor_set = {}; // Each object must have a different DS
+                std::vector<std::unique_ptr<Descriptors::Texture>> textures         = {};
+                std::unique_ptr<Vertex::VertexBuffer>              vertex_buffer    = nullptr;
+                vk::DescriptorSet                                  descriptor_set   = {}; // Each object must have a different DS
             };
 
         protected:
 
-            std::unique_ptr<ModelBuffer>                        model_buffer_    = nullptr;
+            std::unique_ptr<ModelBuffer>                        model_buffer_       = nullptr;
 
         public:
 
-            std::vector<std::unique_ptr<ProgramData>>           data             = {};
-            std::unique_ptr<Descriptors::DescriptorSet>         descriptor_set   = nullptr;
-            std::unique_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline = nullptr;
+            std::vector<std::unique_ptr<ProgramData>>           data                = {};
+            std::unique_ptr<Descriptors::Layout>                descriptor_layout   = nullptr;
+            std::unique_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline    = nullptr;
 
             Program() = default;
 
@@ -51,7 +51,7 @@ namespace Engine
                 auto device = Engine::ApplicationData::data->device;
 
                 graphic_pipeline.reset();
-                descriptor_set.reset();
+                descriptor_layout.reset();
                 data.clear();
             }
 
@@ -88,7 +88,7 @@ namespace Engine
                 std::vector<vk::WriteDescriptorSet> writes = {};
 
                 // Create program Descriptor Set.
-                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()));
+                auto descriptors_sets = descriptor_layout->createDescriptorSets(static_cast<uint32_t>(data.size()));
 
                 for (uint32_t i = 0; i < data.size(); i++)
                 {

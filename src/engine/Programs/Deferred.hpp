@@ -16,11 +16,11 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
-                auto ds_data = Descriptors::DescriptorSetData{};
+                auto ds_data = Descriptors::LayoutData{};
                 ds_data.fragment_texture_count = 1;
 
                 // Create Descriptor Set
-                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(ds_data);
+                descriptor_layout = std::make_unique<Descriptors::Layout>(ds_data);
 
                 // Create Graphics Pipeline
                 {
@@ -57,7 +57,7 @@ namespace Engine
                     graphic_pipeline->addViAttributes(vi_attribs);
                 }
 
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eBack);
+                graphic_pipeline->create(descriptor_layout->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eBack);
             }
 
             void prepare(const std::shared_ptr<Descriptors::Camera>& camera) override
@@ -69,7 +69,7 @@ namespace Engine
                 std::vector<vk::WriteDescriptorSet> writes = {};
 
                 // Create program Descriptor Set.
-                auto descriptors_sets = descriptor_set->createDescriptorSets(static_cast<uint32_t>(data.size()));
+                auto descriptors_sets = descriptor_layout->createDescriptorSets(static_cast<uint32_t>(data.size()));
 
                 for (uint32_t i = 0; i < data.size(); i++)
                 {

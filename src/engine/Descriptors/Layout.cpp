@@ -1,10 +1,10 @@
- #include "DescriptorSet.h"
+ #include "Layout.h"
 
 namespace Engine
 {
     namespace Descriptors
     {
-        DescriptorSet::~DescriptorSet()
+        Layout::~Layout()
         {
             auto device = ApplicationData::data->device;
 
@@ -13,7 +13,7 @@ namespace Engine
             device.destroyDescriptorPool(desc_pool_);
         }
 
-        DescriptorSet::DescriptorSet(const DescriptorSetData& ds_data) : ds_data_(ds_data)
+        Layout::Layout(const LayoutData& ds_data) : ds_data_(ds_data)
         {
             auto app_data = ApplicationData::data;
 
@@ -105,7 +105,7 @@ namespace Engine
             pipeline_layout_ = app_data->device.createPipelineLayout(pPipelineLayoutCreateInfo);
         }
 
-        std::vector<vk::DescriptorSet> DescriptorSet::createDescriptorSets(uint32_t objects_count)
+        std::vector<vk::DescriptorSet> Layout::createDescriptorSets(uint32_t objects_count)
         {
             // Create Descriptor Set
             {
@@ -156,7 +156,7 @@ namespace Engine
             return ApplicationData::data->device.allocateDescriptorSets(alloc_info_);
         }
 
-        vk::PipelineLayout DescriptorSet::getPipelineLayout() const
+        vk::PipelineLayout Layout::getPipelineLayout() const
         {
             return pipeline_layout_;
         }

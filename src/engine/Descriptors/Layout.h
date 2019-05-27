@@ -16,7 +16,7 @@ namespace Engine
 {
     namespace Descriptors
     {
-        struct DescriptorSetData
+        struct LayoutData
         {
             bool has_model_matrix           = true;
             bool has_view_projection_matrix = true;
@@ -28,7 +28,7 @@ namespace Engine
             uint32_t fragment_uniform_count = 0;
         };
 
-        class DescriptorSet
+        class Layout
         {
 
         private:
@@ -38,12 +38,12 @@ namespace Engine
             vk::PipelineLayout 						    pipeline_layout_    = {};
             vk::DescriptorPool                          desc_pool_          = {};
 
-            DescriptorSetData                           ds_data_ = {};
+            LayoutData                           ds_data_ = {};
 
         public:
 
-            explicit DescriptorSet(const DescriptorSetData& descriptor_set_data);
-            ~DescriptorSet();
+            explicit Layout(const LayoutData& descriptor_set_data);
+            ~Layout();
 
             std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count);
             vk::PipelineLayout getPipelineLayout() const;

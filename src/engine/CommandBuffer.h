@@ -6,7 +6,7 @@
 #include <cassert>
 #include <GraphicsPipeline/GraphicsPipeline.h>
 #include <Programs/Program.h>
-#include "Descriptors/DescriptorSet.h"
+#include "Descriptors/Layout.h"
 #include "SyncPrimitives/SyncPrimitives.h"
 #include "Vertex/VertexBuffer.h"
 #include <RenderPass/RenderPass.h>

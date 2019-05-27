@@ -54,7 +54,7 @@ namespace Engine
         for(auto& program_obj : programs)
         {
             uint32_t j = 0;
-            vk::PipelineLayout pl = program_obj->descriptor_set->getPipelineLayout();
+            vk::PipelineLayout pl = program_obj->descriptor_layout->getPipelineLayout();
 
             for(auto &data : program_obj->data)
             {

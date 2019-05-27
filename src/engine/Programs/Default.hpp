@@ -25,11 +25,11 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
 
-                auto ds_data = Descriptors::DescriptorSetData{};
+                auto ds_data = Descriptors::LayoutData{};
                 ds_data.fragment_texture_count = 1;
 
                 // Create Descriptor Set
-                descriptor_set = std::make_unique<Descriptors::DescriptorSet>(ds_data);
+                descriptor_layout = std::make_unique<Descriptors::Layout>(ds_data);
 
                 // Create Graphics Pipeline
                 {
@@ -61,7 +61,7 @@ namespace Engine
                     graphic_pipeline->addViAttributes(vi_attribs);
                 }
 
-                graphic_pipeline->create(descriptor_set->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eNone);
+                graphic_pipeline->create(descriptor_layout->getPipelineLayout(), render_pass, vk::CullModeFlagBits::eNone);
             }
 
         };
