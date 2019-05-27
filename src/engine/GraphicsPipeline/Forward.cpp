@@ -3,9 +3,10 @@ namespace Engine
 {
     namespace  GraphicsPipeline
     {
-        Forward::Forward() : swap_chain_(std::make_shared<RenderPass::SwapChain>())
+        Forward::Forward()
         {
             auto app_data = ApplicationData::data;
+            std::shared_ptr<RenderPass::SwapChain> swap_chain_ = RenderPass::SwapChain::getInstance();
 
             // Create Depth Buffer
             {
@@ -82,6 +83,8 @@ namespace Engine
             vk::Result res = vk::Result::eNotReady;
 
             auto device = ApplicationData::data->device;
+            std::shared_ptr<RenderPass::SwapChain> swap_chain_ = RenderPass::SwapChain::getInstance();
+
             auto swapchainKHR = swap_chain_->getSwapChainKHR();
 
             DEBUG_CALL(
@@ -121,7 +124,8 @@ namespace Engine
             present.waitSemaphoreCount 	  = 0;
             present.pResults              = nullptr;
 
-            if (sync_primitives_->renderSemaphore) {
+            if (sync_primitives_->renderSemaphore)
+            {
                 present.pWaitSemaphores = &sync_primitives_->renderSemaphore;
                 present.waitSemaphoreCount = 1;
             }

@@ -5,6 +5,15 @@ namespace Engine
 {
     namespace RenderPass
     {
+        std::shared_ptr<SwapChain> SwapChain::instance = nullptr;
+
+        std::shared_ptr<SwapChain> SwapChain::getInstance()
+        {
+            if(instance == nullptr)
+                instance = std::shared_ptr<SwapChain>(new SwapChain());
+            return instance;
+        }
+
         SwapChain::SwapChain()
         {
             auto app_data = ApplicationData::data;
@@ -41,9 +50,11 @@ namespace Engine
             }
         }
 
-        SwapChain::~SwapChain()
+        void SwapChain::reset()
         {
-            ApplicationData::data->device.destroySwapchainKHR(swap_chain_);
+            ApplicationData::data->device.destroySwapchainKHR(instance->swap_chain_);
+            instance->swap_chain_buffer_.clear();
+            instance.reset();
         }
 
         uint32_t SwapChain::getImageCount() const

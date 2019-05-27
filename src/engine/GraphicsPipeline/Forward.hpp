@@ -18,7 +18,6 @@ namespace Engine
 
 		private:
 
-			std::shared_ptr<RenderPass::SwapChain> 					swap_chain_ 	 = nullptr;
 			std::unique_ptr<Memory::BufferImage> 					depth_buffer_ 	 = nullptr;
 
 			std::shared_ptr<RenderPass::RenderPass> 				render_pass_ 	 = nullptr;

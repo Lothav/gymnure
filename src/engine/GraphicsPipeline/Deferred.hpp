@@ -59,6 +59,7 @@ namespace Engine
                     command_buffers_.push_back(std::make_unique<CommandBuffer>());
                 }
 
+                // Create Frame Buffers
                 {
                     std::vector<vk::ImageView> img_attachments = { g_buffer_.albedo->view };
                     frame_buffers_.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));

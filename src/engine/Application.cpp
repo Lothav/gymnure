@@ -49,6 +49,7 @@ namespace Engine
         app_data->device.waitIdle();
         programs.clear();
         forward.reset();
+        RenderPass::SwapChain::reset();
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
         main_camera.reset();
