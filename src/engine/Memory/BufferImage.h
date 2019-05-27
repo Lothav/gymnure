@@ -4,7 +4,6 @@
 #include <ApplicationData.hpp>
 #include "Memory/Memory.h"
 
-
 namespace Engine
 {
     namespace Memory

@@ -73,6 +73,11 @@ namespace Engine
         forward->prepare(programs);
     }
 
+    void Application::setupPipelines()
+    {
+        forward = std::make_unique<GraphicsPipeline::Forward>();
+    }
+
     void Application::setupSurface(const uint32_t& width, const uint32_t& height)
     {
         auto app_data = ApplicationData::data;
@@ -161,9 +166,6 @@ namespace Engine
 
         app_data->view_width  = width;
         app_data->view_height = height;
-
-        // Init Pipelines
-        forward = std::make_unique<GraphicsPipeline::Forward>();
 
         // Init Main Camera
         main_camera = std::make_shared<Descriptors::Camera>(app_data->view_width, app_data->view_height);

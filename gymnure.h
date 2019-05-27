@@ -25,6 +25,7 @@ public:
 #endif
         window_->createSurface();
         Engine::Application::setupSurface(windowWidth, windowHeight);
+        Engine::Application::setupPipelines();
     }
 
     ~Gymnure()
