@@ -39,17 +39,12 @@ namespace Engine
 
             explicit Camera(u_int32_t width, u_int32_t height);
 
-			glm::vec3 getPosition() const
-			{
-            	return glm::vec3(view[3]);
-            }
-
 			void moveCamera(const glm::vec3& direction);
             void zoomCamera(float zoom);
             void rotateArcballCamera(float delta_phi, float delta_theta);
 			void updateMVP();
 
-            std::vector<vk::WriteDescriptorSet> getWrites(vk::DescriptorSet desc_set, uint32_t dst_bind, uint32_t pos_bind);
+            std::vector<vk::WriteDescriptorSet> getWrites(vk::DescriptorSet desc_set, uint32_t vp_bind, uint32_t cam_pos_bind);
 		};
 	}
 }

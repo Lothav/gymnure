@@ -85,7 +85,7 @@ namespace Engine
             pos_buffer_->updateBuffer({glm::vec4(0, 10, 0, 1.f), pos});
         }
 
-        std::vector<vk::WriteDescriptorSet> Camera::getWrites(vk::DescriptorSet desc_set, uint32_t dst_bind, uint32_t pos_bind)
+        std::vector<vk::WriteDescriptorSet> Camera::getWrites(vk::DescriptorSet desc_set, uint32_t vp_bind, uint32_t cam_pos_bind)
         {
             std::vector<vk::WriteDescriptorSet> writes = {};
 
@@ -96,7 +96,7 @@ namespace Engine
             write.descriptorCount 	= 1;
             write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
             write.pBufferInfo 		= &vp_buffer_info_;
-            write.dstBinding 		= dst_bind;
+            write.dstBinding 		= vp_bind;
             writes.push_back(write);
 
             write.pNext 			= nullptr;
@@ -104,7 +104,7 @@ namespace Engine
             write.descriptorCount 	= 1;
             write.descriptorType 	= vk::DescriptorType::eUniformBuffer;
             write.pBufferInfo 		= &pos_buffer_info_;
-            write.dstBinding 		= pos_bind;
+            write.dstBinding 		= cam_pos_bind;
             writes.push_back(write);
 
             return writes;
