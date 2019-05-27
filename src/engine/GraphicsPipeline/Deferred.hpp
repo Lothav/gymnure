@@ -6,6 +6,7 @@
 #include <RenderPass/RenderPass.h>
 #include <Memory/ImageFormats.hpp>
 #include <RenderPass/FrameBuffer.h>
+#include <CommandBuffer.h>
 #include "Memory/BufferImage.h"
 
 namespace Engine
@@ -18,11 +19,12 @@ namespace Engine
         private:
 
             struct {
-                std::unique_ptr<Memory::BufferImage> albedo;
+                std::unique_ptr<Memory::BufferImage> albedo = nullptr;
             } g_buffer_;
 
-            std::vector<std::shared_ptr<RenderPass::FrameBuffer>>	frame_buffers_;
-            std::shared_ptr<RenderPass::RenderPass>                 render_pass_;
+            std::vector<std::shared_ptr<RenderPass::FrameBuffer>>	frame_buffers_      = {};
+            std::shared_ptr<RenderPass::RenderPass>                 render_pass_        = nullptr;
+            std::vector<std::unique_ptr<CommandBuffer>>             command_buffers_    = {};
 
         public:
 
@@ -47,7 +49,14 @@ namespace Engine
                 // Create Render Pass
                 {
                     std::vector<RenderPass::RpAttachments> rp_attachments = {};
+                    RenderPass::RpAttachments attch = {};
+                    attch.format        = Memory::ImageFormats::getSurfaceFormat().format;
+                    attch.final_layout  = vk::ImageLayout::eShaderReadOnlyOptimal;
+                    attch.usage         = vk::ImageUsageFlagBits::eColorAttachment;
+                    rp_attachments.push_back(attch);
+
                     render_pass_ = std::make_shared<RenderPass::RenderPass>(rp_attachments);
+                    command_buffers_.push_back(std::make_unique<CommandBuffer>());
                 }
 
                 {
