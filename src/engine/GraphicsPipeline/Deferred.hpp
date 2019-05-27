@@ -66,6 +66,39 @@ namespace Engine
                 }
             }
 
+            void prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs)
+            {
+                std::vector<vk::ClearValue> clear_values = {
+                    vk::ClearValue{ vk::ClearColorValue(std::array<float, 4>({ 0.4f, 0.4f, 0.4f, 1.0f })) }
+                };
+
+                uint32_t i = 0;
+                for (auto& command_buffer: command_buffers_)
+                {
+                    command_buffer->bindGraphicCommandBuffer(clear_values, render_pass_, frame_buffers_[i++], programs);
+                }
+            }
+
+            void render()
+            {
+                std::shared_ptr<RenderPass::SwapChain> swap_chain_ = RenderPass::SwapChain::getInstance();
+
+                vk::CommandBuffer current_command_buffer = command_buffers_[0]->getCommandBuffer();
+                vk::PipelineStageFlags pipe_stage_flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+
+                vk::SubmitInfo submit_info = {};
+                submit_info.pNext                     = nullptr;
+                submit_info.waitSemaphoreCount        = 1;
+                submit_info.pWaitDstStageMask         = &pipe_stage_flags;
+                submit_info.commandBufferCount        = 1;
+                submit_info.pCommandBuffers           = &current_command_buffer;
+                submit_info.signalSemaphoreCount      = 1;
+                submit_info.pWaitSemaphores           = nullptr;
+                submit_info.pSignalSemaphores         = nullptr;
+
+                DEBUG_CALL(swap_chain_->getGraphicQueue().submit({submit_info}, nullptr));
+            }
+
             ~Deferred()
             {
                 render_pass_.reset();
