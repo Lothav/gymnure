@@ -24,6 +24,7 @@ namespace Engine
     {
         enum VertexInputType
         {
+            NONE     = 1 << 0,
             POSITION = 1 << 1,
             NORMAL   = 1 << 2,
             UV       = 1 << 3

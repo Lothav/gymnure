@@ -206,24 +206,26 @@ namespace Engine
         auto params = std::vector<Programs::ProgramParams>();
 
         {
-            Descriptors::LayoutData ld = {};
-            ld.fragment_texture_count = 1;
-            ld.fragment_uniform_count = 1;
-
             uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
+
+            Descriptors::LayoutData ld = {};
+            ld.has_model_matrix             = true;
+            ld.has_view_projection_matrix   = true;
+            ld.fragment_texture_count       = 1;
+            ld.fragment_uniform_count       = 1;
 
             params.push_back(Programs::ProgramParams{ deferred->getRenderPass(), vi_mask, ld, "mrt" });
         }
         {
+            uint32_t vi_mask = Programs::VertexInputType::NONE;
+
             Descriptors::LayoutData ld = {};
             ld.has_model_matrix             = false;
             ld.has_view_projection_matrix   = false;
             ld.fragment_texture_count       = 1;
             ld.fragment_uniform_count       = 0;
 
-            uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
-
-            params.push_back(Programs::ProgramParams{ forward->getRenderPass(), vi_mask, ld, "phong" });
+            params.push_back(Programs::ProgramParams{ forward->getRenderPass(), vi_mask, ld, "deferred" });
         }
 
         auto program = std::make_unique<Programs::Program>(params);

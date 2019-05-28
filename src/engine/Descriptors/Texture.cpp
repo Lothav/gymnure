@@ -10,30 +10,63 @@ namespace Engine
 {
     namespace Descriptors
     {
+        Texture::Texture(std::unique_ptr<Memory::BufferImage> buffer_image) : buffer_image_(std::move(buffer_image))
+        {
+            createSampler();
+        }
+
+        Texture::Texture(vk::Image image_ptr, uint32_t tex_width, uint32_t tex_height)
+        {
+            Memory::ImageProps img_props = {};
+            img_props.width             = tex_width;
+            img_props.height            = tex_height;
+            img_props.format            = vk::Format::eR8G8B8A8Unorm;
+            img_props.usage             = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled;
+            img_props.tiling            = vk::ImageTiling::eOptimal;
+            img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
+
+            buffer_image_ = std::make_unique<Memory::BufferImage>(img_props, image_ptr);
+
+            if(!buffer_image_)
+                Debug::logErrorAndDie("Fail to create Texture: unable to create TextureImage!");
+
+            createSampler();
+        }
+
         Texture::Texture(const std::string& texture_path)
         {
-            if(texture_path.empty())
-                Debug::logErrorAndDie("Fail to create Texture: string path is empty!");
-
-            auto assets_texture_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + texture_path;
-
             int texWidth, texHeight, texChannels;
-            stbi_uc *pixels = stbi_load(assets_texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
-            if(!pixels)
-                throw "Cannot stbi_load pixels!";
+            // Load texture and write to vk::Image
+            {
+                if(texture_path.empty())
+                    Debug::logErrorAndDie("Fail to create Texture: string path is empty!");
 
-            auto pixel_count = static_cast<size_t>(texWidth * texHeight * 4); // 4 channels
+                auto assets_texture_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + texture_path;
 
-            struct BufferData stagingBufferData = {};
-            stagingBufferData.usage      = vk::BufferUsageFlagBits::eTransferSrc;
-            stagingBufferData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-            stagingBufferData.count      = pixel_count;
+                stbi_uc *pixels = stbi_load(assets_texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
-            auto staging_buffer = std::make_unique<Memory::Buffer<stbi_uc>>(stagingBufferData);
-            staging_buffer->updateBuffer(pixels);
+                if(!pixels)
+                    throw "Cannot stbi_load pixels!";
 
-            stbi_image_free(pixels);
+                auto pixel_count = static_cast<size_t>(texWidth * texHeight * 4); // 4 channels
+
+                struct BufferData stagingBufferData = {};
+                stagingBufferData.usage      = vk::BufferUsageFlagBits::eTransferSrc;
+                stagingBufferData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+                stagingBufferData.count      = pixel_count;
+
+                auto staging_buffer = std::make_unique<Memory::Buffer<stbi_uc>>(stagingBufferData);
+                staging_buffer->updateBuffer(pixels);
+
+                stbi_image_free(pixels);
+
+                vk::Queue queue = ApplicationData::data->transfer_queue;
+
+                transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
+                copyBufferToImage(staging_buffer->getBuffer(), static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), queue);
+                transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, queue);
+            }
 
             Memory::ImageProps img_props = {};
             img_props.width             = static_cast<uint32_t>(texWidth);
@@ -45,18 +78,14 @@ namespace Engine
 
             buffer_image_ = std::make_unique<Memory::BufferImage>(img_props);
 
-            vk::Queue queue = ApplicationData::data->transfer_queue;
-
-            transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
-
-            copyBufferToImage(staging_buffer->getBuffer(), static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), queue);
-
-            transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, queue);
-
             if(!buffer_image_)
                 Debug::logErrorAndDie("Fail to create Texture: unable to create TextureImage!");
 
-            // Create sampler
+            createSampler();
+        }
+
+        void Texture::createSampler()
+        {
             vk::SamplerCreateInfo sampler_ci = {};
             sampler_ci.maxAnisotropy 		= 1.0f;
             sampler_ci.magFilter 			= vk::Filter::eLinear;
@@ -72,7 +101,7 @@ namespace Engine
             sampler_ci.maxAnisotropy 		= 1.0;
             sampler_ci.anisotropyEnable 	= VK_FALSE;
             sampler_ci.borderColor 		    = vk::BorderColor::eFloatOpaqueWhite;
-            this->sampler_ = ApplicationData::data->device.createSampler(sampler_ci);
+            sampler_ = ApplicationData::data->device.createSampler(sampler_ci);
 
             buffer_info_.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
             buffer_info_.imageView   = buffer_image_->view;

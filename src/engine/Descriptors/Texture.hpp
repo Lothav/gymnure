@@ -26,7 +26,9 @@ namespace Engine
 
 		public:
 
+			Texture(vk::Image image_ptr, uint32_t tex_width, uint32_t tex_height);
 			explicit Texture(const std::string &texture_path);
+			explicit Texture(std::unique_ptr<Memory::BufferImage> buffer_image_);
 
 			~Texture();
 
@@ -45,6 +47,7 @@ namespace Engine
 
 		private:
 
+			void createSampler();
 			void transitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::Queue graphicsQueue);
 			void copyBufferToImage(vk::Buffer buffer, uint32_t width, uint32_t height, vk::Queue graphicsQueue);
 
