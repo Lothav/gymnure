@@ -35,14 +35,14 @@ public:
 #endif
     }
 
-    uint initDefaultProgram()
-    {
-        return Engine::Application::createDefaultProgram();
-    }
-
     uint initPhongProgram()
     {
         return Engine::Application::createPhongProgram();
+    }
+
+    uint initDeferredProgram()
+    {
+        return Engine::Application::createDeferredProgram();
     }
 
     void addObjData(uint program_id, GymnureObjData&& gymnure_data)

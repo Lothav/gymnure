@@ -5,6 +5,7 @@
 #include <RenderPass/RenderPass.h>
 #include <RenderPass/FrameBuffer.h>
 #include <GraphicsPipeline/Forward.hpp>
+#include <GraphicsPipeline/Deferred.hpp>
 #include "CommandBuffer.h"
 
 #define APP_NAME "Gymnure"
@@ -19,6 +20,7 @@ namespace Engine
         static std::shared_ptr<Descriptors::Camera>                     main_camera;
 
         static std::unique_ptr<GraphicsPipeline::Forward>               forward;
+        static std::unique_ptr<GraphicsPipeline::Deferred>              deferred;
 
     public:
 
@@ -31,8 +33,8 @@ namespace Engine
         static void destroy();
 
         static std::shared_ptr<Descriptors::Camera> getMainCamera();
-        static uint createDefaultProgram();
         static uint createPhongProgram();
+        static uint createDeferredProgram();
         static void addObjData(uint, GymnureObjData&&);
     };
 

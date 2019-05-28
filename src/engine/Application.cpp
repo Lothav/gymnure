@@ -9,6 +9,7 @@ namespace Engine
     std::shared_ptr<Descriptors::Camera>                    Application::main_camera = nullptr;
 
     std::unique_ptr<GraphicsPipeline::Forward>              Application::forward = nullptr;
+    std::unique_ptr<GraphicsPipeline::Deferred>             Application::deferred = nullptr;
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -180,24 +181,50 @@ namespace Engine
         programs[program_id]->addObjData(std::move(data), 0);
     }
 
-    uint Application::createDefaultProgram()
-    {
-//        auto program = std::make_unique<Programs::Default>(forward->getRenderPass());
-//        programs.push_back(std::move(program));
-
-        return static_cast<uint>(programs.size() - 1);
-    }
-
     uint Application::createPhongProgram()
     {
         auto params = std::vector<Programs::ProgramParams>();
 
-        params.push_back(Programs::ProgramParams{
-            forward->getRenderPass(),
-            Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL,
-            {true, true, 0, 0, 1, 1},
-            "phong"
-        });
+        {
+            Descriptors::LayoutData ld = {};
+            ld.fragment_texture_count = 1;
+            ld.fragment_uniform_count = 1;
+
+            uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
+
+            params.push_back(Programs::ProgramParams{ forward->getRenderPass(), vi_mask, ld, "phong" });
+        }
+
+        auto program = std::make_unique<Programs::Program>(params);
+        programs.push_back(std::move(program));
+
+        return static_cast<uint>(programs.size() - 1);
+    }
+
+    uint Application::createDeferredProgram()
+    {
+        auto params = std::vector<Programs::ProgramParams>();
+
+        {
+            Descriptors::LayoutData ld = {};
+            ld.fragment_texture_count = 1;
+            ld.fragment_uniform_count = 1;
+
+            uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
+
+            params.push_back(Programs::ProgramParams{ deferred->getRenderPass(), vi_mask, ld, "mrt" });
+        }
+        {
+            Descriptors::LayoutData ld = {};
+            ld.has_model_matrix             = false;
+            ld.has_view_projection_matrix   = false;
+            ld.fragment_texture_count       = 1;
+            ld.fragment_uniform_count       = 0;
+
+            uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
+
+            params.push_back(Programs::ProgramParams{ forward->getRenderPass(), vi_mask, ld, "phong" });
+        }
 
         auto program = std::make_unique<Programs::Program>(params);
         programs.push_back(std::move(program));
