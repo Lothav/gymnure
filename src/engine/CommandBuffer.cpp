@@ -54,26 +54,31 @@ namespace Engine
         for(auto& program_obj : programs)
         {
             uint32_t j = 0;
-            vk::PipelineLayout pl = program_obj->descriptor_layout->getPipelineLayout();
 
-            for(auto &data : program_obj->data)
+            auto programs_data = program_obj->getProgramsData();
+
+            for(auto& program_data : programs_data)
             {
-                uint32_t dynamicOffset = (j++) * static_cast<uint32_t>(dynamicAlignment);
+                vk::PipelineLayout pl = program_data->descriptor_layout->getPipelineLayout();
 
-                Util::Util::initViewport(command_buffer_, width, height);
-                Util::Util::initScissor(command_buffer_, width, height);
+                for(auto &data : program_data->objects_data)
+                {
+                    uint32_t dynamicOffset = (j++) * static_cast<uint32_t>(dynamicAlignment);
 
-                command_buffer_.bindPipeline(vk::PipelineBindPoint::eGraphics, program_obj->graphic_pipeline->getPipeline());
-                command_buffer_.bindDescriptorSets(
-                    vk::PipelineBindPoint::eGraphics, pl, 0, {data->descriptor_set}, {dynamicOffset});
-                command_buffer_.bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()}, {0});
+                    Util::Util::initViewport(command_buffer_, width, height);
+                    Util::Util::initScissor(command_buffer_, width, height);
 
-                auto index_count = data->vertex_buffer->getIndexCount();
-                if(index_count > 0) {
-                    command_buffer_.bindIndexBuffer(data->vertex_buffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
-                    command_buffer_.drawIndexed(index_count, 1, 0, 0, 0);
-                } else {
-                    command_buffer_.draw(data->vertex_buffer->getVertexCount(), 1, 0, 0);
+                    command_buffer_.bindPipeline(vk::PipelineBindPoint::eGraphics, program_data->graphic_pipeline->getPipeline());
+                    command_buffer_.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pl, 0, {data->descriptor_set}, {dynamicOffset});
+                    command_buffer_.bindVertexBuffers(0, {data->vertex_buffer->getVertexBuffer()}, {0});
+
+                    auto index_count = data->vertex_buffer->getIndexCount();
+                    if(index_count > 0) {
+                        command_buffer_.bindIndexBuffer(data->vertex_buffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
+                        command_buffer_.drawIndexed(index_count, 1, 0, 0, 0);
+                    } else {
+                        command_buffer_.draw(data->vertex_buffer->getVertexCount(), 1, 0, 0);
+                    }
                 }
             }
         }

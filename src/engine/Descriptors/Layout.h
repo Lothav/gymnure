@@ -38,15 +38,16 @@ namespace Engine
             vk::PipelineLayout 						    pipeline_layout_    = {};
             vk::DescriptorPool                          desc_pool_          = {};
 
-            LayoutData                           ds_data_ = {};
+            std::shared_ptr<LayoutData>                 ds_data_            = {};
 
         public:
 
-            explicit Layout(const LayoutData& descriptor_set_data);
+            explicit Layout(const LayoutData& layout_data);
             ~Layout();
 
             std::vector<vk::DescriptorSet> createDescriptorSets(uint32_t objects_count);
             vk::PipelineLayout getPipelineLayout() const;
+            std::shared_ptr<LayoutData> getLayoutData() const;
         };
     }
 }

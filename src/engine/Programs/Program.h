@@ -22,92 +22,179 @@ namespace Engine
 {
     namespace Programs
     {
+        enum VertexInputType
+        {
+            POSITION = 1 << 1,
+            NORMAL   = 1 << 2,
+            UV       = 1 << 3
+        };
+
+        struct ProgramParams
+        {
+            vk::RenderPass          render_pass{};
+            uint32_t                vi_types_mask = 0;
+            Descriptors::LayoutData layout_data{};
+            const std::string&      shaders_name;
+        };
+
         class Program
         {
 
         private:
 
-            struct ProgramData
+            struct ObjectData
             {
-                std::vector<std::unique_ptr<Descriptors::Texture>> textures         = {};
-                std::unique_ptr<Vertex::VertexBuffer>              vertex_buffer    = nullptr;
+                std::vector<std::shared_ptr<Descriptors::Texture>> textures         = {};
+                std::shared_ptr<Vertex::VertexBuffer>              vertex_buffer    = nullptr;
                 vk::DescriptorSet                                  descriptor_set   = {}; // Each object must have a different DS
             };
 
-        protected:
+            struct ProgramData
+            {
+                std::vector<std::shared_ptr<ObjectData>>            objects_data        = {};
+                std::shared_ptr<Descriptors::Layout>                descriptor_layout   = nullptr;
+                std::shared_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline    = nullptr;
+                std::shared_ptr<ModelBuffer>                        model_buffer_       = nullptr;
+            };
 
-            std::unique_ptr<ModelBuffer>                        model_buffer_       = nullptr;
+            std::vector<std::shared_ptr<ProgramData>> programs_data = {};
 
         public:
 
-            std::vector<std::unique_ptr<ProgramData>>           data                = {};
-            std::unique_ptr<Descriptors::Layout>                descriptor_layout   = nullptr;
-            std::unique_ptr<GraphicsPipeline::GraphicsPipeline> graphic_pipeline    = nullptr;
-
-            Program() = default;
-
-            ~Program()
+            explicit Program(const std::vector<ProgramParams>& programs)
             {
-                auto device = Engine::ApplicationData::data->device;
+                for (const auto &program : programs)
+                {
+                    std::shared_ptr<ProgramData> program_data = std::make_shared<ProgramData>();
 
-                graphic_pipeline.reset();
-                descriptor_layout.reset();
-                data.clear();
+                    {
+                        program_data->descriptor_layout = std::make_shared<Descriptors::Layout>(program.layout_data);
+                    }
+                    {
+                        auto vert = Engine::GraphicsPipeline::Shader{};
+                        vert.type = vk::ShaderStageFlagBits::eVertex;
+                        vert.path = program.shaders_name + ".vert.spv";
+
+                        auto frag = Engine::GraphicsPipeline::Shader{};
+                        frag.type = vk::ShaderStageFlagBits::eFragment;
+                        frag.path = program.shaders_name + ".frag.spv";
+
+                        std::vector<Engine::GraphicsPipeline::Shader> shaders = {vert, frag};
+                        program_data->graphic_pipeline = std::make_shared<GraphicsPipeline::GraphicsPipeline>(std::move(shaders));
+                    }
+                    {
+                        std::vector<vk::VertexInputAttributeDescription> vi_attribs = {};
+                        vk::VertexInputAttributeDescription vi_attrib{};
+                        vi_attrib.binding 	= 0;
+
+                        uint32_t location = 0;
+                        if(program.vi_types_mask & VertexInputType::POSITION)
+                        {
+                            vi_attrib.location 	= location++;
+                            vi_attrib.format 	= vk::Format::eR32G32B32Sfloat;
+                            vi_attrib.offset 	= static_cast<uint32_t>(offsetof(VertexData, pos));
+
+                            vi_attribs.push_back(vi_attrib);
+                        }
+
+                        if(program.vi_types_mask & VertexInputType::UV)
+                        {
+                            vi_attrib.location 	= location++;
+                            vi_attrib.format 	= vk::Format::eR32G32Sfloat;
+                            vi_attrib.offset 	= static_cast<uint32_t>(offsetof(VertexData, uv));
+
+                            vi_attribs.push_back(vi_attrib);
+                        }
+
+                        if(program.vi_types_mask & VertexInputType::NORMAL)
+                        {
+                            vi_attrib.location 	= location++;
+                            vi_attrib.format 	= vk::Format::eR32G32B32Sfloat;
+                            vi_attrib.offset 	= static_cast<uint32_t>(offsetof(VertexData, normal));
+
+                            vi_attribs.push_back(vi_attrib);
+                        }
+
+                        program_data->graphic_pipeline->addViAttributes(vi_attribs);
+                    }
+
+                    vk::PipelineLayout pl = program_data->descriptor_layout->getPipelineLayout();
+                    program_data->graphic_pipeline->create(pl, program.render_pass, vk::CullModeFlagBits::eBack);
+
+                    programs_data.push_back(std::move(program_data));
+                }
             }
 
-            void addObjData(GymnureObjData&& obj_data)
+            void addObjData(GymnureObjData&& obj_data, uint32_t program_index)
             {
                 auto app_data = ApplicationData::data;
-                auto program_data = std::make_unique<ProgramData>();
+                auto object_data = std::make_shared<ObjectData>();
 
                 // Load Textures
-                for (std::string& texture_path : obj_data.paths_textures) {
+                for (std::string& texture_path : obj_data.paths_textures)
                     if(!texture_path.empty())
-                        program_data->textures.push_back(
-                            std::make_unique<Descriptors::Texture>(texture_path)) ;
-                }
+                        object_data->textures.push_back(std::make_shared<Descriptors::Texture>(texture_path));
 
                 // Load Vertex
-                program_data->vertex_buffer = std::make_unique<Vertex::VertexBuffer>();
+                object_data->vertex_buffer = std::make_shared<Vertex::VertexBuffer>();
                 if(!obj_data.obj_path.empty())
                     // Load obj using TinyObjLoader.
-                    program_data->vertex_buffer->loadObjModelVertices(obj_data.obj_path, obj_data.obj_mtl);
+                    object_data->vertex_buffer->loadObjModelVertices(obj_data.obj_path, obj_data.obj_mtl);
                 else
                     // Empty obj_path. Use triangle as default vertex data.
-                    program_data->vertex_buffer->createPrimitiveQuad();
+                    object_data->vertex_buffer->createPrimitiveQuad();
 
-                data.push_back(std::move(program_data));
+                programs_data[program_index]->objects_data.push_back(std::move(object_data));
             }
 
             virtual void prepare(const std::shared_ptr<Descriptors::Camera>& camera)
             {
                 auto app_data = ApplicationData::data;
 
-                model_buffer_ = std::make_unique<ModelBuffer>(data.size());
-
-                std::vector<vk::WriteDescriptorSet> writes = {};
-
-                // Create program Descriptor Set.
-                auto descriptors_sets = descriptor_layout->createDescriptorSets(static_cast<uint32_t>(data.size()));
-
-                for (uint32_t i = 0; i < data.size(); i++)
+                for(auto& program_data : programs_data)
                 {
-                    data[i]->descriptor_set = descriptors_sets[i];
+                    auto data_size = static_cast<uint32_t>(program_data->objects_data.size());
 
-                    auto model_bind = model_buffer_->getWrite(descriptors_sets[i], 0);
-                    writes.push_back(model_bind);
+                    program_data->model_buffer_ = std::make_shared<ModelBuffer>(data_size);
 
-                    //auto camera_bind = camera->getWrite(descriptors_sets[i], 1);
-                    //writes.push_back(camera_bind);
+                    std::vector<vk::WriteDescriptorSet> writes = {};
 
-                    for (uint32_t j = 0; j < data[i]->textures.size(); ++j)
+                    // Create program Descriptor Set.
+                    auto descriptors_sets = program_data->descriptor_layout->createDescriptorSets(data_size);
+
+                    std::shared_ptr<Descriptors::LayoutData> layout_data = program_data->descriptor_layout->getLayoutData();
+
+                    for (uint32_t i = 0; i < data_size; i++)
                     {
-                        auto texture_bind = data[i]->textures[j]->getWrite(descriptors_sets[i], j + 2);
-                        writes.push_back(texture_bind);
-                    }
-                }
+                        program_data->objects_data[i]->descriptor_set = descriptors_sets[i];
 
-                app_data->device.updateDescriptorSets(writes, {});
+                        if(layout_data->has_model_matrix)
+                        {
+                            auto model_bind = program_data->model_buffer_->getWrite(descriptors_sets[i], 0);
+                            writes.push_back(model_bind);
+                        }
+
+                        if(layout_data->has_view_projection_matrix)
+                        {
+                            auto camera_binds = camera->getWrites(descriptors_sets[i], 1, 2);
+                            writes.push_back(camera_binds[0]);
+                            writes.push_back(camera_binds[1]);
+                        }
+
+                        if(layout_data->fragment_texture_count > 0)
+                        {
+                            auto texture_bind = program_data->objects_data[i]->textures[0]->getWrite(descriptors_sets[i], 3);
+                            writes.push_back(texture_bind);
+                        }
+                    }
+
+                    app_data->device.updateDescriptorSets(writes, {});
+                }
+            }
+
+            std::vector<std::shared_ptr<ProgramData>> getProgramsData() const
+            {
+                return programs_data;
             }
         };
     }

@@ -4,16 +4,7 @@ namespace Engine
 {
     namespace Descriptors
     {
-        Layout::~Layout()
-        {
-            auto device = ApplicationData::data->device;
-
-            device.destroyPipelineLayout(pipeline_layout_);
-            device.destroyDescriptorSetLayout(desc_layout_);
-            device.destroyDescriptorPool(desc_pool_);
-        }
-
-        Layout::Layout(const LayoutData& ds_data) : ds_data_(ds_data)
+        Layout::Layout(const LayoutData& ds_data) : ds_data_(std::make_shared<LayoutData>(ds_data))
         {
             auto app_data = ApplicationData::data;
 
@@ -105,6 +96,20 @@ namespace Engine
             pipeline_layout_ = app_data->device.createPipelineLayout(pPipelineLayoutCreateInfo);
         }
 
+        Layout::~Layout()
+        {
+            auto device = ApplicationData::data->device;
+
+            device.destroyPipelineLayout(pipeline_layout_);
+            device.destroyDescriptorSetLayout(desc_layout_);
+            device.destroyDescriptorPool(desc_pool_);
+        }
+
+        std::shared_ptr<LayoutData> Layout::getLayoutData() const
+        {
+            return ds_data_;
+        }
+
         std::vector<vk::DescriptorSet> Layout::createDescriptorSets(uint32_t objects_count)
         {
             // Create Descriptor Set
@@ -113,21 +118,21 @@ namespace Engine
 
                 vk::DescriptorPoolSize poolSize = {};
 
-                if(ds_data_.has_model_matrix){
+                if(ds_data_->has_model_matrix){
                     poolSize.type = vk::DescriptorType::eUniformBufferDynamic;
                     poolSize.descriptorCount = objects_count; // M matrix.
                     poolSizes.push_back(poolSize);
                 }
 
-                uint32_t uniform_count = ds_data_.vertex_uniform_count + ds_data_.fragment_uniform_count;
+                uint32_t uniform_count = ds_data_->vertex_uniform_count + ds_data_->fragment_uniform_count;
                 if(uniform_count > 0){
-                    uint32_t vp_mat_count = ds_data_.has_view_projection_matrix ? 1 : 0;
+                    uint32_t vp_mat_count = ds_data_->has_view_projection_matrix ? 1 : 0;
                     poolSize.type = vk::DescriptorType::eUniformBuffer;
                     poolSize.descriptorCount = objects_count * (vp_mat_count + uniform_count); // VP matrix + uniform_count.
                     poolSizes.push_back(poolSize);
                 }
 
-                uint32_t texture_count = ds_data_.vertex_texture_count + ds_data_.fragment_texture_count;
+                uint32_t texture_count = ds_data_->vertex_texture_count + ds_data_->fragment_texture_count;
                 if(texture_count > 0) {
                     poolSize.type = vk::DescriptorType::eCombinedImageSampler;
                     poolSize.descriptorCount = objects_count * texture_count;
