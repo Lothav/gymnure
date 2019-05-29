@@ -1,13 +1,7 @@
 #ifndef GYMNURE_FORWARD_HPP
 #define GYMNURE_FORWARD_HPP
 
-#include <vulkan/vulkan.hpp>
-#include <Memory/BufferImage.h>
-#include <RenderPass/RenderPass.h>
-#include <Memory/ImageFormats.hpp>
-#include <RenderPass/FrameBuffer.h>
-#include <SyncPrimitives/SyncPrimitives.h>
-#include <CommandBuffer.h>
+#include <GraphicsPipeline/Pipeline.hpp>
 
 namespace Engine
 {
@@ -18,22 +12,16 @@ namespace Engine
 
 		private:
 
-			std::unique_ptr<Memory::BufferImage> 					depth_buffer_ 	 = nullptr;
-
-			std::shared_ptr<RenderPass::RenderPass> 				render_pass_ 	 = nullptr;
-			std::unique_ptr<SyncPrimitives::SyncPrimitives> 	    sync_primitives_ = nullptr;
-
-			std::vector<std::shared_ptr<RenderPass::FrameBuffer>> 	frame_buffers_ 	 = {};
-			std::vector<std::unique_ptr<CommandBuffer>>             command_buffers_  = {};
-
-			uint32_t 												current_buffer_  = 0;
+			std::unique_ptr<Pipeline>                           forward_pipeline_ = {};
+            std::vector<std::shared_ptr<Programs::Program>>     programs_ = {};
 
 		public:
 
 			Forward();
 
-			vk::RenderPass getRenderPass() const;
-			void prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs);
+			uint32_t createProgram(Programs::ProgramParams &&params);
+			void addObjData(uint program_id, GymnureObjData&& data);
+			void prepare(const std::shared_ptr<Descriptors::Camera> &camera);
 			void render();
 		};
 	}

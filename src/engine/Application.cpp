@@ -5,7 +5,6 @@
 
 namespace Engine
 {
-    std::vector<std::shared_ptr<Programs::Program>>         Application::programs = {};
     std::shared_ptr<Descriptors::Camera>                    Application::main_camera = nullptr;
 
     std::unique_ptr<GraphicsPipeline::Forward>              Application::forward = nullptr;
@@ -46,7 +45,6 @@ namespace Engine
         auto app_data = ApplicationData::data;
 
         app_data->device.waitIdle();
-        programs.clear();
         forward.reset();
         RenderPass::SwapChain::reset();
         if(app_data->surface)
@@ -66,11 +64,8 @@ namespace Engine
 
     void Application::prepare()
     {
-        for (auto &program : programs)
-            program->prepare(main_camera);
-
         // Prepare pipelines
-        forward->prepare(programs);
+        forward->prepare(main_camera);
     }
 
     void Application::setupPipelines()
@@ -173,37 +168,23 @@ namespace Engine
 
     void Application::addObjData(uint program_id, GymnureObjData&& data)
     {
-        if(program_id >= programs.size()) {
-            Debug::logInfo("Invalid program id! Object discarded!");
-            return;
-        }
-
-        programs[program_id]->addObjData(std::move(data), 0);
+        forward->addObjData(program_id, std::move(data));
     }
 
     uint Application::createPhongProgram()
     {
-        auto params = std::vector<Programs::ProgramParams>();
+        Descriptors::LayoutData ld = {};
+        ld.fragment_texture_count = 1;
+        ld.fragment_uniform_count = 1;
 
-        {
-            Descriptors::LayoutData ld = {};
-            ld.fragment_texture_count = 1;
-            ld.fragment_uniform_count = 1;
+        uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
 
-            uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
-
-            params.push_back(Programs::ProgramParams{ forward->getRenderPass(), vi_mask, ld, "phong" });
-        }
-
-        auto program = std::make_unique<Programs::Program>(params);
-        programs.push_back(std::move(program));
-
-        return static_cast<uint>(programs.size() - 1);
+        return forward->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
     }
 
     uint Application::createDeferredProgram()
     {
-        auto params = std::vector<Programs::ProgramParams>();
+        /*auto params = std::vector<Programs::ProgramParams>();
 
         {
             uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
@@ -229,9 +210,9 @@ namespace Engine
         }
 
         auto program = std::make_unique<Programs::Program>(params);
-        programs.push_back(std::move(program));
+        programs.push_back(std::move(program));*/
 
-        return static_cast<uint>(programs.size() - 1);
+        return static_cast<uint>( 1);
     }
 
 }

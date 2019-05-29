@@ -19,12 +19,14 @@ namespace Engine
         private:
 
             struct {
-                std::unique_ptr<Memory::BufferImage> albedo = nullptr;
+                std::unique_ptr<Descriptors::Texture> albedo = nullptr;
             } g_buffer_;
 
             std::vector<std::shared_ptr<RenderPass::FrameBuffer>>	frame_buffers_      = {};
             std::shared_ptr<RenderPass::RenderPass>                 render_pass_        = nullptr;
             std::vector<std::unique_ptr<CommandBuffer>>             command_buffers_    = {};
+
+            std::vector<std::unique_ptr<Programs::Program>>         programs_           = {};
 
         public:
 
@@ -33,6 +35,11 @@ namespace Engine
             vk::RenderPass getRenderPass() const;
             void prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs);
             void render();
+
+            void createProgram()
+            {
+
+            }
         };
     }
 }

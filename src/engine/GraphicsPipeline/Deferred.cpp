@@ -18,7 +18,8 @@ namespace Engine
                 img_props.tiling            = vk::ImageTiling::eOptimal;
                 img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
-                g_buffer_.albedo = std::make_unique<Memory::BufferImage>(img_props);
+                auto albedo_buffer_img = std::make_unique<Memory::BufferImage>(img_props);
+                g_buffer_.albedo = std::make_unique<Descriptors::Texture>(std::move(albedo_buffer_img));
             }
 
             // Create Render Pass
@@ -36,7 +37,7 @@ namespace Engine
 
             // Create Frame Buffers
             {
-                std::vector<vk::ImageView> img_attachments = { g_buffer_.albedo->view };
+                std::vector<vk::ImageView> img_attachments = { g_buffer_.albedo->getImageView() };
                 frame_buffers_.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));
             }
         }
@@ -61,7 +62,7 @@ namespace Engine
 
         void Deferred::render()
         {
-            std::shared_ptr<RenderPass::SwapChain> swap_chain_ = RenderPass::SwapChain::getInstance();
+            vk::Queue queue = RenderPass::SwapChain::getInstance()->getGraphicQueue();
 
             vk::CommandBuffer current_command_buffer = command_buffers_[0]->getCommandBuffer();
             vk::PipelineStageFlags pipe_stage_flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
@@ -76,7 +77,7 @@ namespace Engine
             submit_info.pWaitSemaphores           = nullptr;
             submit_info.pSignalSemaphores         = nullptr;
 
-            DEBUG_CALL(swap_chain_->getGraphicQueue().submit({submit_info}, nullptr));
+            DEBUG_CALL(queue.submit({submit_info}, nullptr));
         }
     }
 }

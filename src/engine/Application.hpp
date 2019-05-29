@@ -16,7 +16,6 @@ namespace Engine
     {
     private:
 
-        static std::vector<std::shared_ptr<Programs::Program>>          programs;
         static std::shared_ptr<Descriptors::Camera>                     main_camera;
 
         static std::unique_ptr<GraphicsPipeline::Forward>               forward;

@@ -32,6 +32,11 @@ namespace Engine
 
 			~Texture();
 
+			vk::ImageView getImageView() const
+			{
+				return buffer_image_->view;
+			}
+
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
 			{
 				vk::WriteDescriptorSet write = {};
