@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Window
     {
-        SDLWindow::SDLWindow(u_int32_t width, u_int32_t height)
+        SDLWindow::SDLWindow(uint32_t width, uint32_t height)
         {
             // Setup SDL
             if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)

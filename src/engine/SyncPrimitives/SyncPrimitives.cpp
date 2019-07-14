@@ -35,11 +35,11 @@ namespace Engine
             vk::FenceCreateInfo fenceInfo = {};
             fenceInfo.flags = vk::FenceCreateFlagBits::eSignaled;
 
-            for(u_int32_t i = 0; i < size; i++)
+            for(uint32_t i = 0; i < size; i++)
                 DEBUG_CALL(fences_[i] = device.createFence(fenceInfo));
         }
 
-        vk::Fence SyncPrimitives::getFence(u_int32_t i)
+        vk::Fence SyncPrimitives::getFence(uint32_t i)
         {
             return this->fences_[i];
         }

@@ -37,7 +37,7 @@ namespace Engine
 			glm::mat4 view{};
 			glm::mat4 projection{};
 
-            explicit Camera(u_int32_t width, u_int32_t height);
+            explicit Camera(uint32_t width, uint32_t height);
 
 			void moveCamera(const glm::vec3& direction);
             void zoomCamera(float zoom);

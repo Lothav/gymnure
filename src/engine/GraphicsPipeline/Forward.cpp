@@ -11,7 +11,7 @@ namespace Engine
             return static_cast<uint32_t>(programs_.size() - 1);
         }
 
-        void Forward::addObjData(uint program_id, GymnureObjData&& data)
+        void Forward::addObjData(uint32_t program_id, GymnureObjData&& data)
         {
             if(programs_.size() <= program_id)
                 throw "Invalid program ID!";

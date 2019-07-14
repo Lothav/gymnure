@@ -20,7 +20,7 @@ namespace Engine
 			Forward();
 
 			uint32_t createProgram(Programs::ProgramParams &&params);
-			void addObjData(uint program_id, GymnureObjData&& data);
+			void addObjData(uint32_t program_id, GymnureObjData&& data);
 			void prepare(const std::shared_ptr<Descriptors::Camera> &camera);
 			void render();
 		};

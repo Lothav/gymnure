@@ -8,8 +8,8 @@
 #include <vulkan/vulkan.hpp>
 #include <cassert>
 #include <vector>
-#include <zconf.h>
 #include <ApplicationData.hpp>
+#include <cstdint>
 
 namespace Engine
 {
@@ -32,7 +32,7 @@ namespace Engine
 			void createSemaphore();
 			void createFences(uint32_t size);
 
-			vk::Fence getFence(u_int32_t i);
+			vk::Fence getFence(uint32_t i);
 		};
 	}
 }

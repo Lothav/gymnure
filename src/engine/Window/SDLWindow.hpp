@@ -6,7 +6,7 @@
 #include <SDL_vulkan.h>
 
 #include <vulkan/vulkan.h>
-#include <SDL2/SDL_syswm.h>
+#include <SDL_syswm.h>
 
 #include <ApplicationData.hpp>
 #include <Application.hpp>
@@ -30,7 +30,7 @@ namespace Engine
 
         public:
 
-            SDLWindow(u_int32_t width, u_int32_t height);
+            SDLWindow(uint32_t width, uint32_t height);
 
             ~SDLWindow();
 

@@ -34,7 +34,7 @@ namespace Engine
 
             explicit Pipeline(bool has_depth = true);
             // @TODO IMPLEMENT HAS_DEPTH
-            Pipeline(u_short color_targets_count, bool has_depth = true);
+            Pipeline(uint32_t color_targets_count, bool has_depth = true);
             vk::RenderPass getRenderPass() const;
             void prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs);
             void render();

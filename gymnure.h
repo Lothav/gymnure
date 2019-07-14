@@ -4,6 +4,7 @@
 #include <Window/SDLWindow.hpp>
 #include <Application.hpp>
 #include <Util/Debug.hpp>
+#include <cmath>
 
 class Gymnure
 {
@@ -35,17 +36,17 @@ public:
 #endif
     }
 
-    uint initPhongProgram()
+    uint32_t initPhongProgram()
     {
         return Engine::Application::createPhongProgram();
     }
 
-    uint initDeferredProgram()
+    uint32_t initDeferredProgram()
     {
         return Engine::Application::createDeferredProgram();
     }
 
-    void addObjData(uint program_id, GymnureObjData&& gymnure_data)
+    void addObjData(uint32_t program_id, GymnureObjData&& gymnure_data)
     {
         Engine::Application::addObjData(program_id, std::move(gymnure_data));
     }
@@ -59,7 +60,7 @@ public:
     {
         if(!window_->poolEvent())
             return false;
-#if DEBUG
+#if defined(DEBUG)
         auto start = std::chrono::high_resolution_clock::now();
         TRY_CATCH_BLOCK_FN(Engine::Application::draw());
         auto end = std::chrono::high_resolution_clock::now();
@@ -76,7 +77,7 @@ public:
             frame_count     = 0;
             frame_duration  = 0.f;
         }
-#elif
+#else
         Engine::Application::draw();
 #endif
         return true;

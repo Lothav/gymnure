@@ -120,7 +120,7 @@ namespace Engine
                     // find a separate present queue.
                     for (size_t i = 0; i < app_data->queue_family_count; ++i){
                         if (supports_present[i] == VK_TRUE) {
-                            present_queue_family_index_ = (u_int32_t) i;
+                            present_queue_family_index_ = (uint32_t) i;
                             break;
                         }
                     }

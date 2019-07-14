@@ -22,7 +22,7 @@ namespace Engine
         app_info_.applicationVersion 	    = 1;
         app_info_.pEngineName 			    = APP_NAME;
         app_info_.engineVersion 		    = 1;
-        app_info_.apiVersion 			    = VK_MAKE_VERSION(1, 1, 101);
+        app_info_.apiVersion 			    = VK_MAKE_VERSION(1, 1, 108);
 
         vk::InstanceCreateInfo inst_info_ = {};
         inst_info_.pNext 					= nullptr;
@@ -85,7 +85,7 @@ namespace Engine
 
         std::string device_log = "========================================================\n";
         device_log += "Devices found:\n";
-        for (uint i = 0; i < gpu_vector.size(); i++) {
+        for (uint32_t i = 0; i < gpu_vector.size(); i++) {
             vk::PhysicalDeviceProperties device_properties = gpu_vector[i].getProperties();
             device_log += "\tDevice[" + std::to_string(i) + "]: " + device_properties.deviceName + "\n";
             device_log += "\t\tType: " + Util::Util::physicalDeviceTypeString(device_properties.deviceType) + "\n";
@@ -94,7 +94,7 @@ namespace Engine
                 std::to_string((device_properties.apiVersion >> 12) & 0x3ff) + "." +
                 std::to_string(device_properties.apiVersion & 0xfff) + "\n";
         }
-        uint gpu_index = 0;
+        uint32_t gpu_index = 0;
         device_log += "Using Device[" + std::to_string(gpu_index) + "]\n";
         device_log += "========================================================";
 
@@ -166,12 +166,12 @@ namespace Engine
         main_camera = std::make_shared<Descriptors::Camera>(app_data->view_width, app_data->view_height);
     }
 
-    void Application::addObjData(uint program_id, GymnureObjData&& data)
+    void Application::addObjData(uint32_t program_id, GymnureObjData&& data)
     {
         forward->addObjData(program_id, std::move(data));
     }
 
-    uint Application::createPhongProgram()
+    uint32_t Application::createPhongProgram()
     {
         Descriptors::LayoutData ld = {};
         ld.fragment_texture_count = 1;
@@ -182,7 +182,7 @@ namespace Engine
         return forward->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
     }
 
-    uint Application::createDeferredProgram()
+    uint32_t Application::createDeferredProgram()
     {
         /*auto params = std::vector<Programs::ProgramParams>();
 
@@ -212,7 +212,7 @@ namespace Engine
         auto program = std::make_unique<Programs::Program>(params);
         programs.push_back(std::move(program));*/
 
-        return static_cast<uint>( 1);
+        return static_cast<uint32_t >( 1);
     }
 
 }

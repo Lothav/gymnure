@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace Descriptors
     {
-        Camera::Camera(u_int32_t width, u_int32_t height)
+        Camera::Camera(uint32_t width, uint32_t height)
         {
             struct BufferData buffer_data = {};
 
@@ -69,11 +69,11 @@ namespace Engine
             float z = glm::cos(phi_) * glm::sin(theta_);
             auto spherical_pos = glm::vec3(x, y, z);
 
-            glm::vec3 center = glm::vec3(0.f, 0.f, 0.f);
-            glm::vec3 right  = glm::cross(spherical_pos, glm::vec3(0, 1, 0));
+            glm::vec3 cent = glm::vec3(0.f, 0.f, 0.f);
+            glm::vec3 right = glm::cross(spherical_pos, glm::vec3(0, 1, 0));
 
             glm::vec3 up = glm::cross(spherical_pos, right);
-            view = glm::lookAt(zoom_ * spherical_pos, center, up);
+            view = glm::lookAt(zoom_ * spherical_pos, cent, up);
             pos = glm::vec4(spherical_pos, 1.f);
 
             updateMVP();

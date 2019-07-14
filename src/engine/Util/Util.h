@@ -18,7 +18,6 @@
 #define ASSETS_FOLDER_PATH_STR "."
 #endif
 
-#include <xcb/xcb.h>
 #include <vector>
 #include <fstream>
 #include <cstring>
@@ -26,7 +25,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>

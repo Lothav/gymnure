@@ -65,11 +65,11 @@ namespace Engine
 
                 auto vert = Engine::GraphicsPipeline::Shader{};
                 vert.type = vk::ShaderStageFlagBits::eVertex;
-                vert.path = p_config.shaders_name + ".vert.spv";
+                vert.path = p_config.shaders_name + "_vs.spv";
 
                 auto frag = Engine::GraphicsPipeline::Shader{};
                 frag.type = vk::ShaderStageFlagBits::eFragment;
-                frag.path = p_config.shaders_name + ".frag.spv";
+                frag.path = p_config.shaders_name + "_fs.spv";
 
                 std::vector<Engine::GraphicsPipeline::Shader> shaders = {vert, frag};
                 program_data_->graphic_pipeline = std::make_shared<GraphicsPipeline::GraphicsPipeline>(

@@ -6,7 +6,6 @@ namespace Engine
 {
     namespace Util
     {
-
         void Util::initViewport(vk::CommandBuffer cmd_buffer, uint32_t width, uint32_t height)
         {
             vk::Viewport viewport;
@@ -51,7 +50,7 @@ namespace Engine
             long shaderSize;
             char* shaderCode = nullptr;
 
-            std::string shader_file_path = std::string(ASSETS_FOLDER_PATH_STR) + "/shaders/" + filename;
+            std::string shader_file_path = "spirv/" + filename;
             std::ifstream is(shader_file_path, std::ios::binary | std::ios::in | std::ios::ate);
 
             if (is.is_open())

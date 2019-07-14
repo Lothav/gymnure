@@ -2,7 +2,6 @@
 #ifndef GYMNURE_APPLICATIONDATA_HPP
 #define GYMNURE_APPLICATIONDATA_HPP
 
-#include <zconf.h>
 #include <vector>
 
 #include <memancpp/Allocator.hpp>

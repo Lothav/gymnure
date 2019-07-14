@@ -26,7 +26,7 @@ namespace Engine
             size_t bufferSize = instances_count * dynamicAlignment;
 
             data_ = (glm::mat4 *) Memory::Memory::alignedAlloc(bufferSize, dynamicAlignment);
-            for (uint i = 0; i < instances_count; i ++)
+            for (uint32_t i = 0; i < instances_count; i ++)
                 data_[i] = glm::mat4(1.0f);
 
             struct BufferData buffer_data = {};

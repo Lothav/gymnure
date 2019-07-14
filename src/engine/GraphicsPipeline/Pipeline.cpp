@@ -71,7 +71,7 @@ namespace Engine
         }
 
         // @TODO IMPLEMENT HAS_DEPTH
-        Pipeline::Pipeline(const u_short color_targets_count, const bool has_depth) : present_(false), color_targets_count_(color_targets_count)
+        Pipeline::Pipeline(const uint32_t color_targets_count, const bool has_depth) : present_(false), color_targets_count_(color_targets_count)
         {
             auto app_data = ApplicationData::data;
 
@@ -86,7 +86,7 @@ namespace Engine
                 img_props.tiling            = vk::ImageTiling::eOptimal;
                 img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
 
-                for (int i = 0; i < color_targets_count_; ++i)
+                for (uint32_t i = 0; i < color_targets_count_; ++i)
                 {
                     auto albedo_buffer_img = std::make_unique<Memory::BufferImage>(img_props);
                     render_textures_.push_back(std::make_unique<Descriptors::Texture>(std::move(albedo_buffer_img)));

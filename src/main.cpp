@@ -5,10 +5,10 @@
 int main(int argc, char** argv)
 {
     const unsigned windowWidth  = 800;
-	const unsigned windowHeight = 600;
+    const unsigned windowHeight = 600;
 
-	{
-		auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
+    {
+        auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
 //        auto default_id = gymnure->initDefaultProgram();
         auto phong_id = gymnure->initPhongProgram();
@@ -43,10 +43,10 @@ int main(int argc, char** argv)
 
         gymnure->prepare();
 
-		while(true) {
-			if(!gymnure->draw()) break;
+        while(true) {
+            if(!gymnure->draw()) break;
         }
-	}
+    }
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

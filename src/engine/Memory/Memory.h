@@ -3,9 +3,12 @@
 
 #include <cassert>
 #include <cstring>
-#include <glm/glm.hpp>
 #include <vulkan/vulkan.hpp>
 #include <ApplicationData.hpp>
+
+#ifdef _WIN32
+#include <malloc.h>
+#endif
 
 namespace Engine
 {
@@ -15,7 +18,7 @@ namespace Engine
 		{
 		public:
 
-			static uint32_t findMemoryType(uint32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask);
+			static uint32_t findMemoryType(int32_t typeBits, const vk::MemoryPropertyFlags& requirements_mask);
 			static void* alignedAlloc(size_t size, size_t alignment);
 
 			template <class T>
