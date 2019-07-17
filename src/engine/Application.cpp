@@ -13,7 +13,7 @@ namespace Engine
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
         auto app_data = ApplicationData::data;
-        
+
         std::vector<const char *> _layer_names = Util::Layers::getLayerNames();
 
         vk::ApplicationInfo app_info_ = {};
@@ -46,6 +46,7 @@ namespace Engine
 
         app_data->device.waitIdle();
         forward.reset();
+        deferred.reset();
         RenderPass::SwapChain::reset();
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
@@ -60,17 +61,20 @@ namespace Engine
     {
         // Draw pipelines
         forward->render();
+        deferred->render();
     }
 
     void Application::prepare()
     {
         // Prepare pipelines
         forward->prepare(main_camera);
+        deferred->prepare(main_camera);
     }
 
     void Application::setupPipelines()
     {
         forward = std::make_unique<GraphicsPipeline::Forward>();
+        deferred = std::make_unique<GraphicsPipeline::Deferred>();
     }
 
     void Application::setupSurface(const uint32_t& width, const uint32_t& height)
@@ -90,9 +94,9 @@ namespace Engine
             device_log += "\tDevice[" + std::to_string(i) + "]: " + device_properties.deviceName + "\n";
             device_log += "\t\tType: " + Util::Util::physicalDeviceTypeString(device_properties.deviceType) + "\n";
             device_log += "\t\tAPI: " +
-                std::to_string(device_properties.apiVersion >> 22) + "." +
-                std::to_string((device_properties.apiVersion >> 12) & 0x3ff) + "." +
-                std::to_string(device_properties.apiVersion & 0xfff) + "\n";
+                          std::to_string(device_properties.apiVersion >> 22) + "." +
+                          std::to_string((device_properties.apiVersion >> 12) & 0x3ff) + "." +
+                          std::to_string(device_properties.apiVersion & 0xfff) + "\n";
         }
         uint32_t gpu_index = 0;
         device_log += "Using Device[" + std::to_string(gpu_index) + "]\n";
@@ -184,35 +188,22 @@ namespace Engine
 
     uint32_t Application::createDeferredProgram()
     {
-        /*auto params = std::vector<Programs::ProgramParams>();
+        uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
+        Descriptors::LayoutData ld = {};
 
-        {
-            uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
+        ld.has_model_matrix             = true;
+        ld.has_view_projection_matrix   = true;
+        ld.fragment_texture_count       = 1;
+        ld.fragment_uniform_count       = 1;
+        Programs::ProgramParams mrt = Programs::ProgramParams{vi_mask, ld, "mrt"};
 
-            Descriptors::LayoutData ld = {};
-            ld.has_model_matrix             = true;
-            ld.has_view_projection_matrix   = true;
-            ld.fragment_texture_count       = 1;
-            ld.fragment_uniform_count       = 1;
+        ld.has_model_matrix             = false;
+        ld.has_view_projection_matrix   = false;
+        ld.fragment_texture_count       = 1;
+        ld.fragment_uniform_count       = 0;
+        Programs::ProgramParams present = Programs::ProgramParams{Programs::VertexInputType::NONE, ld, "deferred"};
 
-            params.push_back(Programs::ProgramParams{ deferred->getRenderPass(), vi_mask, ld, "mrt" });
-        }
-        {
-            uint32_t vi_mask = Programs::VertexInputType::NONE;
-
-            Descriptors::LayoutData ld = {};
-            ld.has_model_matrix             = false;
-            ld.has_view_projection_matrix   = false;
-            ld.fragment_texture_count       = 1;
-            ld.fragment_uniform_count       = 0;
-
-            params.push_back(Programs::ProgramParams{ forward->getRenderPass(), vi_mask, ld, "deferred" });
-        }
-
-        auto program = std::make_unique<Programs::Program>(params);
-        programs.push_back(std::move(program));*/
-
-        return static_cast<uint32_t >( 1);
+        return deferred->createProgram(std::move(mrt), std::move(present));
     }
 
 }

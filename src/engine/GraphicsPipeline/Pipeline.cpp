@@ -124,6 +124,7 @@ namespace Engine
         void Pipeline::prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs)
         {
             std::vector<vk::ClearValue> clear_values = {};
+            clear_values.reserve(color_targets_count_);
 
             for (int j = 0; j < color_targets_count_; ++j)
                 clear_values.emplace_back(vk::ClearColorValue(std::array<float, 4>({ 0.4f, 0.4f, 0.4f, 1.0f })));

@@ -1,7 +1,7 @@
 #include "Forward.hpp"
 namespace Engine
 {
-    namespace  GraphicsPipeline
+    namespace GraphicsPipeline
     {
         Forward::Forward() : forward_pipeline_ (std::make_unique<Pipeline>()) {}
 
@@ -14,7 +14,7 @@ namespace Engine
         void Forward::addObjData(uint32_t program_id, GymnureObjData&& data)
         {
             if(programs_.size() <= program_id)
-                throw "Invalid program ID!";
+                throw std::exception("Invalid program ID!");
 
             programs_[program_id]->addObjData(std::move(data));
         }

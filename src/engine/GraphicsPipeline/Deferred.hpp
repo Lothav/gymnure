@@ -1,4 +1,3 @@
-
 #ifndef GYMNURE_DEFERRED_HPP
 #define GYMNURE_DEFERRED_HPP
 
@@ -8,6 +7,7 @@
 #include <RenderPass/FrameBuffer.h>
 #include <CommandBuffer.h>
 #include "Memory/BufferImage.h"
+#include "Pipeline.hpp"
 
 namespace Engine
 {
@@ -18,28 +18,29 @@ namespace Engine
 
         private:
 
+            struct Passes
+            {
+                std::shared_ptr<Programs::Program> mrt;
+                std::shared_ptr<Programs::Program> present;
+            };
+
             struct {
                 std::unique_ptr<Descriptors::Texture> albedo = nullptr;
             } g_buffer_;
 
-            std::vector<std::shared_ptr<RenderPass::FrameBuffer>>	frame_buffers_      = {};
-            std::shared_ptr<RenderPass::RenderPass>                 render_pass_        = nullptr;
             std::vector<std::unique_ptr<CommandBuffer>>             command_buffers_    = {};
 
-            std::vector<std::unique_ptr<Programs::Program>>         programs_           = {};
+            std::unique_ptr<Pipeline>                               forward_pipeline_ = {};
+            std::vector<Passes>                                     programs_ = {};
 
         public:
 
             Deferred();
 
-            vk::RenderPass getRenderPass() const;
-            void prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs);
+            uint32_t createProgram(Programs::ProgramParams &&mrt, Programs::ProgramParams &&present);
+            void addObjData(uint32_t program_id, GymnureObjData&& data);
+            void prepare(const std::shared_ptr<Descriptors::Camera> &camera);
             void render();
-
-            void createProgram()
-            {
-
-            }
         };
     }
 }
