@@ -75,11 +75,26 @@ namespace Engine
         {
             auto app_data = ApplicationData::data;
 
+            if(has_depth)
+            {
+                // Create Depth Buffer
+                Memory::ImageProps img_props = {};
+                img_props.width             = static_cast<uint32_t>(app_data->view_width);
+                img_props.height            = static_cast<uint32_t>(app_data->view_height);
+                img_props.format            = Memory::ImageFormats::getImageFormat(Memory::ImageType::DEPTH_STENCIL);
+                img_props.usage             = vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eDepthStencilAttachment;
+                img_props.tiling            = vk::ImageTiling::eOptimal;
+                img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
+
+                // Create Depth Buffer
+                depth_buffer_ = std::make_unique<Memory::BufferImage>(img_props);
+            }
+
             {
                 Memory::ImageProps img_props = {};
                 img_props.width             = static_cast<uint32_t>(app_data->view_width);
                 img_props.height            = static_cast<uint32_t>(app_data->view_height);
-                img_props.format            = vk::Format::eR8G8B8A8Unorm;
+                img_props.format            = vk::Format::eB8G8R8A8Unorm;
                 img_props.usage             =                 // Image will be
                     vk::ImageUsageFlagBits::eSampled |        // sampled in shaders and
                     vk::ImageUsageFlagBits::eColorAttachment; // used as Framebuffer attachment
@@ -102,14 +117,31 @@ namespace Engine
                 attch.usage         = vk::ImageUsageFlagBits::eColorAttachment;
                 rp_attachments.push_back(attch);
 
+                if(has_depth)
+                {
+                    attch.format        = Memory::ImageFormats::getImageFormat(Memory::ImageType::DEPTH_STENCIL);
+                    attch.final_layout  = vk::ImageLayout::eDepthStencilAttachmentOptimal;
+                    attch.usage         = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+                    rp_attachments.push_back(attch);
+                }
+
                 render_pass_ = std::make_shared<RenderPass::RenderPass>(rp_attachments);
             }
 
             // Create Frame Buffers
             {
                 std::vector<vk::ImageView> img_attachments = {};
+
+                if(has_depth && depth_buffer_ != nullptr) {
+                    img_attachments.resize(2);
+                    img_attachments[1] = depth_buffer_->view;
+                } else {
+                    img_attachments.resize(1);
+                }
+
+                // @TODO >> MRT <<
                 for (int i = 0; i < color_targets_count_; ++i)
-                    img_attachments.push_back(render_textures_[i]->getImageView());
+                    img_attachments[0] = render_textures_[i]->getImageView();
 
                 frame_buffers_.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));
                 command_buffers_.push_back(std::make_unique<CommandBuffer>());

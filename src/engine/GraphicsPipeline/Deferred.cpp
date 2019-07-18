@@ -4,7 +4,7 @@ namespace Engine
 {
     namespace GraphicsPipeline
     {
-        Deferred::Deferred() : forward_pipeline_ (std::make_unique<Pipeline>()) {}
+        Deferred::Deferred() : forward_pipeline_ (std::make_unique<Pipeline>((uint32_t)1)) {}
 
         uint32_t Deferred::createProgram(Programs::ProgramParams &&mrt, Programs::ProgramParams &&present)
         {
@@ -45,7 +45,7 @@ namespace Engine
 
         void Deferred::render()
         {
-            if(programs_.empty())
+            //if(programs_.empty())
                 return;
 
             forward_pipeline_->render();
