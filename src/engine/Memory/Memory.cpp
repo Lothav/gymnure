@@ -20,7 +20,7 @@ namespace Engine
                 typeBits >>= 1;
             }
             // No memory types matched, throw exception
-            throw std::exception("Could not find a suitable memory type!");
+            throw "Could not find a suitable memory type!";
         }
 
         // Wrapper functions for aligned memory allocation

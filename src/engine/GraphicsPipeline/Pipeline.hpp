@@ -30,6 +30,8 @@ namespace Engine
             uint32_t                                                color_targets_count_    = 0;
             bool                                                    present_                = false;
 
+            bool                                                    prepared_               = false;
+
         public:
 
             explicit Pipeline(bool has_depth = true);

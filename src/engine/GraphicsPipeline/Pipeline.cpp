@@ -140,7 +140,7 @@ namespace Engine
                 }
 
                 // @TODO >> MRT <<
-                for (int i = 0; i < color_targets_count_; ++i)
+                for (uint32_t i = 0; i < color_targets_count_; ++i)
                     img_attachments[0] = render_textures_[i]->getImageView();
 
                 frame_buffers_.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));
@@ -155,10 +155,13 @@ namespace Engine
 
         void Pipeline::prepare(const std::vector<std::shared_ptr<Programs::Program>>& programs)
         {
+            if(programs.empty())
+                return;
+
             std::vector<vk::ClearValue> clear_values = {};
             clear_values.reserve(color_targets_count_);
 
-            for (int j = 0; j < color_targets_count_; ++j)
+            for (uint32_t  j = 0; j < color_targets_count_; ++j)
                 clear_values.emplace_back(vk::ClearColorValue(std::array<float, 4>({ 0.4f, 0.4f, 0.4f, 1.0f })));
 
             if(depth_buffer_ != nullptr)
@@ -167,10 +170,15 @@ namespace Engine
             uint32_t i = 0;
             for (auto& command_buffer: command_buffers_)
                 command_buffer->bindGraphicCommandBuffer(clear_values, render_pass_, frame_buffers_[i++], programs);
+
+            prepared_ = true;
         }
 
         void Pipeline::render()
         {
+            if(!prepared_)
+                return;
+
             vk::Result res = vk::Result::eNotReady;
 
             auto device = ApplicationData::data->device;

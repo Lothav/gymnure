@@ -86,6 +86,12 @@ if(glslangValidator)
     add_spirv(phong_fs frag)
     add_spirv(phong_vs vert)
 
+    add_spirv(mrt_fs frag)
+    add_spirv(mrt_vs vert)
+
+    add_spirv(deferred_fs frag)
+    add_spirv(deferred_vs vert)
+
     message(STATUS "SPIR-V dependencies: ${spirvDependencies}")
     add_custom_target(spirv DEPENDS ${spirvDependencies})
     add_dependencies(gymnure spirv)

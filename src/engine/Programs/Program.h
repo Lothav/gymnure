@@ -26,16 +26,16 @@ namespace Engine
     {
         enum VertexInputType
         {
-            NONE = 1 << 0,
+            NONE     = 1 << 0,
             POSITION = 1 << 1,
-            NORMAL = 1 << 2,
-            UV = 1 << 3
+            NORMAL   = 1 << 2,
+            UV       = 1 << 3
         };
 
         struct ProgramParams {
             uint32_t vi_types_mask = 0;
             Descriptors::LayoutData layout_data{};
-            const std::string &shaders_name;
+            std::string shaders_name;
         };
 
         class Program {
@@ -140,6 +140,9 @@ namespace Engine
             {
                 auto app_data = ApplicationData::data;
                 auto data_size = static_cast<uint32_t>(program_data_->objects_data.size());
+
+				if (data_size == 0)
+					return;
 
                 program_data_->model_buffer_ = std::make_shared<ModelBuffer>(data_size);
 

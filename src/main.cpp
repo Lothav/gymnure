@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 
 //        auto default_id = gymnure->initDefaultProgram();
         auto phong_id = gymnure->initPhongProgram();
-        //auto deferred_id = gymnure->initDeferredProgram();
+        auto deferred_id = gymnure->initDeferredProgram();
 
         //{
         //    auto room2 = GymnureObjData{};

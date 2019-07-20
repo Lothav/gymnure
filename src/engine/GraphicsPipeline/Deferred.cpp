@@ -10,7 +10,7 @@ namespace Engine
         {
             Passes passes;
             passes.mrt = std::make_shared<Programs::Program>(std::move(mrt), forward_pipeline_->getRenderPass());
-            passes.present = std::make_shared<Programs::Program>(std::move(present), forward_pipeline_->getRenderPass());
+            //passes.present = std::make_shared<Programs::Program>(std::move(present), forward_pipeline_->getRenderPass());
 
             programs_.push_back(passes);
 
@@ -20,7 +20,7 @@ namespace Engine
         void Deferred::addObjData(uint32_t program_id, GymnureObjData&& data)
 		{
             if(programs_.size() <= program_id)
-                throw std::exception("Invalid program ID!");
+                throw "Invalid program ID!";
 
             // Add object only to MRT pass.
             programs_[program_id].mrt->addObjData(std::move(data));
@@ -34,10 +34,10 @@ namespace Engine
             std::vector<std::shared_ptr<Programs::Program>> programs = {};
             for(auto& program : programs_) {
                 program.mrt->prepare(camera);
-                program.present->prepare(camera);
+                //program.present->prepare(camera);
 
                 programs.push_back(program.mrt);
-                programs.push_back(program.present);
+                //programs.push_back(program.present);
             }
 
             forward_pipeline_->prepare(programs);
@@ -45,7 +45,7 @@ namespace Engine
 
         void Deferred::render()
         {
-            //if(programs_.empty())
+            if(programs_.empty())
                 return;
 
             forward_pipeline_->render();

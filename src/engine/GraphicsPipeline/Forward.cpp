@@ -14,13 +14,16 @@ namespace Engine
         void Forward::addObjData(uint32_t program_id, GymnureObjData&& data)
         {
             if(programs_.size() <= program_id)
-                throw std::exception("Invalid program ID!");
+                throw "Invalid program ID!";
 
             programs_[program_id]->addObjData(std::move(data));
         }
 
         void Forward::prepare(const std::shared_ptr<Descriptors::Camera> &camera)
         {
+            if(programs_.empty())
+                return;
+
             for (auto& program : programs_)
                 program->prepare(camera);
 
@@ -29,6 +32,9 @@ namespace Engine
 
         void Forward::render()
         {
+            if(programs_.empty())
+                return;
+
             forward_pipeline_->render();
         }
     }
