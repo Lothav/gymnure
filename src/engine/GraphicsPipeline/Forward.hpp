@@ -12,7 +12,7 @@ namespace Engine
 
 		private:
 
-			std::unique_ptr<Pipeline>                           forward_pipeline_ = {};
+			std::unique_ptr<Pipeline>                           pipeline_ = {};
             std::vector<std::shared_ptr<Programs::Program>>     programs_ = {};
 
 		public:

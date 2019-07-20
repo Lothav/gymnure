@@ -18,14 +18,13 @@ namespace Engine
 
         static std::shared_ptr<Descriptors::Camera>                     main_camera;
 
-        static std::unique_ptr<GraphicsPipeline::Forward>               forward;
-        static std::unique_ptr<GraphicsPipeline::Deferred>              deferred;
+        static std::unique_ptr<GraphicsPipeline::Forward>               forward_pipeline_;
+        static std::unique_ptr<GraphicsPipeline::Deferred>              deferred_pipeline_;
 
     public:
 
         static void create(const std::vector<const char *>& instance_extension_names);
         static void setupSurface(const uint32_t& width, const uint32_t& height);
-        static void setupPipelines();
 
         static void prepare();
         static void draw();

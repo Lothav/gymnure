@@ -3,11 +3,11 @@ namespace Engine
 {
     namespace GraphicsPipeline
     {
-        Forward::Forward() : forward_pipeline_ (std::make_unique<Pipeline>()) {}
+        Forward::Forward() : pipeline_ (std::make_unique<Pipeline>()) {}
 
         uint32_t Forward::createProgram(Programs::ProgramParams &&params)
         {
-            programs_.push_back(std::make_shared<Programs::Program>(params, forward_pipeline_->getRenderPass()));
+            programs_.push_back(std::make_shared<Programs::Program>(params, pipeline_->getRenderPass()));
             return static_cast<uint32_t>(programs_.size() - 1);
         }
 
@@ -27,7 +27,7 @@ namespace Engine
             for (auto& program : programs_)
                 program->prepare(camera);
 
-            forward_pipeline_->prepare(programs_);
+            pipeline_->prepare(programs_);
         }
 
         void Forward::render()
@@ -35,7 +35,7 @@ namespace Engine
             if(programs_.empty())
                 return;
 
-            forward_pipeline_->render();
+            pipeline_->render();
         }
     }
 }

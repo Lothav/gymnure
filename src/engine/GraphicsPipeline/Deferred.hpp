@@ -28,10 +28,11 @@ namespace Engine
                 std::unique_ptr<Descriptors::Texture> albedo = nullptr;
             } g_buffer_;
 
-            std::vector<std::unique_ptr<CommandBuffer>>             command_buffers_    = {};
+            std::vector<std::unique_ptr<CommandBuffer>>             command_buffers_ = {};
 
-            std::unique_ptr<Pipeline>                               forward_pipeline_ = {};
+            std::unique_ptr<Pipeline>                               pipeline_ = {};
             std::vector<Passes>                                     programs_ = {};
+            uint32_t                                                object_count_ = 0;
 
         public:
 

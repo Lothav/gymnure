@@ -11,8 +11,8 @@ int main(int argc, char** argv)
         auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
 
 //        auto default_id = gymnure->initDefaultProgram();
-        auto phong_id = gymnure->initPhongProgram();
-        auto deferred_id = gymnure->initDeferredProgram();
+//        auto phong_id = gymnure->initPhongProgram();
+       auto deferred_id = gymnure->initPhongProgram();
 
         //{
         //    auto room2 = GymnureObjData{};
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
             auto wolf = GymnureObjData{};
             wolf.paths_textures = {"wolf/textures/Wolf_Body.jpg"};
             wolf.obj_path 	    = "wolf/Wolf_One_obj.obj";
-            gymnure->addObjData(phong_id, std::move(wolf));
+            gymnure->addObjData(deferred_id, std::move(wolf));
         }
 
         //{

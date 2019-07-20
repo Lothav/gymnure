@@ -7,8 +7,8 @@ namespace Engine
 {
     std::shared_ptr<Descriptors::Camera>                    Application::main_camera = nullptr;
 
-    std::unique_ptr<GraphicsPipeline::Forward>              Application::forward = nullptr;
-    std::unique_ptr<GraphicsPipeline::Deferred>             Application::deferred = nullptr;
+    std::unique_ptr<GraphicsPipeline::Forward>              Application::forward_pipeline_ = nullptr;
+    std::unique_ptr<GraphicsPipeline::Deferred>             Application::deferred_pipeline_ = nullptr;
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -45,8 +45,8 @@ namespace Engine
         auto app_data = ApplicationData::data;
 
         app_data->device.waitIdle();
-        forward.reset();
-        deferred.reset();
+        forward_pipeline_.reset();
+        deferred_pipeline_.reset();
         RenderPass::SwapChain::reset();
         if(app_data->surface)
             app_data->instance.destroySurfaceKHR(app_data->surface, nullptr);
@@ -60,21 +60,21 @@ namespace Engine
     void Application::draw()
     {
         // Draw pipelines
-        forward->render();
-        deferred->render();
+        if(forward_pipeline_ != nullptr)
+            forward_pipeline_->render();
+
+        if(deferred_pipeline_ != nullptr)
+            deferred_pipeline_->render();
     }
 
     void Application::prepare()
     {
         // Prepare pipelines
-        forward->prepare(main_camera);
-        deferred->prepare(main_camera);
-    }
+        if(forward_pipeline_ != nullptr)
+            forward_pipeline_->prepare(main_camera);
 
-    void Application::setupPipelines()
-    {
-        forward = std::make_unique<GraphicsPipeline::Forward>();
-        deferred = std::make_unique<GraphicsPipeline::Deferred>();
+        if(deferred_pipeline_ != nullptr)
+            deferred_pipeline_->prepare(main_camera);
     }
 
     void Application::setupSurface(const uint32_t& width, const uint32_t& height)
@@ -172,22 +172,31 @@ namespace Engine
 
     void Application::addObjData(uint32_t program_id, GymnureObjData&& data)
     {
-        forward->addObjData(program_id, std::move(data));
+        //if(forward_pipeline_ == nullptr)
+          //  forward_pipeline_ = std::make_unique<GraphicsPipeline::Forward>();
+
+        forward_pipeline_->addObjData(program_id, std::move(data));
     }
 
     uint32_t Application::createPhongProgram()
     {
+        if(forward_pipeline_ == nullptr)
+            forward_pipeline_ = std::make_unique<GraphicsPipeline::Forward>();
+
         Descriptors::LayoutData ld = {};
         ld.fragment_texture_count = 1;
         ld.fragment_uniform_count = 1;
 
         uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
 
-        return forward->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
+        return forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
     }
 
     uint32_t Application::createDeferredProgram()
     {
+        if(deferred_pipeline_ == nullptr)
+            deferred_pipeline_ = std::make_unique<GraphicsPipeline::Deferred>();
+
         uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
         Descriptors::LayoutData ld = {};
 
@@ -203,7 +212,7 @@ namespace Engine
         ld.fragment_uniform_count       = 0;
         Programs::ProgramParams present = Programs::ProgramParams{Programs::VertexInputType::NONE, ld, "deferred"};
 
-        return deferred->createProgram(std::move(mrt), std::move(present));
+        return deferred_pipeline_->createProgram(std::move(mrt), std::move(present));
     }
 
 }

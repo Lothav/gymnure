@@ -4,13 +4,15 @@ namespace Engine
 {
     namespace GraphicsPipeline
     {
-        Deferred::Deferred() : forward_pipeline_ (std::make_unique<Pipeline>((uint32_t)1)) {}
+        Deferred::Deferred() : pipeline_ (std::make_unique<Pipeline>((uint32_t)1)) {}
 
         uint32_t Deferred::createProgram(Programs::ProgramParams &&mrt, Programs::ProgramParams &&present)
         {
+            vk::RenderPass renderPass = pipeline_->getRenderPass();
+
             Passes passes;
-            passes.mrt = std::make_shared<Programs::Program>(std::move(mrt), forward_pipeline_->getRenderPass());
-            //passes.present = std::make_shared<Programs::Program>(std::move(present), forward_pipeline_->getRenderPass());
+            passes.mrt = std::make_shared<Programs::Program>(std::move(mrt), renderPass);
+            //passes.present = std::make_shared<Programs::Program>(std::move(present), pipeline_->getRenderPass());
 
             programs_.push_back(passes);
 
@@ -20,15 +22,16 @@ namespace Engine
         void Deferred::addObjData(uint32_t program_id, GymnureObjData&& data)
 		{
             if(programs_.size() <= program_id)
-                throw "Invalid program ID!";
+                throw std::exception("Invalid program ID!");
 
             // Add object only to MRT pass.
             programs_[program_id].mrt->addObjData(std::move(data));
+            object_count_++;
         }
 
         void Deferred::prepare(const std::shared_ptr<Descriptors::Camera> &camera)
         {
-            if(programs_.empty())
+            if(programs_.empty() || object_count_ == 0)
                 return;
 
             std::vector<std::shared_ptr<Programs::Program>> programs = {};
@@ -40,15 +43,15 @@ namespace Engine
                 //programs.push_back(program.present);
             }
 
-            forward_pipeline_->prepare(programs);
+            pipeline_->prepare(programs);
         }
 
         void Deferred::render()
         {
-            if(programs_.empty())
+            if(programs_.empty() || object_count_ == 0)
                 return;
 
-            forward_pipeline_->render();
+            pipeline_->render();
         }
     }
 }
