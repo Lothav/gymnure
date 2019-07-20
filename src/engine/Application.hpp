@@ -12,6 +12,12 @@
 
 namespace Engine
 {
+    enum ProgramPipeline
+    {
+        FORWARD,
+        DEFERRED
+    };
+
     class Application
     {
     private:
@@ -20,6 +26,7 @@ namespace Engine
 
         static std::unique_ptr<GraphicsPipeline::Forward>               forward_pipeline_;
         static std::unique_ptr<GraphicsPipeline::Deferred>              deferred_pipeline_;
+        static std::vector<ProgramPipeline>                             programs_;
 
     public:
 

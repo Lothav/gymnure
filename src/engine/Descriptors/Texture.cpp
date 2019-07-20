@@ -46,7 +46,7 @@ namespace Engine
             stbi_uc *pixels = stbi_load(assets_texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
             if(!pixels)
-                throw "Cannot stbi_load pixels!";
+                throw std::exception("Cannot stbi_load pixels!");
 
             auto pixel_count = static_cast<size_t>(texWidth * texHeight * 4); // 4 channels
 

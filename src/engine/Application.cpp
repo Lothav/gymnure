@@ -9,6 +9,7 @@ namespace Engine
 
     std::unique_ptr<GraphicsPipeline::Forward>              Application::forward_pipeline_ = nullptr;
     std::unique_ptr<GraphicsPipeline::Deferred>             Application::deferred_pipeline_ = nullptr;
+    std::vector<ProgramPipeline>                            Application::programs_ = {};
 
     void Application::create(const std::vector<const char *>& instance_extension_names)
     {
@@ -172,10 +173,14 @@ namespace Engine
 
     void Application::addObjData(uint32_t program_id, GymnureObjData&& data)
     {
-        //if(forward_pipeline_ == nullptr)
-          //  forward_pipeline_ = std::make_unique<GraphicsPipeline::Forward>();
+        if(programs_.size() <= program_id)
+            return;
 
-        forward_pipeline_->addObjData(program_id, std::move(data));
+        if(programs_[program_id] == FORWARD)
+            forward_pipeline_->addObjData(program_id, std::move(data));
+        else if(programs_[program_id] == DEFERRED)
+            deferred_pipeline_->addObjData(program_id, std::move(data));
+        else throw std::exception("INVALID PROGRAM_ID!");
     }
 
     uint32_t Application::createPhongProgram()
@@ -189,7 +194,13 @@ namespace Engine
 
         uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::NORMAL;
 
-        return forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
+        uint32_t program_id = forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
+
+        if(program_id != programs_.size())
+            throw  std::exception("ERROR!");
+        programs_.push_back(FORWARD);
+
+        return program_id;
     }
 
     uint32_t Application::createDeferredProgram()
@@ -212,7 +223,13 @@ namespace Engine
         ld.fragment_uniform_count       = 0;
         Programs::ProgramParams present = Programs::ProgramParams{Programs::VertexInputType::NONE, ld, "deferred"};
 
-        return deferred_pipeline_->createProgram(std::move(mrt), std::move(present));
+        uint32_t program_id = deferred_pipeline_->createProgram(std::move(mrt), std::move(present));
+
+        if(program_id != programs_.size())
+            throw  std::exception("ERROR!");
+        programs_.push_back(DEFERRED);
+
+        return program_id;
     }
 
 }
