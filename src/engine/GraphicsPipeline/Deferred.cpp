@@ -12,7 +12,7 @@ namespace Engine
 
             Passes passes;
             passes.mrt = std::make_shared<Programs::Program>(std::move(mrt), renderPass);
-            //passes.present = std::make_shared<Programs::Program>(std::move(present), pipeline_->getRenderPass());
+            passes.present = std::make_shared<Programs::Program>(std::move(present), renderPass);
 
             programs_.push_back(passes);
 
@@ -37,10 +37,10 @@ namespace Engine
             std::vector<std::shared_ptr<Programs::Program>> programs = {};
             for(auto& program : programs_) {
                 program.mrt->prepare(camera);
-                //program.present->prepare(camera);
+                program.present->prepare(camera);
 
                 programs.push_back(program.mrt);
-                //programs.push_back(program.present);
+                programs.push_back(program.present);
             }
 
             pipeline_->prepare(programs);

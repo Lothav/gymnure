@@ -2,6 +2,7 @@
 
 #include <Util/Debug.hpp>
 #include <Memory/ImageFormats.hpp>
+#include <RenderPass/Queue.h>
 
 namespace Engine
 {
@@ -60,7 +61,6 @@ namespace Engine
 
     void Application::draw()
     {
-        // Draw pipelines
         if(forward_pipeline_ != nullptr)
             forward_pipeline_->render();
 
@@ -169,6 +169,8 @@ namespace Engine
 
         // Init Main Camera
         main_camera = std::make_shared<Descriptors::Camera>(app_data->view_width, app_data->view_height);
+
+        Engine::RenderPass::Queue::LoadQueues();
     }
 
     void Application::addObjData(uint32_t program_id, GymnureObjData&& data)

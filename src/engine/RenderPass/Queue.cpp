@@ -48,11 +48,9 @@ namespace Engine
                 // families, try to find one that supports both
                 for (uint32_t i = 0; i < app_data->queue_family_count; ++i) {
                     if ((app_data->queue_family_props[i].queueFlags & vk::QueueFlagBits::eGraphics)) {
-
                         if (graphics_queue_family_index_ == UINT32_MAX) {
                             graphics_queue_family_index_ = i;
                         }
-
                         if (supports_present[i] == VK_TRUE) {
                             graphics_queue_family_index_ = i;
                             present_queue_family_index_ = i;

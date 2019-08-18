@@ -1,4 +1,5 @@
 
+#include <RenderPass/Queue.h>
 #include "Pipeline.hpp"
 
 namespace Engine
@@ -146,6 +147,11 @@ namespace Engine
                 frame_buffers_.push_back(std::make_shared<RenderPass::FrameBuffer>(img_attachments, render_pass_));
                 command_buffers_.push_back(std::make_unique<CommandBuffer>());
             }
+
+            // Init Sync Primitives
+            sync_primitives_ = std::make_unique<SyncPrimitives::SyncPrimitives>();
+            sync_primitives_->createSemaphore();
+            sync_primitives_->createFences(1);
         }
 
         vk::RenderPass Pipeline::getRenderPass() const
@@ -183,7 +189,7 @@ namespace Engine
 
             auto device = ApplicationData::data->device;
             auto swapchain = RenderPass::SwapChain::getInstance();
-            vk::Queue queue = swapchain->getGraphicQueue();
+            vk::Queue queue = RenderPass::Queue::GetGraphicQueue();
 
             if(present_)
             {
@@ -192,6 +198,8 @@ namespace Engine
                         swapchain->getSwapChainKHR(), UINT64_MAX,
                         sync_primitives_->imageAcquiredSemaphore, {}));
                 assert(res == vk::Result::eSuccess);
+            } else {
+                current_buffer_ = 0;
             }
 
             vk::PipelineStageFlags pipe_stage_flags = vk::PipelineStageFlagBits::eColorAttachmentOutput;
@@ -210,8 +218,10 @@ namespace Engine
             submit_info.commandBufferCount        = 1;
             submit_info.pCommandBuffers           = &current_command_buffer;
             submit_info.signalSemaphoreCount      = 1;
-            submit_info.pWaitSemaphores           = &sync_primitives_->imageAcquiredSemaphore;
-            submit_info.pSignalSemaphores         = &sync_primitives_->renderSemaphore;
+            if(present_) {
+                submit_info.pWaitSemaphores           = &sync_primitives_->imageAcquiredSemaphore;
+                submit_info.pSignalSemaphores         = &sync_primitives_->renderSemaphore;
+            }
 
             DEBUG_CALL(queue.submit({submit_info}, current_buffer_fence));
 

@@ -2,6 +2,7 @@
 #define OBSIDIAN2D_GRAPHICPIPELINE_H
 
 #include <ApplicationData.hpp>
+#include <Util/ModelLoader.h>
 #include "GraphicsPipeline.h"
 
 namespace Engine
@@ -86,7 +87,7 @@ namespace Engine
             att_state[0].dstColorBlendFactor        = vk::BlendFactor::eOneMinusSrcAlpha;
             att_state[0].colorBlendOp               = vk::BlendOp::eAdd;
             att_state[0].alphaBlendOp               = vk::BlendOp::eAdd;
-            att_state[0].srcAlphaBlendFactor        = vk::BlendFactor::eZero;
+            att_state[0].srcAlphaBlendFactor        = vk::BlendFactor::eOne;
             att_state[0].dstAlphaBlendFactor        = vk::BlendFactor::eZero;
 
             vk::PipelineColorBlendStateCreateInfo cb = {};

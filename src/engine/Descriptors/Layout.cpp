@@ -149,7 +149,7 @@ namespace Engine
 
             // Use same Layout for each Descriptor Set
             std::vector<vk::DescriptorSetLayout> layouts = {};
-            for (int i = 0; i < objects_count; ++i)
+            for (uint32_t i = 0; i < objects_count; ++i)
                 layouts.push_back(desc_layout_);
 
             vk::DescriptorSetAllocateInfo alloc_info_;

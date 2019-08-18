@@ -22,10 +22,9 @@ namespace Engine
 
 			uint32_t 											image_count_{};
 			vk::SwapchainKHR  									swap_chain_ = nullptr;
-			vk::Queue 											graphics_queue_{}, present_queue_{};
 			std::vector<std::unique_ptr<Memory::BufferImage>> 	swap_chain_buffer_ = {};
 
-			static std::shared_ptr<SwapChain> instance;
+			static std::shared_ptr<SwapChain>                   instance;
 
 			explicit SwapChain();
 
@@ -38,8 +37,6 @@ namespace Engine
 			uint32_t getImageCount() const;
 			vk::ImageView getSwapChainImageView(uint32_t i) const;
 			vk::SwapchainKHR getSwapChainKHR() const;
-			vk::Queue getGraphicQueue() const;
-			vk::Queue getPresentQueue() const;
 
 		private:
 

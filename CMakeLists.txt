@@ -53,10 +53,13 @@ include_directories(src/engine src/external ${Vulkan_INCLUDE_DIRS} ${GLM_INCLUDE
 
 # SOURCE FILES
 set(CORE_MAIN_FILE src/main.cpp)
-file(GLOB_RECURSE CORE_HEADER_FILES src/engine/*)
+file(GLOB_RECURSE CORE_HEADER_FILES     src/engine/*)
+file(GLOB_RECURSE OPENFBX_FILES         src/external/OpenFBX/src/*)
 
 # ADD EXEC AND LINK LIBS
-add_executable(gymnure src/external/tinyobjloader/tiny_obj_loader.h src/external/stb/stb_image.h  ${GLM_FILES} ${IMGUI_FILES} ${MEMANCPP_FILES} ${CORE_HEADER_FILES} ${CORE_MAIN_FILE})
+add_executable(gymnure src/external/tinyobjloader/tiny_obj_loader.h src/external/stb/stb_image.h
+     ${GLM_FILES} ${IMGUI_FILES} ${MEMANCPP_FILES} ${CORE_HEADER_FILES} ${CORE_MAIN_FILE} ${OPENFBX_FILES})
+
 # LINK LIBRARIES
 target_link_libraries(gymnure ${CMAKE_THREAD_LIBS_INIT} ${SDL2_LIBRARY} ${Vulkan_LIBRARY})
 # BUILD SDL2 DEPENDENCY
