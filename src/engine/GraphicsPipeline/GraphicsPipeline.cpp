@@ -2,7 +2,7 @@
 #define OBSIDIAN2D_GRAPHICPIPELINE_H
 
 #include <ApplicationData.hpp>
-#include <Util/ModelLoader.h>
+#include <Util/ModelDataLoader.h>
 #include "GraphicsPipeline.h"
 
 namespace Engine

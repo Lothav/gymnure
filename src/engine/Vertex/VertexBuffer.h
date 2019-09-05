@@ -12,6 +12,7 @@
 #include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 #include <Descriptors/Camera.h>
+#include <Util/ModelDataLoader.h>
 
 namespace Engine
 {
@@ -28,12 +29,12 @@ namespace Engine
             uint32_t index_count_ = 0;
             std::shared_ptr<Memory::Buffer<uint32_t>> index_buffer_;
 
-            void initBuffers(const std::vector<VertexData>& vertexData = {}, const std::vector<uint32_t>& indexBuffer = {});
-
         public:
 
             VertexBuffer() = default;
             ~VertexBuffer() = default;
+
+            void initBuffers(const std::vector<VertexData>& vertexData = {}, const std::vector<uint32_t>& indexBuffer = {});
 
             uint32_t getVertexCount() const;
             vk::Buffer getVertexBuffer() const;

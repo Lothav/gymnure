@@ -19,13 +19,13 @@ namespace Engine
             return static_cast<uint32_t>(programs_.size() - 1);
         }
 
-        void Deferred::addObjData(uint32_t program_id, GymnureObjData&& data)
+        void Deferred::addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type)
 		{
             if(programs_.size() <= program_id)
                 throw std::exception("Invalid program ID!");
 
             // Add object only to MRT pass.
-            programs_[program_id].mrt->addObjData(std::move(data));
+            programs_[program_id].mrt->addObjData(std::move(data), type);
             object_count_++;
         }
 

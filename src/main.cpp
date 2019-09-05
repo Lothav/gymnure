@@ -29,10 +29,16 @@ int main(int argc, char** argv)
         //}
 
         {
-            auto wolf = GymnureObjData{};
-            wolf.paths_textures = {"wolf/textures/Wolf_Fur.jpg"};
-            wolf.obj_path 	    = "wolf/Wolf_One_obj.obj";
-            gymnure->addObjData(phong_id, std::move(wolf));
+//            auto wolf = GymnureObjData{};
+//            wolf.paths_textures = {"wolf/textures/Wolf_Fur.jpg"};
+//            wolf.obj_path 	    = "wolf/Wolf_One_obj.obj";
+//            gymnure->addObjData(phong_id, std::move(wolf));
+        }
+
+        {
+            auto black_dragon = GymnureObjData{};
+            black_dragon.obj_path = "BlackDragon/Dragon 2.5_fbx.fbx";
+            gymnure->addFbxData(phong_id, std::move(black_dragon));
         }
 
         //{

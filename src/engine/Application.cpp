@@ -173,15 +173,15 @@ namespace Engine
         Engine::RenderPass::Queue::LoadQueues();
     }
 
-    void Application::addObjData(uint32_t program_id, GymnureObjData&& data)
+    void Application::addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type)
     {
         if(programs_.size() <= program_id)
             return;
 
         if(programs_[program_id] == FORWARD)
-            forward_pipeline_->addObjData(program_id, std::move(data));
+            forward_pipeline_->addObjData(program_id, std::move(data), type);
         else if(programs_[program_id] == DEFERRED)
-            deferred_pipeline_->addObjData(program_id, std::move(data));
+            deferred_pipeline_->addObjData(program_id, std::move(data), type);
         else throw std::exception("INVALID PROGRAM_ID!");
     }
 

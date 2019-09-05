@@ -22,7 +22,7 @@ namespace Engine
 
             auto g_scene = ofbx::load((ofbx::u8*)content, file_size, (ofbx::u64)ofbx::LoadFlags::TRIANGULATE);
 
-            auto meshes = std::make_unique<std::vector<std::unique_ptr<Mesh>>>();
+            auto meshes = std::make_unique<std::vector<std::shared_ptr<Mesh>>>();
             for (int i = 0; i < g_scene->getMeshCount(); ++i)
             {
                 const ofbx::Mesh& mesh = *g_scene->getMesh(i);
@@ -32,20 +32,19 @@ namespace Engine
                 const ofbx::Vec3* vertices = geom.getVertices();
 
                 std::unique_ptr<Mesh> mesh_1 = std::make_unique<Mesh>();
-                mesh_1->vertexData = std::make_unique<std::vector<std::unique_ptr<VertexData>>>();
+                mesh_1->vertexData = std::make_shared<std::vector<VertexData>>();
                 for (int k = 0; k < geom.getIndexCount(); ++k)
                 {
-                    std::unique_ptr<VertexData> vd = std::make_unique<VertexData>();
-
-                    vd->pos = glm::vec3(vertices[k].x, vertices[k].y, vertices[k].z);
+                    VertexData vd{};
+                    vd.pos = glm::vec3(vertices[k].x, vertices[k].y, vertices[k].z);
                     if (normals != nullptr) {
-                        vd->normal = glm::vec3(normals[k].x, normals[k].y, normals[k].z);
+                        vd.normal = glm::vec3(normals[k].x, normals[k].y, normals[k].z);
                     }
                     if (uvs != nullptr) {
-                        vd->uv = glm::vec2(uvs[k].x, uvs[k].y);
+                        vd.uv = glm::vec2(uvs[k].x, uvs[k].y);
                     }
 
-                    mesh_1->vertexData->push_back(std::move(vd));
+                    mesh_1->vertexData->push_back(vd);
                 }
 
                 std::unique_ptr<Material> mat_1 = std::make_unique<Material>();

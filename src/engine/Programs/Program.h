@@ -20,6 +20,12 @@ struct GymnureObjData
     std::vector<std::shared_ptr<Engine::Descriptors::Texture>> textures = {};
 };
 
+enum GymnureObjDataType
+{
+    OBJ,
+    FBX
+};
+
 namespace Engine
 {
     namespace Programs
@@ -72,8 +78,7 @@ namespace Engine
                 frag.path = p_config.shaders_name + "_fs.spv";
 
                 std::vector<Engine::GraphicsPipeline::Shader> shaders = {vert, frag};
-                program_data_->graphic_pipeline = std::make_shared<GraphicsPipeline::GraphicsPipeline>(
-                    std::move(shaders));
+                program_data_->graphic_pipeline = std::make_shared<GraphicsPipeline::GraphicsPipeline>(std::move(shaders));
                 std::vector<vk::VertexInputAttributeDescription> vi_attribs = {};
                 vk::VertexInputAttributeDescription vi_attrib{};
                 vi_attrib.binding = 0;
@@ -112,28 +117,58 @@ namespace Engine
                 program_data_->graphic_pipeline->create(pl, render_pass, vk::CullModeFlagBits::eBack);
             }
 
-            void addObjData(GymnureObjData &&obj_data)
+            void addObjData(GymnureObjData &&obj_data, const GymnureObjDataType& data_type)
             {
-                auto app_data = ApplicationData::data;
-                auto object_data = std::make_shared<ObjectData>();
+                if(data_type == GymnureObjDataType::OBJ)
+                {
+                    auto app_data = ApplicationData::data;
+                    auto object_data = std::make_shared<ObjectData>();
 
-                // Load Textures
-                for (std::string &texture_path : obj_data.paths_textures)
-                    if (!texture_path.empty())
-                        object_data->textures.push_back(std::make_shared<Descriptors::Texture>(texture_path));
-                for (auto &texture : obj_data.textures)
-                    object_data->textures.push_back(std::move(texture));
+                    // Load Textures
+                    for (std::string &texture_path : obj_data.paths_textures)
+                        if (!texture_path.empty())
+                            object_data->textures.push_back(std::make_shared<Descriptors::Texture>(texture_path));
+                    for (auto &texture : obj_data.textures)
+                        object_data->textures.push_back(std::move(texture));
 
-                // Load Vertex
-                object_data->vertex_buffer = std::make_shared<Vertex::VertexBuffer>();
-                if (!obj_data.obj_path.empty())
-                    // Load obj using TinyObjLoader.
-                    object_data->vertex_buffer->loadObjModelVertices(obj_data.obj_path, obj_data.obj_mtl);
-                else
-                    // Empty obj_path. Use triangle as default vertex data.
-                    object_data->vertex_buffer->createPrimitiveQuad();
+                    // Load Vertex
+                    object_data->vertex_buffer = std::make_shared<Vertex::VertexBuffer>();
+                    if (!obj_data.obj_path.empty())
+                        // Load obj using TinyObjLoader.
+                        object_data->vertex_buffer->loadObjModelVertices(obj_data.obj_path, obj_data.obj_mtl);
+                    else
+                        // Empty obj_path. Use triangle as default vertex data.
+                        object_data->vertex_buffer->createPrimitiveQuad();
 
-                program_data_->objects_data.push_back(std::move(object_data));
+                    program_data_->objects_data.push_back(std::move(object_data));
+
+                    return;
+                }
+                else if(data_type == GymnureObjDataType::FBX)
+                {
+                    std::unique_ptr<Model> model = Util::ModelDataLoader::LoadFBXData(obj_data.obj_path);
+
+                    for (const std::shared_ptr<Mesh>& mesh : *model->meshes)
+                    {
+                        auto object_data = std::make_shared<ObjectData>();
+                        object_data->vertex_buffer = std::make_shared<Vertex::VertexBuffer>();
+                        object_data->vertex_buffer->initBuffers(*mesh->vertexData);
+
+                        std::string texture_path = mesh->material->texture_path;
+                        if(!texture_path.empty())
+                        {
+                            std::cout << texture_path << std::endl;
+                            auto texture = std::make_shared<Descriptors::Texture>(texture_path);
+
+                            object_data->textures.push_back(std::move(texture));
+                        }
+                        program_data_->objects_data.push_back(std::move(object_data));
+                    }
+
+                    return;
+                }
+
+                throw std::invalid_argument("data_type param not supported!");
             }
 
             void prepare(const std::shared_ptr<Descriptors::Camera> &camera)

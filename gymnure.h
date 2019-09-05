@@ -13,7 +13,7 @@ private:
     std::unique_ptr<Engine::Window::SDLWindow> window_ = nullptr;
 
     uint32_t frame_count = 0;
-    float frame_duration = 0.f;
+    double frame_duration = 0.0;
 
 public:
 
@@ -47,7 +47,12 @@ public:
 
     void addObjData(uint32_t program_id, GymnureObjData&& gymnure_data)
     {
-        Engine::Application::addObjData(program_id, std::move(gymnure_data));
+        Engine::Application::addObjData(program_id, std::move(gymnure_data), GymnureObjDataType::OBJ);
+    }
+
+    void addFbxData(uint32_t program_id, GymnureObjData&& gymnure_data)
+    {
+        Engine::Application::addObjData(program_id, std::move(gymnure_data), GymnureObjDataType::FBX);
     }
 
     void prepare()

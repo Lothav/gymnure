@@ -186,7 +186,6 @@ namespace Engine
             uint32_t graphics_queue_family_index_ = Queue::GetGraphicQueueIndex();
             uint32_t present_queue_family_index_  = Queue::GetPresentQueueIndex();
 
-            
             if (graphics_queue_family_index_ != present_queue_family_index_) {
                 // If the graphics and present queues are from different queue families,
                 // we either have to explicitly transfer ownership of images between the

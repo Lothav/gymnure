@@ -11,12 +11,12 @@ namespace Engine
             return static_cast<uint32_t>(programs_.size() - 1);
         }
 
-        void Forward::addObjData(uint32_t program_id, GymnureObjData&& data)
+        void Forward::addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type)
         {
             if(programs_.size() <= program_id)
                 throw "Invalid program ID!";
 
-            programs_[program_id]->addObjData(std::move(data));
+            programs_[program_id]->addObjData(std::move(data), type);
         }
 
         void Forward::prepare(const std::shared_ptr<Descriptors::Camera> &camera)

@@ -39,7 +39,7 @@ namespace Engine
             Deferred();
 
             uint32_t createProgram(Programs::ProgramParams &&mrt, Programs::ProgramParams &&present);
-            void addObjData(uint32_t program_id, GymnureObjData&& data);
+            void addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type);
             void prepare(const std::shared_ptr<Descriptors::Camera> &camera);
             void render();
         };

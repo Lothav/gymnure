@@ -37,6 +37,7 @@
 
 # Build folders
 cmake-build-debug/
+cmake-build-debug-visual-studio
 build
 out
 x64

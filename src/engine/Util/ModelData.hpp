@@ -30,13 +30,13 @@ namespace Engine
 
     struct Mesh
     {
-        std::unique_ptr <std::vector<std::unique_ptr < VertexData>>> vertexData;
-        std::unique_ptr <Material> material;
+        std::shared_ptr<std::vector<VertexData>> vertexData;
+        std::shared_ptr<Material> material;
     };
 
     struct Model
     {
-        std::unique_ptr <std::vector<std::unique_ptr < Mesh>>> meshes;
+        std::shared_ptr<std::vector<std::shared_ptr<Mesh>>> meshes;
     };
 }
 
