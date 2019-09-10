@@ -29,12 +29,18 @@ namespace Engine
 			Texture(vk::Image image_ptr, uint32_t tex_width, uint32_t tex_height);
 			explicit Texture(const std::string &texture_path);
 			explicit Texture(std::unique_ptr<Memory::BufferImage> buffer_image_);
+            explicit Texture(unsigned char* pixels, uint32_t tex_width, uint32_t tex_height);
 
 			~Texture();
 
 			vk::ImageView getImageView() const
 			{
 				return buffer_image_->view;
+			}
+
+            vk::Image getImage() const
+            {
+                return buffer_image_->image;
 			}
 
 			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
@@ -55,6 +61,7 @@ namespace Engine
 			void createSampler();
 			void transitionImageLayout(vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::Queue graphicsQueue);
 			void copyBufferToImage(vk::Buffer buffer, uint32_t width, uint32_t height, vk::Queue graphicsQueue);
+            void submitPixels(unsigned char* pixels, uint32_t tex_width, uint32_t tex_height);
 
 			vk::CommandBuffer beginSingleTimeCommands();
 			void endSingleTimeCommands(vk::CommandBuffer commandBuffer, vk::Queue graphicsQueue);

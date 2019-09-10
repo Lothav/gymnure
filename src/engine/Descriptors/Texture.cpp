@@ -33,6 +33,47 @@ namespace Engine
             createSampler();
         }
 
+        void Texture::submitPixels(unsigned char* pixels, uint32_t tex_width, uint32_t tex_height)
+        {
+            auto pixel_count = static_cast<size_t>(tex_width * tex_height * 4); // 4 channels
+
+            struct BufferData stagingBufferData = {};
+            stagingBufferData.usage      = vk::BufferUsageFlagBits::eTransferSrc;
+            stagingBufferData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+            stagingBufferData.count      = pixel_count;
+
+            auto staging_buffer = std::make_unique<Memory::Buffer<stbi_uc>>(stagingBufferData);
+            staging_buffer->updateBuffer(pixels);
+
+            stbi_image_free(pixels);
+
+            Memory::ImageProps img_props = {};
+            img_props.width             = static_cast<uint32_t>(tex_width);
+            img_props.height            = static_cast<uint32_t>(tex_height);
+            img_props.format            = vk::Format::eR8G8B8A8Unorm;
+            img_props.usage             = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
+            img_props.tiling            = vk::ImageTiling::eOptimal;
+            img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
+
+            buffer_image_ = std::make_unique<Memory::BufferImage>(img_props);
+
+            if(!buffer_image_)
+                Debug::logErrorAndDie("Fail to create Texture: unable to create TextureImage!");
+
+            vk::Queue queue = ApplicationData::data->transfer_queue;
+
+            transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
+            copyBufferToImage(staging_buffer->getBuffer(), static_cast<uint32_t>(tex_width), static_cast<uint32_t>(tex_height), queue);
+            transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, queue);
+
+            createSampler();
+        }
+
+        Texture::Texture(unsigned char* pixels, uint32_t tex_width, uint32_t tex_height)
+        {
+            submitPixels(pixels, tex_width, tex_height);
+        }
+
         Texture::Texture(const std::string& texture_path)
         {
             int texWidth, texHeight, texChannels;
@@ -48,38 +89,7 @@ namespace Engine
             if(!pixels)
                 throw std::exception("Cannot stbi_load pixels!");
 
-            auto pixel_count = static_cast<size_t>(texWidth * texHeight * 4); // 4 channels
-
-            struct BufferData stagingBufferData = {};
-            stagingBufferData.usage      = vk::BufferUsageFlagBits::eTransferSrc;
-            stagingBufferData.properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-            stagingBufferData.count      = pixel_count;
-
-            auto staging_buffer = std::make_unique<Memory::Buffer<stbi_uc>>(stagingBufferData);
-            staging_buffer->updateBuffer(pixels);
-
-            stbi_image_free(pixels);
-
-            Memory::ImageProps img_props = {};
-            img_props.width             = static_cast<uint32_t>(texWidth);
-            img_props.height            = static_cast<uint32_t>(texHeight);
-            img_props.format            = vk::Format::eR8G8B8A8Unorm;
-            img_props.usage             = vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled;
-            img_props.tiling            = vk::ImageTiling::eOptimal;
-            img_props.image_props_flags = vk::MemoryPropertyFlagBits::eDeviceLocal;
-
-            buffer_image_ = std::make_unique<Memory::BufferImage>(img_props);
-
-            if(!buffer_image_)
-                Debug::logErrorAndDie("Fail to create Texture: unable to create TextureImage!");
-
-            vk::Queue queue = ApplicationData::data->transfer_queue;
-
-            transitionImageLayout(vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, queue);
-            copyBufferToImage(staging_buffer->getBuffer(), static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), queue);
-            transitionImageLayout(vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, queue);
-
-            createSampler();
+            submitPixels(pixels, texWidth, texHeight);
         }
 
         void Texture::createSampler()
