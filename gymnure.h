@@ -2,6 +2,7 @@
 #define GYMNURE_H
 
 #include <Window/SDLWindow.hpp>
+#include <Descriptors/Texture.hpp>
 #include <Application.hpp>
 #include <Util/Debug.hpp>
 #include <cmath>
@@ -26,6 +27,20 @@ public:
 #endif
         window_->createSurface();
         Engine::Application::setupSurface(windowWidth, windowHeight);
+
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGui::StyleColorsDark();
+
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+        unsigned char* pixels;
+        int width, height;
+        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+        // @TODO save font_image_tex reference and properly destroy it.
+        auto font_image_tex = new Engine::Descriptors::Texture(pixels, width, height);
+        io.Fonts->TexID = (ImTextureID)(intptr_t)static_cast<VkImage>(font_image_tex->getImage());
     }
 
     ~Gymnure()
