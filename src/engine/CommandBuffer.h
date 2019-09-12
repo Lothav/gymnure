@@ -27,9 +27,9 @@ namespace Engine
 
         void bindGraphicCommandBuffer(
             std::vector<vk::ClearValue> clear_values,
-            std::shared_ptr<RenderPass::RenderPass> render_pass,
-            std::shared_ptr<RenderPass::FrameBuffer> frame_buffer,
-            std::vector<std::shared_ptr<Programs::Program>> programs);
+            const std::shared_ptr<RenderPass::RenderPass>& render_pass,
+            const std::shared_ptr<RenderPass::FrameBuffer>& frame_buffer,
+            const std::vector<std::shared_ptr<Programs::Program>>& programs);
 
         vk::CommandBuffer getCommandBuffer() const;
 

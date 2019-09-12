@@ -24,12 +24,14 @@ namespace Engine
 
     void CommandBuffer::bindGraphicCommandBuffer(
         std::vector<vk::ClearValue> clear_values,
-        std::shared_ptr<RenderPass::RenderPass> render_pass,
-        std::shared_ptr<RenderPass::FrameBuffer> frame_buffer,
-        std::vector<std::shared_ptr<Programs::Program>> programs)
+        const std::shared_ptr<RenderPass::RenderPass>& render_pass,
+        const std::shared_ptr<RenderPass::FrameBuffer>& frame_buffer,
+        const std::vector<std::shared_ptr<Programs::Program>>& programs)
     {
         uint32_t width = ApplicationData::data->view_width;
         uint32_t height = ApplicationData::data->view_height;
+
+        size_t dynamicAlignment = Memory::Memory::getDynamicAlignment<glm::mat4>();
 
         vk::CommandBufferBeginInfo cmd_buf_info = {};
         cmd_buf_info.pNext 				= nullptr;
@@ -43,8 +45,6 @@ namespace Engine
         rp_begin.renderArea.extent  = vk::Extent2D{width, height};
         rp_begin.clearValueCount 	= static_cast<uint32_t>(clear_values.size());
         rp_begin.pClearValues 		= clear_values.data();
-
-        size_t dynamicAlignment = Memory::Memory::getDynamicAlignment<glm::mat4>();
 
         command_buffer_.begin(cmd_buf_info);
 
