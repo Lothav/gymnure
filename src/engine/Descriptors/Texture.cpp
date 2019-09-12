@@ -79,15 +79,12 @@ namespace Engine
             int texWidth, texHeight, texChannels;
 
             // Load texture and write to vk::Image
-            if(texture_path.empty())
-                Debug::logErrorAndDie("Fail to create Texture: string path is empty!");
-
+            if(texture_path.empty()) { Debug::logErrorAndDie("Fail to create Texture: string path is empty!"); }
             auto assets_texture_path = std::string(ASSETS_FOLDER_PATH_STR) + "/" + texture_path;
 
             stbi_uc *pixels = stbi_load(assets_texture_path.data(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 
-            if(!pixels)
-                throw std::exception("Cannot stbi_load pixels!");
+            if(!pixels) { throw std::exception("Cannot stbi_load pixels!"); }
 
             submitPixels(pixels, texWidth, texHeight);
         }
@@ -130,15 +127,15 @@ namespace Engine
             allocInfo.commandPool 		 = app_data->graphic_command_pool;
             allocInfo.commandBufferCount = 1;
 
-            vk::CommandBuffer commandBuffer;
-            app_data->device.allocateCommandBuffers(&allocInfo, &commandBuffer);
+            vk::CommandBuffer command_buffer;
+            app_data->device.allocateCommandBuffers(&allocInfo, &command_buffer);
 
             vk::CommandBufferBeginInfo beginInfo = {};
             beginInfo.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
 
-            commandBuffer.begin(&beginInfo);
+            command_buffer.begin(&beginInfo);
 
-            return commandBuffer;
+            return command_buffer;
         }
 
         void Texture::endSingleTimeCommands(vk::CommandBuffer commandBuffer, vk::Queue graphicsQueue)

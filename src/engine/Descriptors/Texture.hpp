@@ -63,8 +63,8 @@ namespace Engine
 			void copyBufferToImage(vk::Buffer buffer, uint32_t width, uint32_t height, vk::Queue graphicsQueue);
             void submitPixels(unsigned char* pixels, uint32_t tex_width, uint32_t tex_height);
 
-			vk::CommandBuffer beginSingleTimeCommands();
-			void endSingleTimeCommands(vk::CommandBuffer commandBuffer, vk::Queue graphicsQueue);
+			static vk::CommandBuffer beginSingleTimeCommands();
+			static void endSingleTimeCommands(vk::CommandBuffer commandBuffer, vk::Queue graphicsQueue);
 		};
 	}
 }
