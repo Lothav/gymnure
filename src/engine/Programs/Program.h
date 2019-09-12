@@ -1,7 +1,3 @@
-//
-// Created by luiz0tavio on 8/12/18.
-//
-
 #ifndef GYMNURE_PROGRAM_H
 #define GYMNURE_PROGRAM_H
 
@@ -35,7 +31,8 @@ namespace Engine
             NONE     = 1 << 0,
             POSITION = 1 << 1,
             NORMAL   = 1 << 2,
-            UV       = 1 << 3
+            UV       = 1 << 3,
+            COLOR    = 1 << 4,
         };
 
         struct ProgramParams {
@@ -107,6 +104,15 @@ namespace Engine
                     vi_attrib.location = location++;
                     vi_attrib.format = vk::Format::eR32G32B32Sfloat;
                     vi_attrib.offset = static_cast<uint32_t>(offsetof(VertexData, normal));
+
+                    vi_attribs.push_back(vi_attrib);
+                }
+
+                if (p_config.vi_types_mask & VertexInputType::COLOR)
+                {
+                    vi_attrib.location = location++;
+                    vi_attrib.format = vk::Format::eR8G8B8A8Unorm;
+                    vi_attrib.offset = static_cast<uint32_t>(offsetof(VertexData, color));
 
                     vi_attribs.push_back(vi_attrib);
                 }
