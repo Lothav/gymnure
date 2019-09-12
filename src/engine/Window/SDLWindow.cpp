@@ -52,6 +52,23 @@ namespace Engine
             return instance_extension_names_;
         }
 
+        glm::vec2 SDLWindow::getWindowSize()
+        {
+            int w, h;
+            SDL_GetWindowSize(window_, &w, &h);
+
+            return glm::vec2(w, h);
+        }
+
+        glm::vec2 SDLWindow::getWindowScale()
+        {
+            int display_w, display_h;
+            SDL_GL_GetDrawableSize(window_, &display_w, &display_h);
+            glm::vec2 windowSize = getWindowSize();
+
+            return glm::vec2((float)display_w / windowSize.x, (float)display_h / windowSize.y);
+        }
+
         bool SDLWindow::poolEvent()
         {
             SDL_Event event;

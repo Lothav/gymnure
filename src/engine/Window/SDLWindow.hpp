@@ -37,6 +37,9 @@ namespace Engine
             bool poolEvent();
             void createSurface();
 
+            glm::vec2 getWindowSize();
+            glm::vec2 getWindowScale();
+
             std::vector<const char *> getInstanceExtensionNames();
         };
     }
