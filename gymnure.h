@@ -1,17 +1,20 @@
 #ifndef GYMNURE_H
 #define GYMNURE_H
 
+#include <cmath>
+#include <imgui/imgui.h>
 #include <Window/SDLWindow.hpp>
 #include <Descriptors/Texture.hpp>
 #include <Application.hpp>
 #include <Util/Debug.hpp>
-#include <cmath>
+#include <Interface.hpp>
 
 class Gymnure
 {
 private:
 
     std::unique_ptr<Engine::Window::SDLWindow> window_ = nullptr;
+    std::unique_ptr<Engine::Interface> interface_ = nullptr;
 
     uint32_t frame_count = 0;
     double frame_duration = 0.0;
@@ -28,19 +31,8 @@ public:
         window_->createSurface();
         Engine::Application::setupSurface(windowWidth, windowHeight);
 
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGui::StyleColorsDark();
-
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-        unsigned char* pixels;
-        int width, height;
-        io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-        // @TODO save font_image_tex reference and properly destroy it.
-        auto font_image_tex = new Engine::Descriptors::Texture(pixels, width, height);
-        io.Fonts->TexID = (ImTextureID)(intptr_t)static_cast<VkImage>(font_image_tex->getImage());
+        interface_ = std::make_unique<Engine::Interface>();
+        interface_->init();
     }
 
     ~Gymnure()
@@ -79,6 +71,9 @@ public:
     {
         if(!window_->poolEvent())
             return false;
+
+        interface_->prepare(window_->getWindowScale(), window_->getWindowSize());
+
 #if defined(DEBUG)
         auto start = std::chrono::high_resolution_clock::now();
         TRY_CATCH_BLOCK_FN(Engine::Application::draw());
