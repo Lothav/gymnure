@@ -33,28 +33,9 @@ namespace Engine
 
 			~Texture();
 
-			vk::ImageView getImageView() const
-			{
-				return buffer_image_->view;
-			}
-
-            vk::Image getImage() const
-            {
-                return buffer_image_->image;
-			}
-
-			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
-			{
-				vk::WriteDescriptorSet write = {};
-				write.dstArrayElement = 0;
-				write.descriptorCount = 1;
-				write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
-				write.dstBinding 	  = dst_binding;
-				write.pImageInfo 	  = &buffer_info_;
-				write.dstSet 		  = dst_set;
-
-				return write;
-			}
+			vk::ImageView getImageView() const;
+            vk::Image getImage() const;
+			vk::WriteDescriptorSet getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const;
 
 		private:
 

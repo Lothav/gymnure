@@ -33,6 +33,29 @@ namespace Engine
             createSampler();
         }
 
+        vk::ImageView Texture::getImageView() const
+        {
+            return buffer_image_->view;
+        }
+
+        vk::Image Texture::getImage() const
+        {
+            return buffer_image_->image;
+        }
+
+        vk::WriteDescriptorSet Texture::getWrite(vk::DescriptorSet dst_set, uint32_t dst_binding) const
+        {
+            vk::WriteDescriptorSet write = {};
+            write.dstArrayElement = 0;
+            write.descriptorCount = 1;
+            write.descriptorType  = vk::DescriptorType::eCombinedImageSampler;
+            write.dstBinding 	  = dst_binding;
+            write.pImageInfo 	  = &buffer_info_;
+            write.dstSet 		  = dst_set;
+
+            return write;
+        }
+
         void Texture::submitPixels(unsigned char* pixels, uint32_t tex_width, uint32_t tex_height)
         {
             auto pixel_count = static_cast<size_t>(tex_width * tex_height * 4); // 4 channels
