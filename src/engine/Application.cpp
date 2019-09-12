@@ -88,6 +88,7 @@ namespace Engine
         gpu_vector.resize(app_data->queue_family_count);
         app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, gpu_vector.data(), {});
 
+#ifdef DEBUG
         std::string device_log = "========================================================\n";
         device_log += "Devices found:\n";
         for (uint32_t i = 0; i < gpu_vector.size(); i++) {
@@ -104,6 +105,7 @@ namespace Engine
         device_log += "========================================================";
 
         Debug::logInfo(device_log);
+#endif
 
         app_data->gpu = gpu_vector[gpu_index];
 
@@ -198,12 +200,31 @@ namespace Engine
 
         uint32_t program_id = forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
 
-        if(program_id != programs_.size())
-            throw  std::exception("ERROR!");
+        if(program_id != programs_.size()) { throw std::exception("ERROR!"); }
         programs_.push_back(FORWARD);
 
         return program_id;
     }
+
+    uint32_t Application::createInterfaceProgram()
+    {
+        if(forward_pipeline_ == nullptr)
+            forward_pipeline_ = std::make_unique<GraphicsPipeline::Forward>();
+
+        Descriptors::LayoutData ld = {};
+        ld.fragment_texture_count = 1;
+        ld.vertex_uniform_count = 1;
+
+        uint32_t vi_mask = Programs::VertexInputType::POSITION | Programs::VertexInputType::UV | Programs::VertexInputType::COLOR;
+
+        uint32_t program_id = forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "interface"});
+
+        if(program_id != programs_.size()) { throw std::exception("ERROR!"); }
+        programs_.push_back(FORWARD);
+
+        return program_id;
+    }
+
 
     uint32_t Application::createDeferredProgram()
     {

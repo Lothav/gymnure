@@ -6,6 +6,7 @@
 #include <Descriptors/Texture.hpp>
 #include <glm/glm/glm.hpp>
 #include <SDL2-2.0.9/include/SDL_timer.h>
+#include "Application.hpp"
 
 namespace Engine
 {
@@ -28,6 +29,8 @@ namespace Engine
 
             font_image_tex_ = std::make_unique<Descriptors::Texture>(pixels, width, height);
             io.Fonts->TexID = (ImTextureID)(intptr_t)static_cast<VkImage>(font_image_tex_->getImage());
+
+            program_id_ = Application::createInterfaceProgram();
         }
 
         void prepare(glm::vec2 window_scale, glm::vec2 window_size)
@@ -59,6 +62,7 @@ namespace Engine
 
         std::unique_ptr<Descriptors::Texture> font_image_tex_;
         uint64_t g_Time = 0;
+        uint32_t program_id_ = 0;
 
     };
 }
