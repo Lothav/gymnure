@@ -43,8 +43,8 @@ namespace Engine
             // Setup time step (we don't use SDL_GetTicks() because it is using millisecond resolution)
             static uint64_t frequency = SDL_GetPerformanceFrequency();
             uint64_t current_time = SDL_GetPerformanceCounter();
-            io.DeltaTime = g_Time > 0 ? (float)((double)(current_time - g_Time) / frequency) : (float)(1.0f / 60.0f);
-            g_Time = current_time;
+            io.DeltaTime = g_time_ > 0 ? (float)((double)(current_time - g_time_) / frequency) : (float)(1.0f / 60.0f);
+            g_time_ = current_time;
         }
 
         void render()
@@ -56,12 +56,34 @@ namespace Engine
 
             ImGui::EndFrame();
             ImGui::Render();
+
+            ImDrawData* draw_data = ImGui::GetDrawData();
+
+            // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+            int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+            int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+            if (fb_width <= 0 || fb_height <= 0 || draw_data->TotalVtxCount == 0)
+                return;
+
+            std::vector<ImDrawVert> vertexData = {};
+            std::vector<ImDrawIdx> indexBuffer = {};
+            for (int n = 0; n < draw_data->CmdListsCount; n++)
+            {
+                const ImDrawList* cmd_list = draw_data->CmdLists[n];
+                for (int i = 0; i < cmd_list->VtxBuffer.Size; ++i)
+                {
+                    vertexData.push_back(cmd_list->VtxBuffer.Data[i]);
+                    indexBuffer.push_back(cmd_list->IdxBuffer.Data[i]);
+                }
+            }
+
+            Engine::Application::addUiData(program_id_, vertexData, indexBuffer);
         }
 
     private:
 
         std::unique_ptr<Descriptors::Texture> font_image_tex_;
-        uint64_t g_Time = 0;
+        uint64_t g_time_ = 0;
         uint32_t program_id_ = 0;
 
     };
