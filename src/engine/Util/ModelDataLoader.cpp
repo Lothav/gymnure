@@ -1,6 +1,7 @@
 #include "ModelDataLoader.h"
-#include <OpenFBX/src/ofbx.h>
 #include <iostream>
+#include <OpenFBX/src/ofbx.h>
+#define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
 namespace Engine

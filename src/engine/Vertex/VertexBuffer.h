@@ -9,6 +9,8 @@
 #include "Memory/Buffer.h"
 #include <Descriptors/Camera.h>
 #include <Util/ModelDataLoader.h>
+
+#define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobjloader/tiny_obj_loader.h"
 
 namespace Engine::Vertex
