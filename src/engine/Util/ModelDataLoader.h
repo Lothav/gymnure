@@ -10,19 +10,15 @@
 #define ASSETS_FOLDER_PATH_STR "."
 #endif
 
-namespace Engine
+namespace Engine:: Util
 {
-    namespace Util
+    class ModelDataLoader
     {
-        class ModelDataLoader
-        {
-        public:
+    public:
 
-            static std::unique_ptr<Model> LoadFBXData(const std::string& model_path);
-
-            static std::unique_ptr<Model> LoadOBJData(const std::string& model_path, const std::string& obj_mtl);
-        };
-    }
+        static std::unique_ptr<Model> LoadFBXData(const std::string& model_path);
+        static std::unique_ptr<Model> LoadOBJData(const std::string& model_path, const std::string& obj_mtl);
+    };
 }
 
 #endif //GYMNURE_MODELDATALOADER_H
