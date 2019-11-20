@@ -13,10 +13,16 @@ namespace Engine
 
         void Forward::addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type)
         {
-            if(programs_.size() <= program_id)
-                throw "Invalid program ID!";
+            if(programs_.size() <= program_id) { throw "Invalid program ID!"; }
 
             programs_[program_id]->addObjData(std::move(data), type);
+        }
+
+        void Forward::addUiData(uint32_t program_id, const std::vector<ImDrawVert>& vertexData, const std::vector<ImDrawIdx>& indexBuffer)
+        {
+            if(programs_.size() <= program_id) { throw "Invalid program ID!"; }
+
+            programs_[program_id]->addUiData(vertexData, indexBuffer);
         }
 
         void Forward::prepare(const std::shared_ptr<Descriptors::Camera> &camera)
