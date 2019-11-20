@@ -3,28 +3,26 @@
 
 #include <GraphicsPipeline/Pipeline.hpp>
 
-namespace Engine
+namespace Engine::GraphicsPipeline
 {
-	namespace GraphicsPipeline
-	{
-		class Forward
-		{
+    class Forward
+    {
 
-		private:
+    private:
 
-			std::unique_ptr<Pipeline>                           pipeline_ = {};
-            std::vector<std::shared_ptr<Programs::Program>>     programs_ = {};
+        std::unique_ptr<Pipeline>                           pipeline_ = {};
+        std::vector<std::shared_ptr<Programs::Program>>     programs_ = {};
 
-		public:
+    public:
 
-			Forward();
+        Forward();
 
-			uint32_t createProgram(Programs::ProgramParams &&params);
-			void addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type);
-			void prepare(const std::shared_ptr<Descriptors::Camera> &camera);
-			void render();
-		};
-	}
+        uint32_t createProgram(Programs::ProgramParams &&params);
+        void addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type);
+        void addUiData(uint32_t program_id, const std::vector<ImDrawVert>& vertexData, const std::vector<ImDrawIdx>& indexBuffer);
+        void prepare(const std::shared_ptr<Descriptors::Camera> &camera);
+        void render();
+    };
 }
 
 #endif //GYMNURE_FORWARD_HPP

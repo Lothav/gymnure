@@ -5,7 +5,6 @@
 #include <SDL_vulkan.h>
 #include <SDL_syswm.h>
 
-#include <ApplicationData.hpp>
 #include <glm/glm/vec2.hpp>
 #include <Descriptors/Camera.h>
 

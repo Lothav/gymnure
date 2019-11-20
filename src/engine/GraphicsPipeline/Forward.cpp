@@ -1,47 +1,45 @@
 #include "Forward.hpp"
-namespace Engine
+
+namespace Engine::GraphicsPipeline
 {
-    namespace GraphicsPipeline
+    Forward::Forward() : pipeline_ (std::make_unique<Pipeline>()) {}
+
+    uint32_t Forward::createProgram(Programs::ProgramParams &&params)
     {
-        Forward::Forward() : pipeline_ (std::make_unique<Pipeline>()) {}
+        programs_.push_back(std::make_shared<Programs::Program>(params, pipeline_->getRenderPass()));
+        return static_cast<uint32_t>(programs_.size() - 1);
+    }
 
-        uint32_t Forward::createProgram(Programs::ProgramParams &&params)
-        {
-            programs_.push_back(std::make_shared<Programs::Program>(params, pipeline_->getRenderPass()));
-            return static_cast<uint32_t>(programs_.size() - 1);
-        }
+    void Forward::addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type)
+    {
+        if(programs_.size() <= program_id) { throw "Invalid program ID!"; }
 
-        void Forward::addObjData(uint32_t program_id, GymnureObjData&& data, const GymnureObjDataType& type)
-        {
-            if(programs_.size() <= program_id) { throw "Invalid program ID!"; }
+        programs_[program_id]->addObjData(std::move(data), type);
+    }
 
-            programs_[program_id]->addObjData(std::move(data), type);
-        }
+    void Forward::addUiData(uint32_t program_id, const std::vector<ImDrawVert>& vertexData, const std::vector<ImDrawIdx>& indexBuffer)
+    {
+        if(programs_.size() <= program_id) { throw "Invalid program ID!"; }
 
-        void Forward::addUiData(uint32_t program_id, const std::vector<ImDrawVert>& vertexData, const std::vector<ImDrawIdx>& indexBuffer)
-        {
-            if(programs_.size() <= program_id) { throw "Invalid program ID!"; }
+        programs_[program_id]->addUiData(vertexData, indexBuffer);
+    }
 
-            programs_[program_id]->addUiData(vertexData, indexBuffer);
-        }
+    void Forward::prepare(const std::shared_ptr<Descriptors::Camera> &camera)
+    {
+        if(programs_.empty())
+            return;
 
-        void Forward::prepare(const std::shared_ptr<Descriptors::Camera> &camera)
-        {
-            if(programs_.empty())
-                return;
+        for (auto& program : programs_)
+            program->prepare(camera);
 
-            for (auto& program : programs_)
-                program->prepare(camera);
+        pipeline_->prepare(programs_);
+    }
 
-            pipeline_->prepare(programs_);
-        }
+    void Forward::render()
+    {
+        if(programs_.empty())
+            return;
 
-        void Forward::render()
-        {
-            if(programs_.empty())
-                return;
-
-            pipeline_->render();
-        }
+        pipeline_->render();
     }
 }

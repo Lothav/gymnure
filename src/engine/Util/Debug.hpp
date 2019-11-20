@@ -1,7 +1,3 @@
-//
-// Created by luiz0tavio on 8/30/18.
-//
-
 #ifndef VOLKANO_DEBUG_HPP
 #define VOLKANO_DEBUG_HPP
 
@@ -48,6 +44,18 @@ namespace Engine
         #define DEBUG_CALL(fn) fn;
     #endif
 
+    struct GymnureException : public std::exception
+    {
+        std::string message_;
+
+        explicit GymnureException(std::string message) : message_(std::move(message)) {}
+
+        [[nodiscard]] const char * what () const noexcept override
+        {
+            return message_.c_str();
+        }
+    };
+
     class Debug
     {
 
@@ -79,7 +87,7 @@ namespace Engine
         static inline void logErrorAndDie(const std::string &log_msg)
         {
         #ifdef DEBUG
-            throw log_msg;
+            throw GymnureException(log_msg);
         #endif
         };
     };

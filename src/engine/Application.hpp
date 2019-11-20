@@ -1,12 +1,8 @@
 #ifndef GYMNURE_APPLICATION_HPP
 #define GYMNURE_APPLICATION_HPP
 
-#include <SyncPrimitives/SyncPrimitives.h>
-#include <RenderPass/RenderPass.h>
-#include <RenderPass/FrameBuffer.h>
 #include <GraphicsPipeline/Forward.hpp>
 #include <GraphicsPipeline/Deferred.hpp>
-#include "CommandBuffer.h"
 
 #define APP_NAME "Gymnure"
 
@@ -43,6 +39,7 @@ namespace Engine
         static uint32_t createInterfaceProgram();
 
         static void addObjData(uint32_t, GymnureObjData&&, const GymnureObjDataType& type);
+        static void addUiData(uint32_t program_id, const std::vector<ImDrawVert>& vertexData, const std::vector<ImDrawIdx>& indexBuffer);
     };
 
 }

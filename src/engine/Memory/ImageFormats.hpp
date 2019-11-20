@@ -2,36 +2,32 @@
 #define GYMNURE_FORMATS_HPP
 
 #include <map>
-#include <vulkan/vulkan.hpp>
 #include <ApplicationData.hpp>
 
-namespace Engine
+namespace Engine::Memory
 {
-    namespace Memory
+    enum ImageType
     {
-        enum ImageType
-        {
-            COLOR_TEXTURE,
-            DEPTH_STENCIL,
-        };
+        COLOR_TEXTURE,
+        DEPTH_STENCIL,
+    };
 
-        class ImageFormats
-        {
+    class ImageFormats
+    {
 
-        private:
+    private:
 
-            static std::map<ImageType, vk::Format> formats_;
-            static vk::SurfaceFormatKHR surface_format;
+        static std::map<ImageType, vk::Format> formats_;
+        static vk::SurfaceFormatKHR surface_format;
 
-        public:
+    public:
 
-            ImageFormats() = delete;
+        ImageFormats() = delete;
 
-            static vk::Format getImageFormat(ImageType type);
-            static vk::SurfaceFormatKHR getSurfaceFormat();
+        static vk::Format getImageFormat(ImageType type);
+        static vk::SurfaceFormatKHR getSurfaceFormat();
 
-        };
-    }
+    };
 }
 
 #endif //GYMNURE_FORMATS_HPP

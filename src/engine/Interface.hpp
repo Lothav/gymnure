@@ -3,7 +3,6 @@
 
 #include <imgui/imgui.h>
 #include <vulkan/vulkan.h>
-#include <Descriptors/Texture.hpp>
 #include <glm/glm/glm.hpp>
 #include <SDL2-2.0.9/include/SDL_timer.h>
 #include "Application.hpp"
@@ -62,8 +61,7 @@ namespace Engine
             // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
             int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
             int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-            if (fb_width <= 0 || fb_height <= 0 || draw_data->TotalVtxCount == 0)
-                return;
+            if (fb_width <= 0 || fb_height <= 0 || draw_data->TotalVtxCount == 0) { return; }
 
             std::vector<ImDrawVert> vertexData = {};
             std::vector<ImDrawIdx> indexBuffer = {};

@@ -2,10 +2,10 @@
 #include <chrono>
 #include "../gymnure.h"
 
-int main(int argc, char** argv)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    const unsigned windowWidth  = 800;
-    const unsigned windowHeight = 600;
+    const unsigned windowWidth  = 1500;
+    const unsigned windowHeight = 1000;
 
     {
         auto gymnure = std::make_unique<Gymnure>(windowWidth, windowHeight);
@@ -49,8 +49,9 @@ int main(int argc, char** argv)
 
         gymnure->prepare();
 
-        while(true) {
-            if(!gymnure->draw()) break;
+        while(true)
+        {
+            if(!gymnure->draw()) { break; }
         }
     }
 

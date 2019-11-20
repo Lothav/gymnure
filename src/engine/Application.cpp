@@ -1,8 +1,8 @@
 #include "Application.hpp"
 
 #include <Util/Debug.hpp>
-#include <Memory/ImageFormats.hpp>
 #include <RenderPass/Queue.h>
+#include <Util/Layers.h>
 
 namespace Engine
 {
@@ -88,7 +88,7 @@ namespace Engine
         gpu_vector.resize(app_data->queue_family_count);
         app_data->instance.enumeratePhysicalDevices(&app_data->queue_family_count, gpu_vector.data(), {});
 
-#ifdef DEBUG
+    #ifdef DEBUG
         std::string device_log = "========================================================\n";
         device_log += "Devices found:\n";
         for (uint32_t i = 0; i < gpu_vector.size(); i++) {
@@ -105,7 +105,7 @@ namespace Engine
         device_log += "========================================================";
 
         Debug::logInfo(device_log);
-#endif
+    #endif
 
         app_data->gpu = gpu_vector[gpu_index];
 
@@ -184,7 +184,12 @@ namespace Engine
             forward_pipeline_->addObjData(program_id, std::move(data), type);
         else if(programs_[program_id] == DEFERRED)
             deferred_pipeline_->addObjData(program_id, std::move(data), type);
-        else throw std::exception("INVALID PROGRAM_ID!");
+        else Debug::logErrorAndDie("invalid program type!");
+    }
+
+    void Application::addUiData(uint32_t program_id, const std::vector<ImDrawVert>& vertexData, const std::vector<ImDrawIdx>& indexBuffer)
+    {
+        forward_pipeline_->addUiData(program_id, vertexData, indexBuffer);
     }
 
     uint32_t Application::createPhongProgram()
@@ -200,7 +205,7 @@ namespace Engine
 
         uint32_t program_id = forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "phong"});
 
-        if(program_id != programs_.size()) { throw std::exception("ERROR!"); }
+        if(program_id != programs_.size()) { Debug::logErrorAndDie("invalid program_id!"); }
         programs_.push_back(FORWARD);
 
         return program_id;
@@ -219,7 +224,7 @@ namespace Engine
 
         uint32_t program_id = forward_pipeline_->createProgram(Programs::ProgramParams{vi_mask, ld, "interface"});
 
-        if(program_id != programs_.size()) { throw std::exception("ERROR!"); }
+        if(program_id != programs_.size()) { Debug::logErrorAndDie("invalid program_id!"); }
         programs_.push_back(FORWARD);
 
         return program_id;
@@ -248,11 +253,9 @@ namespace Engine
 
         uint32_t program_id = deferred_pipeline_->createProgram(std::move(mrt), std::move(present));
 
-        if(program_id != programs_.size())
-            throw  std::exception("ERROR!");
+        if(program_id != programs_.size()) { Debug::logErrorAndDie("invalid program_id!"); }
         programs_.push_back(DEFERRED);
 
         return program_id;
     }
-
 }
