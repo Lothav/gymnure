@@ -2,8 +2,6 @@
 #define OBSIDIAN2D_CORE_UNIFORM_BUFFER_H
 
 #include <array>
-#include "Util/Layers.h"
-#include "Memory/Memory.h"
 #include "Memory/Buffer.h"
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>

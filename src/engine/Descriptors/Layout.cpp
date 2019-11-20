@@ -152,7 +152,7 @@ namespace Engine
             for (uint32_t i = 0; i < objects_count; ++i)
                 layouts.push_back(desc_layout_);
 
-            vk::DescriptorSetAllocateInfo alloc_info_;
+            vk::DescriptorSetAllocateInfo alloc_info_{};
             alloc_info_.pNext 				= nullptr;
             alloc_info_.descriptorPool 		= desc_pool_;
             alloc_info_.descriptorSetCount 	= objects_count;

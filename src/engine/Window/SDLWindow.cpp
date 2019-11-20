@@ -1,3 +1,5 @@
+#include <Util/Debug.hpp>
+#include <Application.hpp>
 #include "SDLWindow.hpp"
 
 namespace Engine
@@ -69,7 +71,7 @@ namespace Engine
             return glm::vec2((float)display_w / windowSize.x, (float)display_h / windowSize.y);
         }
 
-        bool SDLWindow::poolEvent()
+        bool SDLWindow::poolEvent(const std::shared_ptr<Descriptors::Camera>& camera)
         {
             SDL_Event event;
             while (SDL_PollEvent(&event))
@@ -90,14 +92,14 @@ namespace Engine
                     float dy = event.motion.yrel / static_cast<float>(height);
 
                     if (dx != 0.f && dy != 0.f)
-                        Application::getMainCamera()->rotateArcballCamera(dx, dy);
+                        camera->rotateArcballCamera(dx, dy);
                 }
 
                 if(event.type == SDL_MOUSEWHEEL)
                 {
                     // Get the mouse offsets
                     float zoom = -event.wheel.y;
-                    Application::getMainCamera()->zoomCamera(zoom);
+                    camera->zoomCamera(zoom);
                 }
 
                 switch(event.type)
